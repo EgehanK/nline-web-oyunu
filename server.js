@@ -9,8 +9,13 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Serves static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Statik dosyaları (HTML, CSS, JS vb.) doğrudan ana dizinden çeker
+app.use(express.static(__dirname));
+
+// Siteye ilk girildiğinde index.html dosyasını ekrana yansıtır
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Character database
 const characters = [
