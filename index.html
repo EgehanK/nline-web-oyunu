@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genshin Guess Who - Online (P2P)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- PeerJS Client Library for Serverless P2P Multiplayer -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <!-- Starry & Wallpaper Background -->
+  <div class="global-wallpaper-bg"></div>
+  <div class="stars-bg"></div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="app-container">
+    
+    <!-- LOBBY SCREEN (LOGIN / JOIN) -->
+    <div id="lobby-screen" class="screen active">
+
+      <div class="lobby-wrapper">
+        <div class="logo-container">
+          <span class="logo-accent">GENSHIN IMPACT</span>
+          <h1 class="logo-title">GUESS WHO?</h1>
+          <p class="logo-subtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
+        </div>
+
+        <div class="lobby-card new-lobby-card" style="margin: 0 auto;">
+          <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
+          <div class="form-group">
+            <label for="nickname-input">Kullanıcı Adın</label>
+            <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label>Oyun Modu</label>
+            <div class="mode-selector" style="display:flex; gap:10px;">
+              <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
+              <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> 2v2 Takımlı</label>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button id="create-room-btn" class="primary-btn main-action-btn">
+              <span class="btn-icon">✦</span> Yeni Oda Oluştur
+            </button>
+            
+            <div class="divider"><span>veya</span></div>
+
+            <div class="join-group">
+              <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" maxlength="6">
+              <button id="join-room-btn" class="secondary-btn">Katıl</button>
+            </div>
+          </div>
+
+          <div id="lobby-error" class="error-message hidden"></div>
+        </div>
+        
+        <button id="how-to-play-btn" class="help-btn">
+          <span class="help-icon">?</span> Nasıl Oynanır?
+        </button>
+      </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="how-to-play-modal" class="guide-modal-overlay hidden">
+      <div class="guide-modal-content">
+        <h2 class="modal-title" style="color:var(--color-gold-bright);text-align:center;margin-bottom:20px;">Nasıl Oynanır?</h2>
+        <ul class="guide-steps" style="text-align: left;">
+          <li><span class="step-num">1</span> Kendine gizli bir karakter seç.</li>
+          <li><span class="step-num">2</span> Rakibine "Kılıç mı kullanıyor?", "Fontaine'den mi?" gibi Evet/Hayır soruları sor.</li>
+          <li><span class="step-num">3</span> Aldığın cevaplara göre uymayan kartları ele (üzerine tıkla).</li>
+          <li><span class="step-num">4</span> Rakibinin karakterini doğru tahmin eden ilk kişi kazanır!</li>
+        </ul>
+        <button id="close-how-to-play-btn" class="primary-btn" style="margin-top: 25px; width: 100%;">Anladım</button>
+      </div>
+    </div>
+
+    <!-- WAITING SCREEN (WAITING FOR OPPONENT) -->
+    <div id="waiting-screen" class="screen">
+      <div class="lobby-card text-center" style="max-width: 600px;">
+        <h2 class="section-title text-gold">Oda Kuruldu!</h2>
+        <p class="lobby-desc">Diğer oyuncuların katılması bekleniyor...</p>
+        
+        <div class="room-code-display">
+          <span class="code-label">ODA KODU:</span>
+          <span id="display-room-id" class="code-value">-----</span>
+          <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala">📋</button>
+        </div>
+        
+        <!-- TEAMS DISPLAY -->
+        <div class="teams-container" style="display:flex; gap:20px; margin: 20px 0; text-align:left;">
+          <!-- Team A -->
+          <div class="team-panel team-a" style="flex:1; background:rgba(30,58,138,0.3); padding:15px; border-radius:8px; border:1px solid #1e3a8a;">
+            <h3 style="color:#60a5fa; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım A (Mavi)</h3>
+            <ul id="team-a-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+              <li class="player-slot empty">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-a2">Bekleniyor...</li>
+            </ul>
+          </div>
+          <!-- Team B -->
+          <div class="team-panel team-b" style="flex:1; background:rgba(153,27,27,0.3); padding:15px; border-radius:8px; border:1px solid #991b1b;">
+            <h3 style="color:#f87171; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım B (Kırmızı)</h3>
+            <ul id="team-b-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+              <li class="player-slot empty">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-b2">Bekleniyor...</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="peer-status" class="status-msg text-muted">Sunucuya bağlanılıyor...</div>
+        
+        <div class="waiting-actions" style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+          <button id="start-game-btn" class="primary-btn hidden" style="width:100%;">Oyunu Başlat!</button>
+          <button id="leave-room-btn" class="secondary-btn" style="width:100%;">Odayı Kapat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARACTER SELECTION SCREEN -->
+    <div id="selection-screen" class="screen">
+      <header class="game-header">
+        <div class="header-left">
+          <h2 class="game-logo">Genshin Guess Who <span>Karakter Seçimi</span></h2>
+        </div>
+        <div class="header-center">
+          <div class="timer-badge active-turn">
+            Süre: <span id="selection-timer-text">30</span>s
+          </div>
+        </div>
+        <div class="header-right">
+          <div id="selection-status-players" class="room-info">
+            Sen: <span id="my-ready-status" class="text-red">Seçim Yapmadı</span> | 
+            Rakip: <span id="opponent-ready-status" class="text-muted">Seçim Yapıyor...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="selection-layout">
+        <!-- Grid of 48 characters -->
+        <main class="selection-grid-container">
+          <div id="selection-grid" class="selection-grid">
+            <!-- Dynamically populated 48 character cards -->
+          </div>
+        </main>
+
+        <!-- Right detail card panel -->
+        <aside class="selection-detail-panel">
+          <div class="genshin-detail-card">
+            <h3 class="detail-section-title">Karakter Detayları</h3>
+            
+            <div id="detail-card-preview" class="detail-card-preview">
+              <!-- Show character graphic preview -->
+            </div>
+            
+            <div class="detail-info-group">
+              <h2 id="detail-char-name" class="detail-char-name">Karakter Seçin</h2>
+              <div class="detail-badge-list">
+                <span id="detail-char-element" class="detail-badge">Element: -</span>
+                <span id="detail-char-weapon" class="detail-badge">Silah: -</span>
+                <span id="detail-char-region" class="detail-badge">Bölge: -</span>
+                <span id="detail-char-gender" class="detail-badge">Cinsiyet: -</span>
+              </div>
+            </div>
+
+            <button id="lock-character-btn" class="primary-btn lock-btn" disabled>
+              Karakteri Kilitle
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+      <!-- HEADER -->
+      <header class="game-header">
+        <div class="header-left">
+          <h2 class="game-logo">Genshin Guess Who <span>5★ Edition</span></h2>
+        </div>
+        <div class="header-center">
+          <div id="turn-badge" class="turn-status-badge">
+            <span id="turn-status-text">Bağlanılıyor...</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="room-info">
+            Oda: <strong id="game-room-id" class="text-gold">-----</strong> | 
+            Rakip: <strong id="opponent-name" class="text-blue">Rakip...</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT GRID -->
+      <div class="game-layout">
+        
+        <!-- LEFT: THE CHARACTER BOARD -->
+        <main class="board-container">
+          <div id="characters-grid" class="grid-layout">
+            <!-- Dynamically populated card board -->
+          </div>
+        </main>
+
+        <!-- RIGHT: CONTROL PANEL & CHAT -->
+        <aside class="control-panel">
+          
+          <!-- YOUR SECRET CHARACTER DISPLAY -->
+          <div class="secret-card-panel">
+            <h3 class="panel-section-title">Senin Karakterin</h3>
+            <p class="panel-desc">Rakibin bu karakteri tahmin etmeye çalışıyor:</p>
+            <div id="my-secret-character-card" class="secret-avatar-container">
+              <!-- Dynamically populated secret character -->
+            </div>
+          </div>
+
+          <!-- ACTIONS SECTION -->
+          <div class="game-actions">
+            <button id="open-guess-modal-btn" class="primary-btn action-btn font-bold">
+              ✦ TAHMİN ET ✦
+            </button>
+            <button id="pass-turn-btn" class="secondary-btn action-btn">
+              Sırayı Devret
+            </button>
+          </div>
+
+          <!-- CHAT BOX -->
+          <div class="chat-container">
+            <div class="chat-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Sohbet</h3>
+              <div class="chat-tabs" style="display:flex; gap:5px;">
+                <button id="chat-tab-global" class="chat-tab active">Genel</button>
+                <button id="chat-tab-team" class="chat-tab hidden">Takım</button>
+              </div>
+            </div>
+            <div id="chat-messages" class="chat-messages-area">
+              <div class="system-message">Oyun başladı! Sırayla birbirinize sorular sorun. Karakter özelliklerine göre sol taraftaki kartları eleyebilirsiniz.</div>
+            </div>
+            <form id="chat-form" class="chat-input-form">
+              <input type="text" id="chat-input" placeholder="Sorunu sor veya yazış..." autocomplete="off" maxlength="100">
+              <button type="submit" id="chat-send-btn">Gönder</button>
+            </form>
+          </div>
+
+        </aside>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GUESS MODAL -->
+  <div id="guess-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="text-gold">Karakter Tahmini</h2>
+        <button id="close-guess-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Rakibinin gizli karakterinin kim olduğunu düşünüyorsun? Dikkat et, yanlış tahmin sırayı rakibine geçirecektir!</p>
+        
+        <div class="guess-select-container">
+          <label for="guess-select">Karakter Seç:</label>
+          <select id="guess-select">
+            <!-- Dynamically populated options -->
+          </select>
+        </div>
+
+        <div class="modal-buttons">
+          <button id="submit-guess-btn" class="primary-btn">Tahminimi Gönder</button>
+          <button id="cancel-guess-btn" class="secondary-btn">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="game-over-screen" class="modal-overlay hidden">
+    <div class="game-over-card text-center">
+      <div class="stars-animation"></div>
+      <h1 id="game-over-title" class="game-over-title">TEBRİKLER!</h1>
+      <p id="game-over-message" class="game-over-message">Rakibinin karakterini doğru tahmin ettin!</p>
+      
+      <div class="result-details">
+        <p class="result-desc">Rakibinin Gizli Karakteri:</p>
+        <div id="opponent-secret-card-display" class="opponent-secret-card-display">
+          <!-- Final card design -->
+        </div>
+      </div>
+
+      <div class="game-over-actions">
+        <button id="play-again-btn" class="primary-btn">Tekrar Oyna</button>
+        <button id="exit-lobby-btn" class="secondary-btn">Odalara Dön</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAY AGAIN REQUEST MODAL -->
+  <div id="play-again-modal" class="guide-modal-overlay hidden" style="z-index: 10000;">
+    <div class="guide-modal-content text-center">
+      <h2 class="modal-title" style="color:var(--color-gold-bright); margin-bottom: 20px;">Tekrar Oynayalım Mı?</h2>
+      <p style="margin-bottom: 20px; color: #fff;">Rakibin yeni bir tur oynamak istiyor, kabul ediyor musun?</p>
+      <div class="modal-buttons" style="display:flex; gap:15px; justify-content:center;">
+        <button id="accept-play-again-btn" class="primary-btn">Evet, Başla!</button>
+        <button id="reject-play-again-btn" class="secondary-btn">Hayır, Çık</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio-tick" preload="auto"></audio>
+  <audio id="audio-correct" preload="auto"></audio>
+  <audio id="audio-incorrect" preload="auto"></audio>
+  <audio id="audio-victory" preload="auto"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
