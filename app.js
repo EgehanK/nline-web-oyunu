@@ -124,6 +124,11 @@ let selectionTimerVal = 30;
 let selectionTimerInterval = null;
 let playAgainAccepts = new Set();
 
+// Reconnection state
+let reconnectTimer = null;
+let pingInterval = null;
+let isReconnecting = false;
+
 // PeerJS ID Prefix to isolate namespace
 const PEER_PREFIX = 'genshinguesswho-';
 
@@ -154,6 +159,10 @@ const leaveRoomBtn = document.getElementById('leave-room-btn');
 const lobbyError = document.getElementById('lobby-error');
 const peerStatus = document.getElementById('peer-status');
 const startGameBtn = document.getElementById('start-game-btn');
+
+// Auto-fill nickname from localStorage
+const savedNick = localStorage.getItem('genshin_nickname');
+if (savedNick) nicknameInput.value = savedNick;
 
 // How to Play Modal Elements
 const howToPlayBtn = document.getElementById('how-to-play-btn');
@@ -262,6 +271,9 @@ createRoomBtn.addEventListener('click', () => {
   gameMode = document.querySelector('input[name="game-mode"]:checked').value;
   currentRoomId = generateRoomId();
   
+  // Save nickname for next visit
+  localStorage.setItem('genshin_nickname', myNickname);
+  
   myPlayerInfo = { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
   clients = [ { conn: null, ...myPlayerInfo } ];
   
@@ -290,6 +302,9 @@ joinRoomBtn.addEventListener('click', () => {
   myNickname = nickname;
   isHost = false;
   currentRoomId = roomId;
+  
+  // Save nickname for next visit
+  localStorage.setItem('genshin_nickname', myNickname);
   
   initPeer(); // random ID for Guest
 });
@@ -416,17 +431,102 @@ function getBroadcastLobbyState() {
   return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, team: c.team, isHost: c.isHost }));
 }
 
+// --- Session Save/Restore ---
+function saveSession() {
+  if (!myNickname || !currentRoomId) return;
+  const session = {
+    nickname: myNickname,
+    roomId: currentRoomId,
+    isHost,
+    gameMode,
+    team: myPlayerInfo?.team || null,
+    mySecretChar: mySecretCharacter,
+    oppSecretChar: opponentSecretCharacter,
+    isMyTurn,
+    opponentName
+  };
+  sessionStorage.setItem('genshin_session', JSON.stringify(session));
+}
+
+function clearSession() {
+  sessionStorage.removeItem('genshin_session');
+}
+
+// --- Guest Auto-Reconnect ---
+function attemptReconnect() {
+  if (isReconnecting || isHost) return;
+  isReconnecting = true;
+
+  // Show reconnect overlay on current screen
+  const overlay = document.getElementById('reconnect-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+
+  let attempts = 0;
+  const MAX_ATTEMPTS = 8;
+
+  const tryConnect = () => {
+    attempts++;
+    if (attempts > MAX_ATTEMPTS) {
+      isReconnecting = false;
+      if (overlay) overlay.classList.add('hidden');
+      alert('Yeniden bağlanma başarısız. Lobi ekranına dönülüyor.');
+      clearSession();
+      window.location.reload();
+      return;
+    }
+
+    console.log(`Reconnect attempt ${attempts}/${MAX_ATTEMPTS}...`);
+    try {
+      const hostPeerId = PEER_PREFIX + currentRoomId;
+      const newConn = peer.connect(hostPeerId);
+      
+      newConn.on('open', () => {
+        conn = newConn;
+        // Send rejoin instead of fresh join
+        conn.send({ type: 'rejoin-request', nickname: myNickname });
+        setupGuestDataHandlers(conn, true);
+        if (overlay) overlay.classList.add('hidden');
+        isReconnecting = false;
+        startPing();
+      });
+
+      newConn.on('error', () => {
+        reconnectTimer = setTimeout(tryConnect, 3000);
+      });
+    } catch (e) {
+      reconnectTimer = setTimeout(tryConnect, 3000);
+    }
+  };
+
+  reconnectTimer = setTimeout(tryConnect, 1500);
+}
+
+// --- Ping/Pong Keep-Alive ---
+function startPing() {
+  if (pingInterval) clearInterval(pingInterval);
+  pingInterval = setInterval(() => {
+    if (isHost) {
+      broadcast({ type: 'ping' });
+    } else if (conn && conn.open) {
+      conn.send({ type: 'ping' });
+    }
+  }, 18000); // every 18 seconds
+}
+
 // Host connection listener
 function setupHostConnectionListener() {
   peer.on('connection', (connection) => {
     const maxPlayers = gameMode === '2v2' ? 4 : 2;
-    if (clients.length >= maxPlayers) {
+    const existingByPeer = clients.find(c => c.peerId === connection.peer);
+
+    // Allow reconnections even if room is "full"
+    if (!existingByPeer && clients.length >= maxPlayers) {
       setTimeout(() => connection.close(), 500);
       return;
     }
 
     connection.on('open', () => {
-      console.log('Guest connected');
+      console.log('Guest connected/reconnected');
     });
 
     connection.on('data', (data) => {
@@ -434,13 +534,30 @@ function setupHostConnectionListener() {
     });
 
     connection.on('close', () => {
-      clients = clients.filter(c => c.conn !== connection);
-      if (!waitingScreen.classList.contains('hidden')) {
+      const disconnected = clients.find(c => c.conn === connection);
+      const gameIsOver = !gameOverScreen.classList.contains('hidden');
+      const inLobby = !waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active');
+      
+      if (inLobby) {
+        // In lobby — remove immediately
+        clients = clients.filter(c => c.conn !== connection);
         updateLobbyUI();
         broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+      } else if (gameIsOver) {
+        // Game already finished — silently remove, no alert needed
+        clients = clients.filter(c => c.conn !== connection);
       } else {
-        alert('Bir oyuncu bağlantıyı kesti. Oyun iptal edildi, lobiye dönülüyor.');
-        window.location.reload();
+        // During active game/selection — give 30s for reconnect before giving up
+        if (disconnected) disconnected.conn = null;
+        broadcast({ type: 'player-reconnecting', nickname: disconnected?.nickname || '?' });
+        processGameEvent({ type: 'player-reconnecting', nickname: disconnected?.nickname || '?' });
+        setTimeout(() => {
+          const stillGone = clients.find(c => c.nickname === disconnected?.nickname && !c.conn);
+          if (stillGone) {
+            alert(`${disconnected?.nickname || 'Bir oyuncu'} yeniden bağlanamadı. Oyun iptal edildi.`);
+            window.location.reload();
+          }
+        }, 30000);
       }
     });
     
@@ -449,37 +566,71 @@ function setupHostConnectionListener() {
       if (!waitingScreen.classList.contains('hidden')) {
         updateLobbyUI();
         broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
-      } else {
-        alert('Bir oyuncu bağlantı hatası yaşadı. Oyun iptal edildi, lobiye dönülüyor.');
-        window.location.reload();
       }
     });
   });
 }
 
-// Guest connection
+// Guest connection setup (first join)
 function setupGuestConnection(connection) {
   conn = connection;
-  
-  conn.on('open', () => {
-    peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
-    conn.send({ type: 'join-request', nickname: myNickname });
+  setupGuestDataHandlers(conn, false);
+}
+
+// Shared data handler setup for guest (used on first join AND reconnect)
+function setupGuestDataHandlers(connection, isRejoining) {
+  connection.on('open', () => {
+    if (!isRejoining) {
+      peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
+      connection.send({ type: 'join-request', nickname: myNickname });
+    }
+    startPing();
   });
-  
-  conn.on('data', (data) => {
+
+  connection.on('data', (data) => {
     handleGuestReceivedData(data);
   });
-  
-  conn.on('close', () => {
-    alert('Kurucu odadan ayrıldı veya bağlantı koptu.');
-    window.location.reload();
+
+  connection.on('close', () => {
+    // If game over screen is visible, the game is done - just silently ignore disconnect
+    const gameIsOver = !gameOverScreen.classList.contains('hidden');
+    if (gameIsOver) return;
+
+    const inLobby = waitingScreen.classList.contains('active') || lobbyScreen.classList.contains('active');
+    if (inLobby) {
+      alert('Kurucu odadan ayrıldı veya bağlantı koptu.');
+      clearSession();
+      window.location.reload();
+    } else {
+      // During active game — try to reconnect silently
+      console.log('Connection lost during game, attempting reconnect...');
+      attemptReconnect();
+    }
   });
-  
-  conn.on('error', (err) => {
-    alert('Bağlantı hatası.');
-    window.location.reload();
+
+  connection.on('error', () => {
+    const gameIsOver = !gameOverScreen.classList.contains('hidden');
+    if (gameIsOver) return;
+
+    const inLobby = waitingScreen.classList.contains('active') || lobbyScreen.classList.contains('active');
+    if (inLobby) {
+      clearSession();
+      window.location.reload();
+    } else {
+      attemptReconnect();
+    }
   });
 }
+
+// Page Visibility API — reconnect when phone comes back to foreground
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && !isHost && currentRoomId && !isReconnecting) {
+    if (!conn || !conn.open) {
+      console.log('Page visible again, connection is dead — reconnecting...');
+      attemptReconnect();
+    }
+  }
+});
 
 // Host Data Handler
 function handleHostReceivedData(connection, data) {
@@ -522,6 +673,35 @@ function handleHostReceivedData(connection, data) {
       }
       break;
       
+    case 'rejoin-request': {
+      // Player reconnecting - find their existing slot by nickname
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient) {
+        existingClient.conn = connection;
+        existingClient.peerId = connection.peer;
+        // Send them the current game state
+        connection.send({
+          type: 'rejoin-ack',
+          gameMode,
+          team: existingClient.team,
+          mySecretCharId: existingClient.lockedCharacterId || null,
+          clients: getBroadcastLobbyState()
+        });
+        // Notify everyone this player is back
+        broadcast({ type: 'player-reconnected', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      } else {
+        // Unknown player - treat as fresh join
+        handleHostReceivedData(connection, { ...data, type: 'join-request' });
+      }
+      break;
+    }
+
+    case 'ping':
+      // Guest pinged host - respond
+      if (connection && connection.open) connection.send({ type: 'pong' });
+      break;
+
     // Relay all other game logic to all clients for now
     default:
       broadcast(data);
@@ -550,7 +730,67 @@ function handleGuestReceivedData(data) {
     case 'start-game':
       startSelectionPhase();
       break;
+    
+    case 'ready-count':
+      if (gameMode === '2v2') {
+        myReadyStatus.textContent = `${data.readyCount}/${data.maxPlayers}`;
+        myReadyStatus.className = data.readyCount === data.maxPlayers ? 'text-green' : 'text-muted';
+      } else {
+        opponentReadyStatus.textContent = 'Hazır!';
+        opponentReadyStatus.className = 'text-green';
+      }
+      break;
       
+    case 'rejoin-ack':
+      // Restore state from host confirmation
+      gameMode = data.gameMode;
+      myPlayerInfo = data.clients.find(c => c.nickname === myNickname);
+      clients = data.clients;
+      {
+        const overlay = document.getElementById('reconnect-overlay');
+        if (overlay) overlay.classList.add('hidden');
+      }
+      // Restore game UI from local session
+      {
+        const saved = sessionStorage.getItem('genshin_session');
+        if (saved) {
+          const sess = JSON.parse(saved);
+          mySecretCharacter = sess.mySecretChar;
+          opponentSecretCharacter = sess.oppSecretChar;
+          isMyTurn = sess.isMyTurn;
+          opponentName = sess.opponentName || 'Rakip';
+          if (mySecretCharacter && opponentSecretCharacter) {
+            launchGameBoard();
+          }
+        }
+      }
+      break;
+
+    case 'player-reconnecting': {
+      const chatMsg = document.createElement('div');
+      chatMsg.className = 'system-message error';
+      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanmayı bekliyor...`;
+      chatMessages?.appendChild(chatMsg);
+      break;
+    }
+
+    case 'player-reconnected': {
+      const chatMsg2 = document.createElement('div');
+      chatMsg2.className = 'system-message';
+      chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandtı!`;
+      chatMessages?.appendChild(chatMsg2);
+      break;
+    }
+
+    case 'ping':
+      // Host pinged - respond with pong
+      if (conn && conn.open) conn.send({ type: 'pong' });
+      break;
+
+    case 'pong':
+      // Keep-alive confirmed
+      break;
+
     case 'chat':
       const isSelf = data.nickname === myNickname;
       if (!isSelf) {
@@ -573,7 +813,21 @@ function processGameEvent(data) {
         if (client) client.lockedCharacterId = data.characterId;
         
         const maxPlayers = gameMode === '2v2' ? 4 : 2;
-        const allReady = clients.length === maxPlayers && clients.every(c => c.lockedCharacterId);
+        const readyCount = clients.filter(c => c.lockedCharacterId).length;
+        
+        // Broadcast ready count to all guests for live display
+        broadcast({ type: 'ready-count', readyCount, maxPlayers });
+        
+        // Update host's own UI
+        if (gameMode === '2v2') {
+          myReadyStatus.textContent = `${readyCount}/${maxPlayers}`;
+          myReadyStatus.className = readyCount === maxPlayers ? 'text-green' : 'text-muted';
+        } else {
+          opponentReadyStatus.textContent = 'Hazır!';
+          opponentReadyStatus.className = 'text-green';
+        }
+        
+        const allReady = clients.length === maxPlayers && readyCount === maxPlayers;
         
         if (allReady) {
           if (selectionTimerInterval) clearInterval(selectionTimerInterval);
@@ -584,8 +838,17 @@ function processGameEvent(data) {
              const teamA = clients.filter(c => c.team === 'A');
              const teamB = clients.filter(c => c.team === 'B');
              
-             teamACharId = teamA[0].lockedCharacterId === teamA[1].lockedCharacterId ? teamA[0].lockedCharacterId : (Math.random() < 0.5 ? teamA[0].lockedCharacterId : teamA[1].lockedCharacterId);
-             teamBCharId = teamB[0].lockedCharacterId === teamB[1].lockedCharacterId ? teamB[0].lockedCharacterId : (Math.random() < 0.5 ? teamB[0].lockedCharacterId : teamB[1].lockedCharacterId);
+             if (teamA.length < 2 || teamB.length < 2) {
+               console.error('2v2: Takim dagitimi hatali!', clients);
+               break;
+             }
+             
+             teamACharId = teamA[0].lockedCharacterId === teamA[1].lockedCharacterId 
+               ? teamA[0].lockedCharacterId 
+               : (Math.random() < 0.5 ? teamA[0].lockedCharacterId : teamA[1].lockedCharacterId);
+             teamBCharId = teamB[0].lockedCharacterId === teamB[1].lockedCharacterId 
+               ? teamB[0].lockedCharacterId 
+               : (Math.random() < 0.5 ? teamB[0].lockedCharacterId : teamB[1].lockedCharacterId);
           } else {
              teamACharId = clients.find(c => c.team === 'A').lockedCharacterId;
              teamBCharId = clients.find(c => c.team === 'B').lockedCharacterId;
@@ -593,6 +856,12 @@ function processGameEvent(data) {
           
           const teamAChar = characters.find(c => c.id === teamACharId);
           const teamBChar = characters.find(c => c.id === teamBCharId);
+          
+          if (!teamAChar || !teamBChar) {
+            console.error('2v2: Karakter bulunamadi!', teamACharId, teamBCharId);
+            break;
+          }
+          
           const teamAStarts = Math.random() < 0.5;
           
           const exchangeData = {
@@ -605,9 +874,6 @@ function processGameEvent(data) {
           broadcast(exchangeData);
           processGameEvent(exchangeData); // process for host locally
         }
-      } else {
-        // UI feedback for guest that someone is ready (optional)
-        opponentReadyStatus.textContent = 'Bir oyuncu hazır...';
       }
       break;
       
@@ -621,6 +887,7 @@ function processGameEvent(data) {
         opponentSecretCharacter = data.teamAChar;
         isMyTurn = !data.teamAStarts;
       }
+      saveSession(); // Save state for potential reconnect
       launchGameBoard();
       break;
       
@@ -645,11 +912,17 @@ function processGameEvent(data) {
       break;
       
     case 'play-again-request':
+      // Show modal to everyone EXCEPT the requester
       if (data.requester !== myNickname) {
         playAgainModal.classList.remove('hidden');
       }
+      // Host: add requester to accepts and broadcast the count
       if (isHost) {
         playAgainAccepts.add(data.requester);
+        const maxPlayers = gameMode === '2v2' ? 4 : 2;
+        broadcast({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        // Process locally for host's own screen
+        processGameEvent({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
       }
       break;
       
@@ -657,6 +930,10 @@ function processGameEvent(data) {
       if (isHost) {
         playAgainAccepts.add(data.nickname);
         const maxPlayers = gameMode === '2v2' ? 4 : 2;
+        // Broadcast updated count to everyone
+        broadcast({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        processGameEvent({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        
         if (playAgainAccepts.size >= maxPlayers) {
           const startMsg = { type: 'play-again-start' };
           broadcast(startMsg);
@@ -664,6 +941,14 @@ function processGameEvent(data) {
         }
       }
       break;
+
+    case 'play-again-count': {
+      const waiting = document.getElementById('play-again-waiting');
+      const countText = document.getElementById('play-again-count-text');
+      if (waiting) waiting.classList.remove('hidden');
+      if (countText) countText.textContent = `${data.count}/${data.maxPlayers} hazır`;
+      break;
+    }
 
     case 'play-again-start':
       playAgainAccepts.clear();
@@ -684,11 +969,37 @@ function startSelectionPhase() {
   isMySelectionLocked = false;
   isOpponentSelectionLocked = false;
   selectionTimerVal = 30;
+  // Always clear secret characters to prevent stale data from previous rounds
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
   
-  myReadyStatus.textContent = 'Seçim Yapmadı';
-  myReadyStatus.className = 'text-red';
-  opponentReadyStatus.textContent = 'Seçim Yapıyor...';
-  opponentReadyStatus.className = 'text-muted';
+  const is2v2 = gameMode === '2v2';
+  const maxPlayers = is2v2 ? 4 : 2;
+  
+  // Update selection screen header labels - use existing DOM refs (don't replace innerHTML!)
+  const myReadyLabelEl = document.getElementById('my-ready-label');
+  const readySeparatorEl = document.getElementById('ready-separator');
+  const opponentReadyLabelEl = document.getElementById('opponent-ready-label');
+  
+  if (is2v2) {
+    // Unified ready counter mode
+    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Hazır:';
+    myReadyStatus.textContent = `0/${maxPlayers}`;
+    myReadyStatus.className = 'text-red';
+    if (readySeparatorEl) readySeparatorEl.style.display = 'none';
+    if (opponentReadyLabelEl) opponentReadyLabelEl.style.display = 'none';
+    opponentReadyStatus.style.display = 'none';
+  } else {
+    // Individual status mode
+    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Sen:';
+    myReadyStatus.textContent = 'Seçim Yapmadı';
+    myReadyStatus.className = 'text-red';
+    if (readySeparatorEl) readySeparatorEl.style.display = '';
+    if (opponentReadyLabelEl) { opponentReadyLabelEl.style.display = ''; opponentReadyLabelEl.textContent = 'Rakip:'; }
+    opponentReadyStatus.style.display = '';
+    opponentReadyStatus.textContent = 'Seçim Yapıyor...';
+    opponentReadyStatus.className = 'text-muted';
+  }
   
   lockCharacterBtn.disabled = true;
   lockCharacterBtn.textContent = 'Karakteri Kilitle';
@@ -820,8 +1131,11 @@ function lockMySelection(char) {
     }
   });
   
-  myReadyStatus.textContent = 'Hazır!';
-  myReadyStatus.className = 'text-green';
+  // In 1v1: show personal ready status. In 2v2: host's ready-count broadcast handles the counter
+  if (gameMode !== '2v2') {
+    myReadyStatus.textContent = 'Hazır!';
+    myReadyStatus.className = 'text-green';
+  }
   
   // Notify host
   sendMessage({
@@ -848,16 +1162,22 @@ function autoLockRandomCharacter() {
 
 // Trigger active game board
 function launchGameBoard() {
+  // Update header info
+  gameRoomId.textContent = currentRoomId;
+  opponentNameLabel.textContent = gameMode === '2v2' ? 'Rakip Takım' : opponentName;
+  
   // Render Guess Board
   renderBoard(characters);
   
   // Render My Secret Badge
-  renderSecretCharacter(mySecretCharacter);
+  if (mySecretCharacter) {
+    renderSecretCharacter(mySecretCharacter);
+  }
   
   // Populate Guess List
   populateGuessSelect(characters);
   
-  chatMessages.innerHTML = `<div class="system-message">Oyun başladı! Rakibin: ${opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
+  chatMessages.innerHTML = `<div class="system-message">Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
   updateTurnUI();
   
   showScreen(gameScreen);
@@ -1100,13 +1420,26 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
 
 // Restart game round
 playAgainBtn.addEventListener('click', () => {
-  sendMessage({ type: 'play-again-request', requester: myNickname });
+  // Show waiting state immediately for the requester
   playAgainBtn.textContent = 'Talep Gönderildi...';
   playAgainBtn.disabled = true;
+  const waiting = document.getElementById('play-again-waiting');
+  const countText = document.getElementById('play-again-count-text');
+  const maxPlayers = gameMode === '2v2' ? 4 : 2;
+  if (waiting) waiting.classList.remove('hidden');
+  if (countText) countText.textContent = `1/${maxPlayers} hazır`;
+  
+  sendMessage({ type: 'play-again-request', requester: myNickname });
 });
 
 acceptPlayAgainBtn.addEventListener('click', () => {
   playAgainModal.classList.add('hidden');
+  // Disable Tekrar Oyna so player can't double-click
+  playAgainBtn.disabled = true;
+  playAgainBtn.textContent = 'Kabul Edildi...';
+  // Show waiting state for the accepter too
+  const waiting = document.getElementById('play-again-waiting');
+  if (waiting) waiting.classList.remove('hidden');
   sendMessage({ type: 'play-again-accept', nickname: myNickname });
 });
 
@@ -1119,6 +1452,13 @@ function resetSelectionAndRestart() {
   gameOverScreen.classList.add('hidden');
   playAgainBtn.textContent = 'Tekrar Oyna';
   playAgainBtn.disabled = false;
+  
+  // Hide waiting indicator
+  const waiting = document.getElementById('play-again-waiting');
+  if (waiting) waiting.classList.add('hidden');
+  
+  // Reset modal text for next time
+  playAgainModal.classList.add('hidden');
   
   if (isHost) {
     clients.forEach(c => c.lockedCharacterId = null);
