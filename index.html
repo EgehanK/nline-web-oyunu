@@ -186,6 +186,7 @@
         <div class="header-center">
           <div id="turn-badge" class="turn-status-badge">
             <span id="turn-status-text">Bağlanılıyor...</span>
+            <span id="turn-timer-text" class="hidden">(60s)</span>
           </div>
         </div>
         <div class="header-right">
@@ -319,27 +320,6 @@
   <audio id="audio-correct" preload="auto"></audio>
   <audio id="audio-incorrect" preload="auto"></audio>
   <audio id="audio-victory" preload="auto"></audio>
-
-  <!-- Reconnect Overlay -->
-  <div id="reconnect-overlay" class="hidden" style="
-    position: fixed; inset: 0; z-index: 99999;
-    background: rgba(10,8,20,0.92);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 18px; color: #fff; font-family: 'Outfit', sans-serif;
-  ">
-    <div style="font-size: 2.5rem;">&#128261;</div>
-    <h2 style="color: var(--color-gold-bright); font-size: 1.4rem; margin: 0;">Bağlantı Koptu</h2>
-    <p style="color: #a78bfa; margin: 0;">Yeniden bağlanmaya çalışılıyor...</p>
-    <div style="display:flex; gap:6px;">
-      <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;animation:pulse 1s infinite 0s"></span>
-      <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;animation:pulse 1s infinite 0.2s"></span>
-      <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;animation:pulse 1s infinite 0.4s"></span>
-    </div>
-    <style>
-      @keyframes pulse { 0%,100%{opacity:.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
-    </style>
-  </div>
 
   <script src="app.js"></script>
 </body>
