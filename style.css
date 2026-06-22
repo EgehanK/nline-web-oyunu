@@ -1720,6 +1720,12 @@ select:focus {
 }
 
 @media (max-width: 768px) {
+  /* Fix body centering clipping the top of the screen */
+  body {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  
   /* Fix container height for scrolling */
   .app-container {
     height: auto;
