@@ -42,6 +42,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* Background Animations */
@@ -1945,4 +1952,99 @@ select:focus {
     padding: 8px 12px;
     font-size: 0.85rem;
   }
+  
+  /* =========================================================
+     FIX OVERFLOWS AND LAYOUT FOR BADGES AND WAITING SCREEN
+     ========================================================= */
+  .teams-container {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+  .waiting-actions {
+    flex-direction: column !important;
+  }
+  
+  /* Stack badges vertically on small screens to prevent overlap */
+  .weapon-badge {
+    bottom: 64px;
+    left: 4px;
+    right: auto;
+    font-size: 0.55rem;
+    padding: 2px 4px;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gender-badge {
+    bottom: 46px;
+    left: 4px;
+    right: auto;
+    font-size: 0.55rem;
+    padding: 2px 4px;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Team Chat Categorization & Colors */
+.chat-msg.team-a .msg-sender {
+  color: #60a5fa !important; /* Blue Team */
+  font-weight: bold;
+}
+.chat-msg.team-b .msg-sender {
+  color: #f87171 !important; /* Red Team */
+  font-weight: bold;
+}
+
+/* Team Chat Badges */
+.team-chat-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 6px;
+  display: inline-block;
+}
+
+/* Team Message Bubble Styling */
+.chat-msg.team-msg.team-a .msg-bubble {
+  background: rgba(30, 58, 138, 0.25) !important;
+  border: 1px solid rgba(96, 165, 250, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.15) !important;
+}
+
+.chat-msg.team-msg.team-b .msg-bubble {
+  background: rgba(153, 27, 27, 0.25) !important;
+  border: 1px solid rgba(248, 113, 113, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(153, 27, 27, 0.15) !important;
+}
+
+/* Self private team message styling */
+.chat-msg.self.team-msg.team-a .msg-bubble {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.5) 0%, rgba(59, 130, 246, 0.5) 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.6) !important;
+}
+
+.chat-msg.self.team-msg.team-b .msg-bubble {
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.5) 0%, rgba(239, 68, 68, 0.5) 100%) !important;
+  border: 1px solid rgba(248, 113, 113, 0.6) !important;
+}
+
+#turn-timer-text {
+  margin-left: 8px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.timer-warning {
+  color: #ef4444;
+  animation: timer-pulse 1s infinite alternate;
+}
+
+@keyframes timer-pulse {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0.6; transform: scale(1.1); }
 }
