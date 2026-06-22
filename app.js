@@ -44,10 +44,9 @@ const characters = [
   { id: "tighnari",     name: "Tighnari",            element: "Dendro",  weapon: "Yay",             region: "Sumeru",     gender: "Erkek", img: "Tighnari" },
   { id: "wanderer",     name: "Wanderer",            element: "Anemo",   weapon: "Katalizör",       region: "Sumeru",     gender: "Erkek", img: "Wanderer" },
   // --- Fontaine ---
-  { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", img: "Arlecchino" },
   { id: "clorinde",     name: "Clorinde",            element: "Electro", weapon: "Kılıç",           region: "Fontaine",   gender: "Kadın", img: "Clorinde" },
   { id: "emilie",       name: "Emilie",              element: "Dendro",  weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", img: "Emilie" },
-  { id: "escoffier",    name: "Escoffier",           element: "Cryo",    weapon: "Mızrak",          region: "Fontaine",   gender: "Erkek", img: "Escoffier" },
+  { id: "escoffier",    name: "Escoffier",           element: "Cryo",    weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", img: "Escoffier" },
   { id: "flins",        name: "Flins",               element: "Electro", weapon: "Mızrak",          region: "Fontaine",   gender: "Erkek", img: "Flins" },
   { id: "furina",       name: "Furina",              element: "Hydro",   weapon: "Kılıç",           region: "Fontaine",   gender: "Kadın", img: "Furina" },
   { id: "ineffa",       name: "Ineffa",              element: "Electro", weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", img: "Ineffa" },
@@ -67,16 +66,17 @@ const characters = [
   { id: "xilonen",      name: "Xilonen",             element: "Geo",     weapon: "Kılıç",           region: "Natlan",     gender: "Kadın", img: "Xilonen" },
   // --- Snezhnaya ---
   { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia" },
-  { id: "columbina",    name: "Columbina",           element: "Cryo",    weapon: "Katalizör",       region: "Snezhnaya",  gender: "Kadın", img: "Columbina" },
-  // --- Lauma/Diğer ---
-  { id: "lauma",        name: "Lauma",               element: "Dendro",  weapon: "Katalizör",       region: "Bilinmiyor", gender: "Kadın", img: "Lauma" },
-  { id: "linnea",       name: "Linnea",              element: "Geo",     weapon: "Yay",             region: "Bilinmiyor", gender: "Kadın", img: "Linnea" },
-  { id: "lohen",        name: "Lohen",               element: "Cryo",    weapon: "Mızrak",          region: "Bilinmiyor", gender: "Erkek", img: "Lohen" },
-  { id: "mizuki",       name: "Mizuki",              element: "Anemo",   weapon: "Katalizör",       region: "Bilinmiyor", gender: "Kadın", img: "Mizuki" },
-  { id: "nicole",       name: "Nicole",              element: "Anemo",   weapon: "Katalizör",       region: "Bilinmiyor", gender: "Kadın", img: "Nicole" },
-  { id: "skirk",        name: "Skirk",               element: "Cryo",    weapon: "Kılıç",           region: "Bilinmiyor", gender: "Kadın", img: "SkirkNew" },
-  { id: "aloy",         name: "Aloy",                element: "Cryo",    weapon: "Yay",             region: "Horizon",    gender: "Kadın", img: "Aloy" },
-  { id: "durin",        name: "Durin",               element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Bilinmiyor", gender: "Erkek", img: "Durin" }
+  { id: "columbina",    name: "Columbina",           element: "Hydro",   weapon: "Katalizör",       region: "Snezhnaya",  gender: "Kadın", img: "Columbina" },
+  { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Snezhnaya",  gender: "Kadın", img: "Arlecchino" },
+  // --- Diğer ---
+  { id: "lauma",        name: "Lauma",               element: "Dendro",  weapon: "Katalizör",       region: "Sumeru",     gender: "Kadın", img: "Lauma" },
+  { id: "linnea",       name: "Linnea",              element: "Geo",     weapon: "Yay",             region: "Fontaine",   gender: "Kadın", img: "Linnea" },
+  { id: "lohen",        name: "Lohen",               element: "Cryo",    weapon: "Mızrak",          region: "Mondstadt",  gender: "Erkek", img: "Lohen" },
+  { id: "mizuki",       name: "Mizuki",              element: "Anemo",   weapon: "Katalizör",       region: "Inazuma",    gender: "Kadın", img: "Mizuki" },
+  { id: "nicole",       name: "Nicole",              element: "Anemo",   weapon: "Katalizör",       region: "Hexenzirkel",gender: "Kadın", img: "Nicole" },
+  { id: "skirk",        name: "Skirk",               element: "Cryo",    weapon: "Kılıç",           region: "Hiçlik",     gender: "Kadın", img: "SkirkNew" },
+  { id: "aloy",         name: "Aloy",                element: "Cryo",    weapon: "Yay",             region: "Yabancı",    gender: "Kadın", img: "Aloy" },
+  { id: "durin",        name: "Durin",               element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Khaenri'ah", gender: "Erkek", img: "Durin" }
 ];
 
 
@@ -123,6 +123,8 @@ let isOpponentSelectionLocked = false;
 let selectionTimerVal = 30;
 let selectionTimerInterval = null;
 let playAgainAccepts = new Set();
+let activeTurnTimerInterval = null;
+let currentTurnTime = 60;
 
 // Reconnection state
 let reconnectTimer = null;
@@ -163,6 +165,58 @@ const startGameBtn = document.getElementById('start-game-btn');
 // Auto-fill nickname from localStorage
 const savedNick = localStorage.getItem('genshin_nickname');
 if (savedNick) nicknameInput.value = savedNick;
+
+// Auto-restore session from sessionStorage
+let isRestoringSession = false;
+const savedSessionStr = sessionStorage.getItem('genshin_session');
+if (savedSessionStr) {
+  try {
+    const sess = JSON.parse(savedSessionStr);
+    if (sess.nickname && sess.roomId) {
+      myNickname = sess.nickname;
+      currentRoomId = sess.roomId;
+      isHost = sess.isHost;
+      gameMode = sess.gameMode || '1v1';
+      isRestoringSession = true;
+
+      // Restore basic UI displays
+      displayRoomId.textContent = currentRoomId;
+      nicknameInput.value = myNickname;
+
+      if (isHost) {
+        myPlayerInfo = { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
+        clients = [ { conn: null, ...myPlayerInfo } ];
+        mySecretCharacter = sess.mySecretChar;
+        opponentSecretCharacter = sess.oppSecretChar;
+        isMyTurn = sess.isMyTurn;
+        opponentName = sess.opponentName || 'Rakip';
+
+        if (mySecretCharacter && opponentSecretCharacter) {
+          showScreen(gameScreen);
+          launchGameBoard();
+        } else {
+          showScreen(waitingScreen);
+        }
+        initPeer(currentRoomId);
+      } else {
+        mySecretCharacter = sess.mySecretChar;
+        opponentSecretCharacter = sess.oppSecretChar;
+        isMyTurn = sess.isMyTurn;
+        opponentName = sess.opponentName || 'Rakip';
+
+        if (mySecretCharacter && opponentSecretCharacter) {
+          showScreen(gameScreen);
+        } else {
+          showScreen(waitingScreen);
+        }
+        initPeer();
+      }
+    }
+  } catch (e) {
+    console.error("Error restoring session:", e);
+    clearSession();
+  }
+}
 
 // How to Play Modal Elements
 const howToPlayBtn = document.getElementById('how-to-play-btn');
@@ -232,6 +286,15 @@ function showScreen(screen) {
   gameScreen.classList.remove('active');
   
   screen.classList.add('active');
+
+  // Clear reconnection states if returning to lobby
+  if (screen === lobbyScreen) {
+    isReconnecting = false;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+  }
 }
 
 // Generate Room ID (4 characters)
@@ -276,6 +339,8 @@ createRoomBtn.addEventListener('click', () => {
   
   myPlayerInfo = { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
   clients = [ { conn: null, ...myPlayerInfo } ];
+  
+  saveSession(); // Save host session
   
   peerStatus.textContent = 'Oyun sunucusuna bağlanılıyor...';
   displayRoomId.textContent = currentRoomId;
@@ -360,6 +425,7 @@ function updateLobbyUI() {
 
 // Leave Room
 leaveRoomBtn.addEventListener('click', () => {
+  clearSession();
   window.location.reload();
 });
 
@@ -421,6 +487,7 @@ function initPeer(targetRoomId = null) {
       displayRoomId.textContent = currentRoomId;
       initPeer(currentRoomId);
     } else {
+      clearSession();
       showScreen(lobbyScreen);
       showLobbyError(`Bağlantı hatası: ${err.message || err.type}`);
     }
@@ -452,54 +519,7 @@ function clearSession() {
   sessionStorage.removeItem('genshin_session');
 }
 
-// --- Guest Auto-Reconnect ---
-function attemptReconnect() {
-  if (isReconnecting || isHost) return;
-  isReconnecting = true;
 
-  // Show reconnect overlay on current screen
-  const overlay = document.getElementById('reconnect-overlay');
-  if (overlay) overlay.classList.remove('hidden');
-
-  let attempts = 0;
-  const MAX_ATTEMPTS = 8;
-
-  const tryConnect = () => {
-    attempts++;
-    if (attempts > MAX_ATTEMPTS) {
-      isReconnecting = false;
-      if (overlay) overlay.classList.add('hidden');
-      alert('Yeniden bağlanma başarısız. Lobi ekranına dönülüyor.');
-      clearSession();
-      window.location.reload();
-      return;
-    }
-
-    console.log(`Reconnect attempt ${attempts}/${MAX_ATTEMPTS}...`);
-    try {
-      const hostPeerId = PEER_PREFIX + currentRoomId;
-      const newConn = peer.connect(hostPeerId);
-      
-      newConn.on('open', () => {
-        conn = newConn;
-        // Send rejoin instead of fresh join
-        conn.send({ type: 'rejoin-request', nickname: myNickname });
-        setupGuestDataHandlers(conn, true);
-        if (overlay) overlay.classList.add('hidden');
-        isReconnecting = false;
-        startPing();
-      });
-
-      newConn.on('error', () => {
-        reconnectTimer = setTimeout(tryConnect, 3000);
-      });
-    } catch (e) {
-      reconnectTimer = setTimeout(tryConnect, 3000);
-    }
-  };
-
-  reconnectTimer = setTimeout(tryConnect, 1500);
-}
 
 // --- Ping/Pong Keep-Alive ---
 function startPing() {
@@ -547,17 +567,11 @@ function setupHostConnectionListener() {
         // Game already finished — silently remove, no alert needed
         clients = clients.filter(c => c.conn !== connection);
       } else {
-        // During active game/selection — give 30s for reconnect before giving up
-        if (disconnected) disconnected.conn = null;
-        broadcast({ type: 'player-reconnecting', nickname: disconnected?.nickname || '?' });
-        processGameEvent({ type: 'player-reconnecting', nickname: disconnected?.nickname || '?' });
-        setTimeout(() => {
-          const stillGone = clients.find(c => c.nickname === disconnected?.nickname && !c.conn);
-          if (stillGone) {
-            alert(`${disconnected?.nickname || 'Bir oyuncu'} yeniden bağlanamadı. Oyun iptal edildi.`);
-            window.location.reload();
-          }
-        }, 30000);
+        // During active game/selection — instantly cancel game and return to lobby
+        broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: disconnected?.nickname || '?' });
+        alert(`${disconnected?.nickname || 'Bir oyuncu'} oyundan ayrıldı. Oyun iptal edildi.`);
+        clearSession();
+        window.location.reload();
       }
     });
     
@@ -580,7 +594,10 @@ function setupGuestConnection(connection) {
 // Shared data handler setup for guest (used on first join AND reconnect)
 function setupGuestDataHandlers(connection, isRejoining) {
   connection.on('open', () => {
-    if (!isRejoining) {
+    if (isRestoringSession || isRejoining) {
+      peerStatus.textContent = 'Yeniden bağlanılıyor...';
+      connection.send({ type: 'rejoin-request', nickname: myNickname });
+    } else {
       peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
       connection.send({ type: 'join-request', nickname: myNickname });
     }
@@ -596,38 +613,25 @@ function setupGuestDataHandlers(connection, isRejoining) {
     const gameIsOver = !gameOverScreen.classList.contains('hidden');
     if (gameIsOver) return;
 
-    const inLobby = waitingScreen.classList.contains('active') || lobbyScreen.classList.contains('active');
-    if (inLobby) {
-      alert('Kurucu odadan ayrıldı veya bağlantı koptu.');
-      clearSession();
-      window.location.reload();
-    } else {
-      // During active game — try to reconnect silently
-      console.log('Connection lost during game, attempting reconnect...');
-      attemptReconnect();
-    }
+    console.log('Connection lost, reloading to auto-restore...');
+    window.location.reload();
   });
 
   connection.on('error', () => {
     const gameIsOver = !gameOverScreen.classList.contains('hidden');
     if (gameIsOver) return;
 
-    const inLobby = waitingScreen.classList.contains('active') || lobbyScreen.classList.contains('active');
-    if (inLobby) {
-      clearSession();
-      window.location.reload();
-    } else {
-      attemptReconnect();
-    }
+    console.log('Connection error, reloading to auto-restore...');
+    window.location.reload();
   });
 }
 
 // Page Visibility API — reconnect when phone comes back to foreground
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && !isHost && currentRoomId && !isReconnecting) {
+  if (!document.hidden && !isHost && currentRoomId) {
     if (!conn || !conn.open) {
-      console.log('Page visible again, connection is dead — reconnecting...');
-      attemptReconnect();
+      console.log('Page visible again, connection is dead — reloading to auto-restore...');
+      window.location.reload();
     }
   }
 });
@@ -635,7 +639,33 @@ document.addEventListener('visibilitychange', () => {
 // Host Data Handler
 function handleHostReceivedData(connection, data) {
   switch (data.type) {
-    case 'join-request':
+    case 'join-request': {
+      // Check if nickname already exists in clients (e.g. they refreshed)
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient) {
+        existingClient.conn = connection;
+        existingClient.peerId = connection.peer;
+        
+        updateLobbyUI();
+        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+        
+        // If the game has already started (selection phase or active game), send rejoin sync
+        const isInSelection = selectionScreen.classList.contains('active');
+        const isInGame = gameScreen.classList.contains('active');
+        
+        if (isInSelection || isInGame) {
+          connection.send({
+            type: 'rejoin-ack',
+            gameMode,
+            team: existingClient.team,
+            mySecretCharId: existingClient.lockedCharacterId || null,
+            clients: getBroadcastLobbyState(),
+            isInSelectionPhase: isInSelection
+          });
+        }
+        break;
+      }
+
       // Assign team based on current counts
       let teamA_count = clients.filter(c => c.team === 'A').length;
       let teamB_count = clients.filter(c => c.team === 'B').length;
@@ -657,6 +687,7 @@ function handleHostReceivedData(connection, data) {
       updateLobbyUI();
       broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
       break;
+    }
 
     case 'chat':
       // Relay chat to everyone if global, or only team if team
@@ -685,7 +716,8 @@ function handleHostReceivedData(connection, data) {
           gameMode,
           team: existingClient.team,
           mySecretCharId: existingClient.lockedCharacterId || null,
-          clients: getBroadcastLobbyState()
+          clients: getBroadcastLobbyState(),
+          isInSelectionPhase: selectionScreen.classList.contains('active')
         });
         // Notify everyone this player is back
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
@@ -700,6 +732,10 @@ function handleHostReceivedData(connection, data) {
     case 'ping':
       // Guest pinged host - respond
       if (connection && connection.open) connection.send({ type: 'pong' });
+      break;
+
+    case 'pong':
+      // Guest ponged host - keep-alive response, do nothing
       break;
 
     // Relay all other game logic to all clients for now
@@ -736,8 +772,10 @@ function handleGuestReceivedData(data) {
         myReadyStatus.textContent = `${data.readyCount}/${data.maxPlayers}`;
         myReadyStatus.className = data.readyCount === data.maxPlayers ? 'text-green' : 'text-muted';
       } else {
-        opponentReadyStatus.textContent = 'Hazır!';
-        opponentReadyStatus.className = 'text-green';
+        if (data.lastReadyPlayer !== myNickname) {
+          opponentReadyStatus.textContent = 'Hazır!';
+          opponentReadyStatus.className = 'text-green';
+        }
       }
       break;
       
@@ -750,8 +788,32 @@ function handleGuestReceivedData(data) {
         const overlay = document.getElementById('reconnect-overlay');
         if (overlay) overlay.classList.add('hidden');
       }
-      // Restore game UI from local session
-      {
+      isRestoringSession = false; // Reset the restoring flag
+      
+      if (data.isInSelectionPhase) {
+        startSelectionPhase();
+        const myClientState = data.clients.find(c => c.nickname === myNickname);
+        if (myClientState && myClientState.lockedCharacterId) {
+          selectedCharacterLocally = characters.find(c => c.id === myClientState.lockedCharacterId);
+          isMySelectionLocked = true;
+          mySecretCharacter = selectedCharacterLocally;
+          lockCharacterBtn.disabled = true;
+          lockCharacterBtn.textContent = 'Seçildi ve Kilitlendi';
+          showPreviewDetails(selectedCharacterLocally);
+          // Highlight selected character card in grid visually after rendering
+          setTimeout(() => {
+            document.querySelectorAll('.select-card').forEach(c => {
+              c.classList.add('locked');
+              if (c.dataset.id === selectedCharacterLocally.id) {
+                c.classList.add('active');
+              } else {
+                c.style.opacity = '0.5';
+              }
+            });
+          }, 100);
+        }
+      } else {
+        // Restore game UI from local session
         const saved = sessionStorage.getItem('genshin_session');
         if (saved) {
           const sess = JSON.parse(saved);
@@ -764,6 +826,13 @@ function handleGuestReceivedData(data) {
           }
         }
       }
+      saveSession(); // Save restored session state
+      break;
+
+    case 'game-cancelled':
+      alert(`${data.nickname || 'Bir oyuncu'} oyundan ayrıldı. Oyun iptal edildi.`);
+      clearSession();
+      window.location.reload();
       break;
 
     case 'player-reconnecting': {
@@ -816,15 +885,17 @@ function processGameEvent(data) {
         const readyCount = clients.filter(c => c.lockedCharacterId).length;
         
         // Broadcast ready count to all guests for live display
-        broadcast({ type: 'ready-count', readyCount, maxPlayers });
+        broadcast({ type: 'ready-count', readyCount, maxPlayers, lastReadyPlayer: data.nickname });
         
         // Update host's own UI
         if (gameMode === '2v2') {
           myReadyStatus.textContent = `${readyCount}/${maxPlayers}`;
           myReadyStatus.className = readyCount === maxPlayers ? 'text-green' : 'text-muted';
         } else {
-          opponentReadyStatus.textContent = 'Hazır!';
-          opponentReadyStatus.className = 'text-green';
+          if (data.nickname !== myNickname) {
+            opponentReadyStatus.textContent = 'Hazır!';
+            opponentReadyStatus.className = 'text-green';
+          }
         }
         
         const allReady = clients.length === maxPlayers && readyCount === maxPlayers;
@@ -958,6 +1029,7 @@ function processGameEvent(data) {
     case 'play-again-reject':
       playAgainAccepts.clear();
       alert("Bir oyuncu tekrar oynama teklifini reddetti. Lobiye dönülüyor.");
+      clearSession();
       window.location.reload();
       break;
   }
@@ -973,9 +1045,19 @@ function startSelectionPhase() {
   mySecretCharacter = null;
   opponentSecretCharacter = null;
   
+  saveSession();
+  
   const is2v2 = gameMode === '2v2';
   const maxPlayers = is2v2 ? 4 : 2;
   
+  if (isHost) {
+    if (is2v2) {
+      opponentName = 'Rakip Takım';
+    } else {
+      opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || 'Rakip';
+    }
+  }
+
   // Update selection screen header labels - use existing DOM refs (don't replace innerHTML!)
   const myReadyLabelEl = document.getElementById('my-ready-label');
   const readySeparatorEl = document.getElementById('ready-separator');
@@ -1109,7 +1191,12 @@ lockCharacterBtn.addEventListener('click', () => {
 
 function sendMessage(data) {
   if (isHost) {
-    broadcast(data);
+    if (data.type === 'chat' && data.target === 'team') {
+      // Host team chat - only send to guests on the same team
+      clients.filter(c => c.team === myPlayerInfo.team && c.conn).forEach(c => sendData(c.conn, data));
+    } else {
+      broadcast(data);
+    }
     processGameEvent(data);
   } else {
     if (conn && conn.open) conn.send(data);
@@ -1177,6 +1264,21 @@ function launchGameBoard() {
   // Populate Guess List
   populateGuessSelect(characters);
   
+  // Manage team tab visibility
+  const teamTab = document.getElementById('chat-tab-team');
+  if (teamTab) {
+    if (gameMode === '2v2') {
+      teamTab.classList.remove('hidden');
+    } else {
+      teamTab.classList.add('hidden');
+      const globalTab = document.getElementById('chat-tab-global');
+      if (globalTab) {
+        globalTab.classList.add('active');
+        teamTab.classList.remove('active');
+      }
+    }
+  }
+
   chatMessages.innerHTML = `<div class="system-message">Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
   updateTurnUI();
   
@@ -1280,17 +1382,50 @@ passTurnBtn.addEventListener('click', () => {
 
 // Turn UI update helper
 function updateTurnUI() {
+  if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
+  currentTurnTime = 60;
+  
+  const timerTextEl = document.getElementById('turn-timer-text');
+
   if (isMyTurn) {
     turnBadge.classList.add('active-turn');
     turnStatusText.textContent = 'SENİN SIRAN';
     passTurnBtn.disabled = false;
     openGuessModalBtn.disabled = false;
+    if (timerTextEl) {
+      timerTextEl.classList.remove('hidden', 'timer-warning');
+      timerTextEl.textContent = `(${currentTurnTime}s)`;
+    }
   } else {
     turnBadge.classList.remove('active-turn');
     turnStatusText.textContent = `${opponentName.toUpperCase()} SIRASINDA`;
     passTurnBtn.disabled = true;
     openGuessModalBtn.disabled = true;
+    if (timerTextEl) {
+      timerTextEl.classList.add('hidden');
+    }
   }
+
+  activeTurnTimerInterval = setInterval(() => {
+    currentTurnTime--;
+    if (timerTextEl && isMyTurn) {
+      timerTextEl.textContent = `(${currentTurnTime}s)`;
+      if (currentTurnTime <= 10) {
+        timerTextEl.classList.add('timer-warning');
+      } else {
+        timerTextEl.classList.remove('timer-warning');
+      }
+    }
+
+    if (currentTurnTime <= 0) {
+      clearInterval(activeTurnTimerInterval);
+      if (isMyTurn) {
+        isMyTurn = false;
+        updateTurnUI();
+        sendMessage({ type: 'pass-turn', team: myPlayerInfo.team });
+      }
+    }
+  }, 1000);
 }
 
 // Chat submit
@@ -1319,12 +1454,20 @@ chatForm.addEventListener('submit', (e) => {
 function appendChatMessage(senderName, text, isSelf, isTeamMsg = false) {
   const msgClass = isSelf ? 'self' : 'other';
   const teamClass = isTeamMsg ? ' team-msg' : '';
+  
+  // Find sender's team from clients list
+  const senderClient = clients.find(c => c.nickname === senderName);
+  const senderTeam = senderClient ? senderClient.team : null;
+  const teamColorClass = senderTeam ? ` team-${senderTeam.toLowerCase()}` : '';
+  
   const timestamp = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   
   const msgElement = document.createElement('div');
-  msgElement.className = `chat-msg ${msgClass}${teamClass}`;
+  msgElement.className = `chat-msg ${msgClass}${teamClass}${teamColorClass}`;
+  
+  const teamLabel = isTeamMsg ? ' <span class="team-chat-badge">🔒 Takım</span>' : '';
   msgElement.innerHTML = `
-    <span class="msg-sender">${senderName}${isTeamMsg ? ' [Takım]' : ''}</span>
+    <span class="msg-sender">${senderName}${teamLabel}</span>
     <div class="msg-bubble">
       <span>${text}</span>
       <span class="msg-time">${timestamp}</span>
@@ -1374,6 +1517,10 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
   const isMyTeam = (team === myPlayerInfo.team);
   
   if (isCorrect) {
+    if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
+    const timerTextEl = document.getElementById('turn-timer-text');
+    if (timerTextEl) timerTextEl.classList.add('hidden');
+
     if (isMyTeam) {
       gameOverTitle.textContent = 'TEBRİKLER!';
       gameOverTitle.style.color = 'var(--color-gold-bright)';
@@ -1445,6 +1592,7 @@ acceptPlayAgainBtn.addEventListener('click', () => {
 
 rejectPlayAgainBtn.addEventListener('click', () => {
   playAgainModal.classList.add('hidden');
+  clearSession();
   sendMessage({ type: 'play-again-reject' });
 });
 
@@ -1469,11 +1617,13 @@ function resetSelectionAndRestart() {
 
 // Exit Lobby
 exitLobbyBtn.addEventListener('click', () => {
+  clearSession();
   window.location.reload();
 });
 
 // Leave / Close Room
 leaveRoomBtn.addEventListener('click', () => {
+  clearSession();
   window.location.reload();
 });
 
