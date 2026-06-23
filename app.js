@@ -567,11 +567,19 @@ function setupHostConnectionListener() {
         // Game already finished — silently remove, no alert needed
         clients = clients.filter(c => c.conn !== connection);
       } else {
-        // During active game/selection — instantly cancel game and return to lobby
-        broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: disconnected?.nickname || '?' });
-        alert(`${disconnected?.nickname || 'Bir oyuncu'} oyundan ayrıldı. Oyun iptal edildi.`);
-        clearSession();
-        window.location.reload();
+        // During active game/selection — Give 30s grace period for reconnection
+        const disconnectedNickname = disconnected?.nickname || '?';
+        
+        broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
+        processGameEvent({ type: 'player-reconnecting', nickname: disconnectedNickname });
+        
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(() => {
+          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: disconnectedNickname });
+          alert(`${disconnectedNickname} geri dönmedi. Oyun iptal edildi.`);
+          clearSession();
+          window.location.reload();
+        }, 30000);
       }
     });
     
@@ -710,6 +718,12 @@ function handleHostReceivedData(connection, data) {
       if (existingClient) {
         existingClient.conn = connection;
         existingClient.peerId = connection.peer;
+        
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+
         // Send them the current game state
         connection.send({
           type: 'rejoin-ack',
