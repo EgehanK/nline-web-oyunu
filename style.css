@@ -1898,7 +1898,7 @@ select:focus {
     height: 100dvh;
     overflow: hidden; /* Prevent body scroll */
     z-index: 50;
-    background: var(--color-bg-dark);
+    background: transparent;
   }
   #game-screen.active {
     display: flex;
