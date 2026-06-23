@@ -1614,13 +1614,15 @@ select:focus {
    GAME OVER SCREEN STYLING
    ========================================================================== */
 .game-over-card {
-  background: radial-gradient(circle at center, #1b1625 0%, #0d0a12 100%);
-  border: 2px solid var(--color-gold-bright);
-  box-shadow: 0 0 40px rgba(235, 194, 114, 0.35);
-  border-radius: 20px;
-  padding: 50px 40px;
+  background: rgba(15, 12, 25, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(235, 194, 114, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(235, 194, 114, 0.05);
+  border-radius: 24px;
+  padding: 35px 25px;
   width: 90%;
-  max-width: 500px;
+  max-width: 420px;
   position: relative;
   overflow: hidden;
   animation: gameOverPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.25);
@@ -1632,11 +1634,12 @@ select:focus {
 }
 
 .game-over-title {
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 8vw, 2.5rem);
   font-weight: 900;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
   text-align: center;
+  line-height: 1.1;
 }
 
 .game-over-title.win {
@@ -1654,37 +1657,38 @@ select:focus {
 }
 
 .game-over-message {
-  font-size: 1.1rem;
-  color: var(--color-text-light);
-  margin-bottom: 30px;
+  font-size: 0.95rem;
+  color: #ddd;
+  margin-bottom: 25px;
+  line-height: 1.4;
 }
 
 .result-details {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 30px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .result-desc {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .opponent-secret-card-display {
-  width: 140px;
+  width: 120px;
 }
 
 .game-over-actions {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: center;
 }
 
@@ -1835,12 +1839,11 @@ select:focus {
 
   /* Game Over Modal Responsive */
   .game-over-card {
-    padding: 30px 20px;
+    padding: 25px 20px;
     width: 95%;
   }
-  .game-over-title {
-    font-size: 1.8rem;
-    letter-spacing: 1px;
+  .opponent-secret-card-display {
+    width: 100px;
   }
 
   /* =========================================================
