@@ -935,6 +935,7 @@ input[type="text"]:focus {
 .card {
   aspect-ratio: 1 / 1.35;
   perspective: 1000px;
+  -webkit-perspective: 1000px;
   cursor: pointer;
 }
 
@@ -944,10 +945,12 @@ input[type="text"]:focus {
   height: 100%;
   transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15);
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 .card.eliminated .card-inner {
   transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 
 .card-front, .card-back {
@@ -955,11 +958,14 @@ input[type="text"]:focus {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: 12px;
   border: 1px solid var(--color-card-border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Card Front */
