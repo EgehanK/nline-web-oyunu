@@ -1038,16 +1038,47 @@ function processGameEvent(data) {
       
     case 'player-reconnecting': {
       const chatMsg = document.createElement('div');
-      chatMsg.className = 'system-message error';
-      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (30sn)...`;
+      chatMsg.className = 'system-message error reconnect-countdown-msg';
+      chatMsg.dataset.nickname = data.nickname;
+      
+      let timeLeft = 30;
+      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+      
       if (chatMessages) {
         chatMessages.appendChild(chatMsg);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
+      
+      const interval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+        } else {
+          chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+        }
+      }, 1000);
+      
+      if (!window.reconnectIntervals) window.reconnectIntervals = {};
+      window.reconnectIntervals[data.nickname] = interval;
       break;
     }
 
     case 'player-reconnected': {
+      if (window.reconnectIntervals && window.reconnectIntervals[data.nickname]) {
+        clearInterval(window.reconnectIntervals[data.nickname]);
+        delete window.reconnectIntervals[data.nickname];
+      }
+      
+      if (chatMessages) {
+         const msgs = chatMessages.querySelectorAll('.reconnect-countdown-msg');
+         msgs.forEach(msg => {
+            if (msg.dataset.nickname === data.nickname) {
+               msg.textContent = `⏳ ${data.nickname} dönüş yapıyor...`;
+               msg.classList.remove('reconnect-countdown-msg');
+            }
+         });
+      }
+
       const chatMsg2 = document.createElement('div');
       chatMsg2.className = 'system-message';
       chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandı!`;
