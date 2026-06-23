@@ -924,9 +924,8 @@ function handleGuestReceivedData(data) {
       break;
 
     case 'game-cancelled':
-      alert(`${data.nickname || 'Bir oyuncu'} oyundan ayrıldı. Oyun iptal edildi.`);
-      clearSession();
-      window.location.reload();
+      // Handled in processGameEvent now
+      processGameEvent(data);
       break;
 
     case 'player-reconnecting':
@@ -964,6 +963,12 @@ function handleGuestReceivedData(data) {
 // Common logic (Used by both Host and Guest)
 function processGameEvent(data) {
   switch (data.type) {
+    case 'game-cancelled':
+      alert(`${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırılıyor...`);
+      clearSession();
+      window.location.reload();
+      break;
+
     case 'ready-state':
       if (isHost) {
         const client = clients.find(c => c.nickname === data.nickname);
@@ -1769,12 +1774,22 @@ function resetSelectionAndRestart() {
 
 // Exit Lobby
 exitLobbyBtn.addEventListener('click', () => {
+  if (isHost) {
+    broadcast({ type: 'game-cancelled', reason: 'host-left', nickname: myNickname });
+  } else if (conn && conn.open) {
+    conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: myNickname });
+  }
   clearSession();
   window.location.reload();
 });
 
 // Leave / Close Room
 leaveRoomBtn.addEventListener('click', () => {
+  if (isHost) {
+    broadcast({ type: 'game-cancelled', reason: 'host-left', nickname: myNickname });
+  } else if (conn && conn.open) {
+    conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: myNickname });
+  }
   clearSession();
   window.location.reload();
 });
