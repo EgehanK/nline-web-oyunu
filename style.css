@@ -1754,6 +1754,11 @@ select:focus {
     align-items: flex-start;
   }
 
+  /* Prevent auto-zoom on iOS Safari when focusing inputs */
+  input[type="text"], input[type="number"], input, textarea {
+    font-size: 16px !important;
+  }
+
   /* Lobby Responsive */
   .lobby-wrapper {
     flex-direction: column;
