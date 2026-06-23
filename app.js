@@ -1675,11 +1675,11 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
 
     if (isMyTeam) {
       gameOverTitle.textContent = 'TEBRİKLER!';
-      gameOverTitle.style.color = 'var(--color-gold-bright)';
+      gameOverTitle.className = 'game-over-title win';
       gameOverMessage.textContent = `Takımınızdan ${guesserName}, rakibin gizli karakterini doğru tahmin etti!`;
     } else {
       gameOverTitle.textContent = 'KAYBETTİN...';
-      gameOverTitle.style.color = '#ef4444';
+      gameOverTitle.className = 'game-over-title lose';
       gameOverMessage.textContent = `${guesserName} sizin karakterinizi doğru tahmin etti!`;
     }
     
