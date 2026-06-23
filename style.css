@@ -972,7 +972,14 @@ input[type="text"]:focus {
 .card-front {
   background: var(--color-card-bg);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed), opacity 0s 0.15s, visibility 0s 0.15s;
+  opacity: 1;
+  visibility: visible;
+}
+
+.card.eliminated .card-front {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .card:hover .card-front {
@@ -1114,6 +1121,14 @@ input[type="text"]:focus {
   justify-content: center;
   align-items: center;
   position: relative;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0s 0.15s, visibility 0s 0.15s;
+}
+
+.card.eliminated .card-back {
+  opacity: 1;
+  visibility: visible;
 }
 
 .card-back-img-wrapper {
