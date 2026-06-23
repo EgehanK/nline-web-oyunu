@@ -486,11 +486,30 @@ function initPeer(targetRoomId = null) {
       currentRoomId = generateRoomId();
       displayRoomId.textContent = currentRoomId;
       initPeer(currentRoomId);
-    } else {
-      clearSession();
-      showScreen(lobbyScreen);
-      showLobbyError(`Bağlantı hatası: ${err.message || err.type}`);
+      return;
     }
+    
+    // Check if error is related to network drop or temporary disconnect
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'disconnected' || (err.message && err.message.includes('Lost connection'))) {
+      console.log('Network error detected. Reloading to auto-restore...');
+      setTimeout(() => window.location.reload(), 1500);
+      return;
+    }
+    
+    // For peer-unavailable (wrong code or host dropped)
+    if (err.type === 'peer-unavailable') {
+      const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
+      if (isGameActive || isRestoringSession) {
+        console.log('Host temporarily unavailable. Retrying...');
+        setTimeout(() => window.location.reload(), 3000);
+        return;
+      }
+    }
+
+    // Fatal unrecoverable error for fresh joins
+    clearSession();
+    showScreen(lobbyScreen);
+    showLobbyError(`Bağlantı hatası: ${err.message || err.type}`);
   });
 }
 
