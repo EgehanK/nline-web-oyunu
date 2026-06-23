@@ -653,12 +653,26 @@ function setupGuestDataHandlers(connection, isRejoining) {
   });
 }
 
-// Page Visibility API — reconnect when phone comes back to foreground
+// Page Visibility API — reconnect when phone comes back to foreground or goes to background
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && !isHost && currentRoomId) {
-    if (!conn || !conn.open) {
-      console.log('Page visible again, connection is dead — reloading to auto-restore...');
-      window.location.reload();
+  if (document.hidden) {
+    if (!isHost && conn && conn.open) {
+      conn.send({ type: 'tab-minimized', nickname: myNickname });
+    } else if (isHost) {
+      broadcast({ type: 'tab-minimized', nickname: myNickname });
+      processGameEvent({ type: 'tab-minimized', nickname: myNickname });
+    }
+  } else {
+    if (!isHost && currentRoomId) {
+      if (!conn || !conn.open) {
+        console.log('Page visible again, connection is dead — reloading to auto-restore...');
+        window.location.reload();
+      } else {
+        conn.send({ type: 'tab-restored', nickname: myNickname });
+      }
+    } else if (isHost) {
+      broadcast({ type: 'tab-restored', nickname: myNickname });
+      processGameEvent({ type: 'tab-restored', nickname: myNickname });
     }
   }
 });
@@ -777,6 +791,38 @@ function handleHostReceivedData(connection, data) {
       break;
     }
 
+    case 'tab-minimized': {
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient && !existingClient.isReconnecting) {
+        existingClient.isReconnecting = true;
+        broadcast({ type: 'player-reconnecting', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
+        
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(() => {
+          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+          alert(`${data.nickname} geri dönmedi. Oyun iptal edildi.`);
+          clearSession();
+          window.location.reload();
+        }, 30000);
+      }
+      break;
+    }
+
+    case 'tab-restored': {
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient && existingClient.isReconnecting) {
+        existingClient.isReconnecting = false;
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        broadcast({ type: 'player-reconnected', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      }
+      break;
+    }
+
     case 'ping':
       // Guest pinged host - respond
       if (connection && connection.open) connection.send({ type: 'pong' });
@@ -884,8 +930,13 @@ function handleGuestReceivedData(data) {
       break;
 
     case 'player-reconnecting':
+    case 'tab-minimized':
+      processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
+      break;
+
     case 'player-reconnected':
-      processGameEvent(data);
+    case 'tab-restored':
+      processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
       break;
 
     case 'ping':
