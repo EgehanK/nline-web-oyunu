@@ -619,14 +619,16 @@ function setupGuestConnection(connection) {
 // Shared data handler setup for guest (used on first join AND reconnect)
 function setupGuestDataHandlers(connection, isRejoining) {
   connection.on('open', () => {
-    if (isRestoringSession || isRejoining) {
-      peerStatus.textContent = 'Yeniden bağlanılıyor...';
-      connection.send({ type: 'rejoin-request', nickname: myNickname });
-    } else {
-      peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
-      connection.send({ type: 'join-request', nickname: myNickname });
-    }
-    startPing();
+    setTimeout(() => {
+      if (isRestoringSession || isRejoining) {
+        peerStatus.textContent = 'Yeniden bağlanılıyor...';
+        connection.send({ type: 'rejoin-request', nickname: myNickname });
+      } else {
+        peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
+        connection.send({ type: 'join-request', nickname: myNickname });
+      }
+      startPing();
+    }, 250);
   });
 
   connection.on('data', (data) => {
