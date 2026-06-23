@@ -589,7 +589,7 @@ function setupHostConnectionListener() {
         if (disconnected.isReconnecting) return;
         disconnected.isReconnecting = true;
 
-        // During active game/selection — Give 30s grace period for reconnection
+        // During active game/selection — Give 60s grace period for reconnection
         const disconnectedNickname = disconnected.nickname || '?';
         
         broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
@@ -601,7 +601,7 @@ function setupHostConnectionListener() {
           alert(`${disconnectedNickname} geri dönmedi. Oyun iptal edildi.`);
           clearSession();
           window.location.reload();
-        }, 30000);
+        }, 60000);
       }
     };
 
@@ -804,7 +804,7 @@ function handleHostReceivedData(connection, data) {
           alert(`${data.nickname} geri dönmedi. Oyun iptal edildi.`);
           clearSession();
           window.location.reload();
-        }, 30000);
+        }, 60000);
       }
       break;
     }
@@ -1041,7 +1041,7 @@ function processGameEvent(data) {
       chatMsg.className = 'system-message error reconnect-countdown-msg';
       chatMsg.dataset.nickname = data.nickname;
       
-      let timeLeft = 30;
+      let timeLeft = 60;
       chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
       
       if (chatMessages) {
