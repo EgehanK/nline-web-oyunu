@@ -560,14 +560,7 @@ function startPing() {
 // Host connection listener
 function setupHostConnectionListener() {
   peer.on('connection', (connection) => {
-    const maxPlayers = gameMode === '2v2' ? 4 : 2;
-    const existingByPeer = clients.find(c => c.peerId === connection.peer);
-
-    // Allow reconnections even if room is "full"
-    if (!existingByPeer && clients.length >= maxPlayers) {
-      setTimeout(() => connection.close(), 500);
-      return;
-    }
+// early return removed. We accept the connection and wait for join/rejoin request to validate
 
     connection.on('open', () => {
       console.log('Guest connected/reconnected');
@@ -701,6 +694,14 @@ function handleHostReceivedData(connection, data) {
             isInSelectionPhase: isInSelection
           });
         }
+        break;
+      }
+
+      // If it's a completely new player, check if room is full
+      const maxPlayers = gameMode === '2v2' ? 4 : 2;
+      if (clients.length >= maxPlayers) {
+        connection.send({ type: 'game-cancelled', reason: 'room-full', nickname: data.nickname });
+        setTimeout(() => connection.close(), 500);
         break;
       }
 
