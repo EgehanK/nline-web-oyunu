@@ -166,9 +166,9 @@ const startGameBtn = document.getElementById('start-game-btn');
 const savedNick = localStorage.getItem('genshin_nickname');
 if (savedNick) nicknameInput.value = savedNick;
 
-// Auto-restore session from sessionStorage
+// Auto-restore session from localStorage
 let isRestoringSession = false;
-const savedSessionStr = sessionStorage.getItem('genshin_session');
+const savedSessionStr = localStorage.getItem('genshin_session');
 if (savedSessionStr) {
   try {
     const sess = JSON.parse(savedSessionStr);
@@ -501,6 +501,10 @@ function getBroadcastLobbyState() {
 // --- Session Save/Restore ---
 function saveSession() {
   if (!myNickname || !currentRoomId) return;
+  
+  const eliminated = [];
+  document.querySelectorAll('.card.eliminated').forEach(c => eliminated.push(c.dataset.id));
+  
   const session = {
     nickname: myNickname,
     roomId: currentRoomId,
@@ -510,13 +514,14 @@ function saveSession() {
     mySecretChar: mySecretCharacter,
     oppSecretChar: opponentSecretCharacter,
     isMyTurn,
-    opponentName
+    opponentName,
+    eliminatedCards: eliminated
   };
-  sessionStorage.setItem('genshin_session', JSON.stringify(session));
+  localStorage.setItem('genshin_session', JSON.stringify(session));
 }
 
 function clearSession() {
-  sessionStorage.removeItem('genshin_session');
+  localStorage.removeItem('genshin_session');
 }
 
 
@@ -653,6 +658,12 @@ function handleHostReceivedData(connection, data) {
       if (existingClient) {
         existingClient.conn = connection;
         existingClient.peerId = connection.peer;
+        existingClient.isReconnecting = false;
+        
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
         
         updateLobbyUI();
         broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
@@ -829,7 +840,7 @@ function handleGuestReceivedData(data) {
         }
       } else {
         // Restore game UI from local session
-        const saved = sessionStorage.getItem('genshin_session');
+        const saved = localStorage.getItem('genshin_session');
         if (saved) {
           const sess = JSON.parse(saved);
           mySecretCharacter = sess.mySecretChar;
@@ -1305,9 +1316,19 @@ function launchGameBoard() {
 function renderBoard(chars) {
   charactersGrid.innerHTML = '';
   const sorted = [...chars].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  
+  let eliminatedState = [];
+  const saved = localStorage.getItem('genshin_session');
+  if (saved) {
+    try { eliminatedState = JSON.parse(saved).eliminatedCards || []; } catch(e){}
+  }
+
   sorted.forEach(char => {
     const card = document.createElement('div');
     card.className = 'card';
+    if (eliminatedState.includes(char.id)) {
+      card.classList.add('eliminated');
+    }
     card.dataset.id = char.id;
     
     const elClass = `el-${char.element.toLowerCase()}`;
@@ -1347,6 +1368,7 @@ function renderBoard(chars) {
         card.classList.add('eliminated');
       }
       synth.playTick();
+      saveSession(); // Save eliminated state immediately
     });
     
     charactersGrid.appendChild(card);
