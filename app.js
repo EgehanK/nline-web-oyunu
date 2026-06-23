@@ -553,8 +553,10 @@ function setupHostConnectionListener() {
       handleHostReceivedData(connection, data);
     });
 
-    connection.on('close', () => {
+    const handleConnectionLoss = () => {
       const disconnected = clients.find(c => c.conn === connection);
+      if (!disconnected) return;
+      
       const gameIsOver = !gameOverScreen.classList.contains('hidden');
       const inLobby = !waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active');
       
@@ -567,8 +569,11 @@ function setupHostConnectionListener() {
         // Game already finished — silently remove, no alert needed
         clients = clients.filter(c => c.conn !== connection);
       } else {
+        if (disconnected.isReconnecting) return;
+        disconnected.isReconnecting = true;
+
         // During active game/selection — Give 30s grace period for reconnection
-        const disconnectedNickname = disconnected?.nickname || '?';
+        const disconnectedNickname = disconnected.nickname || '?';
         
         broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
         processGameEvent({ type: 'player-reconnecting', nickname: disconnectedNickname });
@@ -581,15 +586,10 @@ function setupHostConnectionListener() {
           window.location.reload();
         }, 30000);
       }
-    });
-    
-    connection.on('error', () => {
-      clients = clients.filter(c => c.conn !== connection);
-      if (!waitingScreen.classList.contains('hidden')) {
-        updateLobbyUI();
-        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
-      }
-    });
+    };
+
+    connection.on('close', handleConnectionLoss);
+    connection.on('error', handleConnectionLoss);
   });
 }
 
@@ -718,6 +718,7 @@ function handleHostReceivedData(connection, data) {
       if (existingClient) {
         existingClient.conn = connection;
         existingClient.peerId = connection.peer;
+        existingClient.isReconnecting = false;
         
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
