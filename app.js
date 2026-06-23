@@ -880,21 +880,10 @@ function handleGuestReceivedData(data) {
       window.location.reload();
       break;
 
-    case 'player-reconnecting': {
-      const chatMsg = document.createElement('div');
-      chatMsg.className = 'system-message error';
-      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanmayı bekliyor...`;
-      chatMessages?.appendChild(chatMsg);
+    case 'player-reconnecting':
+    case 'player-reconnected':
+      processGameEvent(data);
       break;
-    }
-
-    case 'player-reconnected': {
-      const chatMsg2 = document.createElement('div');
-      chatMsg2.className = 'system-message';
-      chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandtı!`;
-      chatMessages?.appendChild(chatMsg2);
-      break;
-    }
 
     case 'ping':
       // Host pinged - respond with pong
@@ -992,6 +981,28 @@ function processGameEvent(data) {
         }
       }
       break;
+      
+    case 'player-reconnecting': {
+      const chatMsg = document.createElement('div');
+      chatMsg.className = 'system-message error';
+      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (30sn)...`;
+      if (chatMessages) {
+        chatMessages.appendChild(chatMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      break;
+    }
+
+    case 'player-reconnected': {
+      const chatMsg2 = document.createElement('div');
+      chatMsg2.className = 'system-message';
+      chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandı!`;
+      if (chatMessages) {
+        chatMessages.appendChild(chatMsg2);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      break;
+    }
       
     case 'lock-exchange':
       if (myPlayerInfo.team === 'A') {
