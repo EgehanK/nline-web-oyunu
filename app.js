@@ -832,6 +832,23 @@ function handleHostReceivedData(connection, data) {
         existingClient.isReconnecting = true;
         broadcast({ type: 'player-reconnecting', nickname: data.nickname });
         processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
+        
+        // Add 60s grace period for reconnection
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(() => {
+          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+          const msg = `${data.nickname} geri dönmedi. Oyun iptal edildi.`;
+          const modal = document.getElementById('game-cancelled-modal');
+          const msgEl = document.getElementById('game-cancelled-message');
+          if (modal && msgEl) {
+            msgEl.textContent = msg;
+            modal.classList.remove('hidden');
+          } else {
+            alert(msg);
+            clearSession();
+            window.location.reload();
+          }
+        }, 60000);
       }
       break;
     }
