@@ -29,14 +29,17 @@
           <p class="logo-subtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
         </div>
 
-        <div class="lobby-card new-lobby-card" style="margin: 0 auto;">
+        <div class="lobby-card new-lobby-card" style="margin: 0 auto; position: relative;">
+          <!-- MASCOT PEEKING OVER EDGE -->
+          <img src="images/gizliqiqi.png" class="lobby-mascot" alt="Qiqi Mascot" onerror="this.src='images/UI_AvatarIcon_Qiqi.png'">
+          
           <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
           <div class="form-group">
             <label for="nickname-input">Kullanıcı Adın</label>
             <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12">
           </div>
 
-          <div class="form-group" style="margin-bottom: 20px;">
+          <div class="form-group">
             <label>Oyun Modu</label>
             <div class="mode-selector" style="display:flex; gap:10px;">
               <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
