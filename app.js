@@ -184,8 +184,21 @@ if (savedSessionStr) {
       nicknameInput.value = myNickname;
 
       if (isHost) {
-        myPlayerInfo = { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
-        clients = [ { conn: null, ...myPlayerInfo } ];
+        myPlayerInfo = sess.myPlayerInfo || { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
+        
+        if (sess.clients && sess.clients.length > 0) {
+          clients = sess.clients.map(c => ({
+            conn: null,
+            peerId: c.peerId,
+            nickname: c.nickname,
+            team: c.team,
+            isHost: c.isHost,
+            lockedCharacterId: c.lockedCharacterId || null
+          }));
+        } else {
+          clients = [ { conn: null, ...myPlayerInfo } ];
+        }
+        
         mySecretCharacter = sess.mySecretChar;
         opponentSecretCharacter = sess.oppSecretChar;
         isMyTurn = sess.isMyTurn;
@@ -514,7 +527,7 @@ function initPeer(targetRoomId = null) {
 }
 
 function getBroadcastLobbyState() {
-  return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, team: c.team, isHost: c.isHost }));
+  return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, team: c.team, isHost: c.isHost, lockedCharacterId: c.lockedCharacterId }));
 }
 
 // --- Session Save/Restore ---
@@ -530,6 +543,8 @@ function saveSession() {
     isHost,
     gameMode,
     team: myPlayerInfo?.team || null,
+    myPlayerInfo: myPlayerInfo,
+    clients: getBroadcastLobbyState(),
     mySecretChar: mySecretCharacter,
     oppSecretChar: opponentSecretCharacter,
     isMyTurn,
