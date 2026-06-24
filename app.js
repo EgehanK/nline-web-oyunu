@@ -1765,6 +1765,25 @@ function resetSelectionAndRestart() {
   // Reset modal text for next time
   playAgainModal.classList.add('hidden');
   
+  // Clear old game state from memory
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
+  selectedCharacterLocally = null;
+  isMySelectionLocked = false;
+  isOpponentSelectionLocked = false;
+  
+  // Clear old eliminated cards and characters from localStorage
+  const saved = localStorage.getItem('genshin_session');
+  if (saved) {
+    try {
+      const sess = JSON.parse(saved);
+      sess.eliminatedCards = [];
+      sess.mySecretChar = null;
+      sess.oppSecretChar = null;
+      localStorage.setItem('genshin_session', JSON.stringify(sess));
+    } catch(e) {}
+  }
+  
   if (isHost) {
     clients.forEach(c => c.lockedCharacterId = null);
   }
