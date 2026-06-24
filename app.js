@@ -609,6 +609,22 @@ function setupHostConnectionListener() {
         
         broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
         processGameEvent({ type: 'player-reconnecting', nickname: disconnectedNickname });
+        
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(() => {
+          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: disconnectedNickname });
+          const msg = `${disconnectedNickname} geri dönmedi. Oyun iptal edildi.`;
+          const modal = document.getElementById('game-cancelled-modal');
+          const msgEl = document.getElementById('game-cancelled-message');
+          if (modal && msgEl) {
+            msgEl.textContent = msg;
+            modal.classList.remove('hidden');
+          } else {
+            alert(msg);
+            clearSession();
+            window.location.reload();
+          }
+        }, 60000);
       }
     };
 
