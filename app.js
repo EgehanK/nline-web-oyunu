@@ -797,14 +797,6 @@ function handleHostReceivedData(connection, data) {
         existingClient.isReconnecting = true;
         broadcast({ type: 'player-reconnecting', nickname: data.nickname });
         processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
-        
-        if (reconnectTimer) clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(() => {
-          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
-          alert(`${data.nickname} geri dönmedi. Oyun iptal edildi.`);
-          clearSession();
-          window.location.reload();
-        }, 60000);
       }
       break;
     }
@@ -964,9 +956,17 @@ function handleGuestReceivedData(data) {
 function processGameEvent(data) {
   switch (data.type) {
     case 'game-cancelled':
-      alert(`${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırılıyor...`);
-      clearSession();
-      window.location.reload();
+      const msg = `${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırıldı.`;
+      const modal = document.getElementById('game-cancelled-modal');
+      const msgEl = document.getElementById('game-cancelled-message');
+      if (modal && msgEl) {
+        msgEl.textContent = msg;
+        modal.classList.remove('hidden');
+      } else {
+        alert(msg);
+        clearSession();
+        window.location.reload();
+      }
       break;
 
     case 'ready-state':
@@ -1820,9 +1820,11 @@ function handleOpponentDisconnect() {
   
   if (selectionTimerInterval) clearInterval(selectionTimerInterval);
   
+  const msg = `⚠️ <strong>${opponentName || 'Rakip'}</strong> bağlantıyı kesti! Yeniden bağlanılıyor...`;
+  
   const logDiv = document.createElement('div');
   logDiv.className = 'system-message error';
-  logDiv.innerHTML = `⚠️ <strong>${opponentName || 'Rakip'}</strong> bağlantıyı kesti! Yeniden bağlanılıyor...`;
+  logDiv.innerHTML = msg;
   chatMessages.appendChild(logDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   
@@ -1831,6 +1833,15 @@ function handleOpponentDisconnect() {
   peerStatus.textContent = 'Rakip ayrıldı. Yeni oyuncu bekleniyor...';
   displayRoomId.textContent = currentRoomId;
   showScreen(waitingScreen);
+}
+
+// Ack Game Cancelled
+const ackGameCancelledBtn = document.getElementById('ack-game-cancelled-btn');
+if (ackGameCancelledBtn) {
+  ackGameCancelledBtn.addEventListener('click', () => {
+    clearSession();
+    window.location.reload();
+  });
 }
 // Chat Tab Toggles
 const chatTabGlobal = document.getElementById('chat-tab-global');
