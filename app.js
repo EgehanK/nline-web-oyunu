@@ -604,19 +604,11 @@ function setupHostConnectionListener() {
         if (disconnected.isReconnecting) return;
         disconnected.isReconnecting = true;
 
-        // During active game/selection — Give 60s grace period for reconnection
+        // During active game/selection
         const disconnectedNickname = disconnected.nickname || '?';
         
         broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
         processGameEvent({ type: 'player-reconnecting', nickname: disconnectedNickname });
-        
-        if (reconnectTimer) clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(() => {
-          broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: disconnectedNickname });
-          alert(`${disconnectedNickname} geri dönmedi. Oyun iptal edildi.`);
-          clearSession();
-          window.location.reload();
-        }, 60000);
       }
     };
 
@@ -654,6 +646,18 @@ function setupGuestDataHandlers(connection, isRejoining) {
     // If game over screen is visible, the game is done - just silently ignore disconnect
     const gameIsOver = !gameOverScreen.classList.contains('hidden');
     if (gameIsOver) return;
+
+    const inLobby = !waitingScreen.classList.contains('hidden');
+    if (inLobby) {
+      const msg = `Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.`;
+      const modal = document.getElementById('game-cancelled-modal');
+      const msgEl = document.getElementById('game-cancelled-message');
+      if (modal && msgEl) {
+        msgEl.textContent = msg;
+        modal.classList.remove('hidden');
+      }
+      return;
+    }
 
     console.log('Connection lost, reloading to auto-restore...');
     window.location.reload();
@@ -1772,6 +1776,9 @@ function resetSelectionAndRestart() {
   gameOverScreen.classList.add('hidden');
   playAgainBtn.textContent = 'Tekrar Oyna';
   playAgainBtn.disabled = false;
+  
+  // Clear the board completely so saveSession doesn't see old eliminated cards
+  charactersGrid.innerHTML = '';
   
   // Hide waiting indicator
   const waiting = document.getElementById('play-again-waiting');
