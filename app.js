@@ -4,13 +4,14 @@
 
 // Complete 48 Playable 5-Star Characters Database
 const characters = [
-  // --- Mondstadt ---
+ // --- Mondstadt ---
   { id: "albedo",       name: "Albedo",              element: "Geo",     weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", img: "Albedo" },
   { id: "diluc",        name: "Diluc",               element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", img: "Diluc" },
   { id: "eula",         name: "Eula",                element: "Cryo",    weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Kadın", img: "Eula" },
   { id: "jean",         name: "Jean",                element: "Anemo",   weapon: "Kılıç",           region: "Mondstadt",  gender: "Kadın", img: "Qin" },
   { id: "klee",         name: "Klee",                element: "Pyro",    weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", img: "Klee" },
   { id: "mona",         name: "Mona",                element: "Hydro",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", img: "Mona" },
+  { id: "varka",        name: "Varka",               element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", img: "Varka" },
   { id: "venti",        name: "Venti",               element: "Anemo",   weapon: "Yay",             region: "Mondstadt",  gender: "Erkek", img: "Venti" },
 
   // --- Liyue ---
@@ -63,14 +64,28 @@ const characters = [
   { id: "mualani",      name: "Mualani",             element: "Hydro",   weapon: "Katalizör",       region: "Natlan",     gender: "Kadın", img: "Mualani" },
   { id: "xilonen",      name: "Xilonen",             element: "Geo",     weapon: "Kılıç",           region: "Natlan",     gender: "Kadın", img: "Xilonen" },
 
-  // --- Snezhnaya & Fatui ---
-  { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia" },
+  // --- Nod-Krai ---
+  { id: "columbina",    name: "Columbina",           element: "Hydro",   weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Columbina" },
+  { id: "escoffier",    name: "Escoffier",           element: "Cryo",    weapon: "Mızrak",          region: "Nod-Krai",   gender: "Kadın", img: "Escoffier" },
+  { id: "flins",        name: "Flins",               element: "Electro", weapon: "Mızrak",          region: "Nod-Krai",   gender: "Erkek", img: "Flins" },
+  { id: "ineffa",       name: "Ineffa",              element: "Electro", weapon: "Mızrak",          region: "Nod-Krai",   gender: "Kadın", img: "Ineffa" },
+  { id: "lauma",        name: "Lauma",               element: "Dendro",  weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Lauma" },
+  { id: "linnea",       name: "Linnea",              element: "Geo",     weapon: "Yay",             region: "Nod-Krai",   gender: "Kadın", img: "Linnea" },
+  { id: "lohen",        name: "Lohen",               element: "Cryo",    weapon: "Mızrak",          region: "Nod-Krai",   gender: "Erkek", img: "Lohen" },
+  { id: "mizuki",       name: "Mizuki",              element: "Anemo",   weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Mizuki" },
+  { id: "nefer",        name: "Nefer",               element: "Dendro",  weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Nefer" },
+  { id: "varesa",       name: "Varesa",              element: "Electro", weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Varesa" },
+  { id: "zibai",        name: "Zibai",               element: "Geo",     weapon: "Kılıç",           region: "Nod-Krai",   gender: "Kadın", img: "Zibai" },
+
+  // --- Snezhnaya ---
   { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Snezhnaya",  gender: "Kadın", img: "Arlecchino" },
+  { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia" },
 
   // --- Diğer ---
-  { id: "aloy",         name: "Aloy",                element: "Cryo",    weapon: "Yay",             region: "Yabancı",    gender: "Kadın", img: "Aloy" }
+  { id: "durin",        name: "Durin",               element: "Pyro",   weapon: "Çift Elli Kılıç", region: "Khaenri'ah", gender: "Erkek", img: "Durin" },
+  { id: "nicole",       name: "Nicole",              element: "Pyro",   weapon: "Katalizör",       region: "Hexenzirkel",gender: "Kadın", img: "Nicole" },
+  { id: "skirk",        name: "Skirk",               element: "Cryo",    weapon: "Kılıç",           region: "Hiçlik",     gender: "Kadın", img: "SkirkNew" }
 ];
-
 
 // Helper: build image path using UI_AvatarIcon format
 function imgSrc(char) {
