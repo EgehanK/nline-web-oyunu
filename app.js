@@ -975,6 +975,8 @@ function handleHostReceivedData(connection, data) {
         
         updateLobbyUI();
         broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+        broadcast({ type: 'player-reconnected', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
         
         // If the game has already started (selection phase or active game), send rejoin sync
         const isInSelection = selectionScreen.classList.contains('active');
@@ -1083,7 +1085,7 @@ function handleHostReceivedData(connection, data) {
 
     case 'tab-restored': {
       const existingClient = clients.find(c => c.nickname === data.nickname);
-      if (existingClient && existingClient.isReconnecting) {
+      if (existingClient) {
         existingClient.isReconnecting = false;
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
@@ -1324,6 +1326,12 @@ function processGameEvent(data) {
       break;
       
     case 'player-reconnecting': {
+      if (!window.reconnectIntervals) window.reconnectIntervals = {};
+      if (window.reconnectIntervals[data.nickname]) {
+        clearInterval(window.reconnectIntervals[data.nickname]);
+        delete window.reconnectIntervals[data.nickname];
+      }
+
       const chatMsg = document.createElement('div');
       chatMsg.className = 'system-message error reconnect-countdown-msg';
       chatMsg.dataset.nickname = data.nickname;
@@ -1340,26 +1348,35 @@ function processGameEvent(data) {
         timeLeft--;
         if (timeLeft <= 0) {
           clearInterval(interval);
+          if (window.reconnectIntervals && window.reconnectIntervals[data.nickname]) {
+            delete window.reconnectIntervals[data.nickname];
+          }
           if (isHost) {
             broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
-          } else if (conn && conn.open) {
-            conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+            processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
           }
-          processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
         } else {
           chatMsg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} disconnected, waiting to reconnect (${timeLeft}s)...` : `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
         }
       }, 1000);
       
-      if (!window.reconnectIntervals) window.reconnectIntervals = {};
       window.reconnectIntervals[data.nickname] = interval;
       break;
     }
 
     case 'player-reconnected': {
-      if (window.reconnectIntervals && window.reconnectIntervals[data.nickname]) {
-        clearInterval(window.reconnectIntervals[data.nickname]);
-        delete window.reconnectIntervals[data.nickname];
+      if (window.reconnectIntervals) {
+        if (window.reconnectIntervals[data.nickname]) {
+          clearInterval(window.reconnectIntervals[data.nickname]);
+          delete window.reconnectIntervals[data.nickname];
+        }
+        // Also clean up any interval if name matches loosely
+        Object.keys(window.reconnectIntervals).forEach(nick => {
+          if (nick.trim() === data.nickname.trim()) {
+            clearInterval(window.reconnectIntervals[nick]);
+            delete window.reconnectIntervals[nick];
+          }
+        });
       }
       
       if (chatMessages) {
