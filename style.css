@@ -2045,8 +2045,8 @@ select:focus {
     padding-right: 0;
   }
   .selection-grid {
-    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
   }
   .selection-detail-panel {
     position: fixed;
@@ -2058,25 +2058,14 @@ select:focus {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
-    border-radius: 20px 20px 0 0;
+    padding: 10px 15px !important;
     background: rgba(15, 15, 25, 0.98);
-    border: 1px solid rgba(235, 194, 114, 0.3);
-    border-bottom: none;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-    z-index: 1000;
+    border-top: 2px solid var(--color-gold);
+    z-index: 100;
   }
-  .genshin-detail-card {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-    height: auto;
-  }
-  .detail-section-title, 
-  .detail-card-preview, 
-  .detail-badge-list {
-    display: none; /* Hide huge image and badges on mobile */
+  .detail-avatar {
+    width: 50px;
+    height: 50px;
   }
   .detail-info-group {
     flex: 1;
@@ -2131,8 +2120,8 @@ select:focus {
     padding-bottom: 10px;
   }
   .grid-layout {
-    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
   }
   
   /* Robust CSS Grid for the Control Panel */
