@@ -759,10 +759,7 @@ function initPeer(targetRoomId = null) {
     } else {
       peerStatus.textContent = currentLang === 'en' ? `Connecting to room (${currentRoomId})...` : `Odaya (${currentRoomId}) bağlanılıyor...`;
       displayRoomId.textContent = currentRoomId;
-      const isPlayingOrSelecting = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
-      if (!isRestoringSession && !isPlayingOrSelecting) {
-        showScreen(waitingScreen);
-      }
+      showScreen(waitingScreen);
       const hostPeerId = PEER_PREFIX + currentRoomId;
       const connection = peer.connect(hostPeerId);
       setupGuestConnection(connection);
@@ -778,13 +775,21 @@ function initPeer(targetRoomId = null) {
       return;
     }
     
-    // If the player is in an active room/session, NEVER clear the session on ANY PeerJS error.
-    // Always retry until the connection recovers or the host explicitly cancels the game.
-    const hasSession = currentRoomId || localStorage.getItem('genshin_session') || isRestoringSession;
-    if (hasSession) {
-      console.log('PeerJS error during active session. Retrying...', err);
+    // Check if error is related to network drop or temporary disconnect
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'disconnected' || (err.message && err.message.includes('Lost connection'))) {
+      console.log('Network error detected. Reloading to auto-restore...');
       setTimeout(() => window.location.reload(), 1500);
       return;
+    }
+
+    // For peer-unavailable (wrong code or host dropped)
+    if (err.type === 'peer-unavailable') {
+      const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
+      if (isGameActive || isRestoringSession) {
+        console.log('Host temporarily unavailable. Retrying...');
+        setTimeout(() => window.location.reload(), 3000);
+        return;
+      }
     }
 
     // Fatal unrecoverable error for fresh joins
@@ -1222,7 +1227,7 @@ function handleGuestReceivedData(data) {
         if (overlay) overlay.classList.add('hidden');
       }
       isRestoringSession = false; // Reset the restoring flag
-      
+
       if (data.isInSelectionPhase) {
         startSelectionPhase();
         const myClientState = data.clients.find(c => c.nickname === myNickname);
@@ -1246,39 +1251,16 @@ function handleGuestReceivedData(data) {
           }, 100);
         }
       } else {
-        // Always restore from host's source of truth if we are in game!
-        // This makes reconnecting bulletproof even if localStorage was completely wiped.
-        if (data.hostSecretChar && data.guestSecretChar) {
-          mySecretCharacter = data.guestSecretChar;
-          opponentSecretCharacter = data.hostSecretChar;
-          isMyTurn = !data.isHostTurn;
-          opponentName = data.clients.find(c => c.isHost)?.nickname || 'Oda Kurucusu';
-          
-          launchGameBoard();
-          
-          // Re-apply eliminated cards from host state
-          if (data.eliminatedCards && data.eliminatedCards.length > 0) {
-            data.eliminatedCards.forEach(id => {
-              const card = document.querySelector(`.card[data-id="${id}"]`);
-              if (card) {
-                card.classList.add('eliminated');
-                const img = card.querySelector('img');
-                if (img) img.style.opacity = '0.3';
-              }
-            });
-          }
-        } else {
-          // Fallback to local session if host data is somehow missing
-          const saved = localStorage.getItem('genshin_session');
-          if (saved) {
-            const sess = JSON.parse(saved);
-            mySecretCharacter = sess.mySecretChar;
-            opponentSecretCharacter = sess.oppSecretChar;
-            isMyTurn = sess.isMyTurn;
-            opponentName = sess.opponentName || 'Rakip';
-            if (mySecretCharacter && opponentSecretCharacter) {
-              launchGameBoard();
-            }
+        // Restore game UI from local session
+        const saved = localStorage.getItem('genshin_session');
+        if (saved) {
+          const sess = JSON.parse(saved);
+          mySecretCharacter = sess.mySecretChar;
+          opponentSecretCharacter = sess.oppSecretChar;
+          isMyTurn = sess.isMyTurn;
+          opponentName = sess.opponentName || 'Rakip';
+          if (mySecretCharacter && opponentSecretCharacter) {
+            launchGameBoard();
           }
         }
       }
