@@ -759,7 +759,10 @@ function initPeer(targetRoomId = null) {
     } else {
       peerStatus.textContent = currentLang === 'en' ? `Connecting to room (${currentRoomId})...` : `Odaya (${currentRoomId}) bağlanılıyor...`;
       displayRoomId.textContent = currentRoomId;
-      showScreen(waitingScreen);
+      const isPlayingOrSelecting = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
+      if (!isRestoringSession && !isPlayingOrSelecting) {
+        showScreen(waitingScreen);
+      }
       const hostPeerId = PEER_PREFIX + currentRoomId;
       const connection = peer.connect(hostPeerId);
       setupGuestConnection(connection);
@@ -775,12 +778,12 @@ function initPeer(targetRoomId = null) {
       return;
     }
     
-    // If the player is in an active session, NEVER clear the session on ANY PeerJS error.
-    // Always retry until the connection recovers or the host cancels the game.
-    const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
-    if (isGameActive || isRestoringSession) {
+    // If the player is in an active room/session, NEVER clear the session on ANY PeerJS error.
+    // Always retry until the connection recovers or the host explicitly cancels the game.
+    const hasSession = currentRoomId || localStorage.getItem('genshin_session') || isRestoringSession;
+    if (hasSession) {
       console.log('PeerJS error during active session. Retrying...', err);
-      setTimeout(() => window.location.reload(), 2000);
+      setTimeout(() => window.location.reload(), 1500);
       return;
     }
 
@@ -927,8 +930,12 @@ function setupGuestDataHandlers(connection, isRejoining) {
     const gameIsOver = !gameOverScreen.classList.contains('hidden');
     if (gameIsOver) return;
 
-    const isPlaying = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
-    if (!isPlaying) {
+    // Only assume "Host left" if we are purely in initial lobby join without any saved session or active room.
+    // If we have an active session/room, a connection close is simply network loss on mobile; attempt reload/reconnect.
+    const hasSession = currentRoomId || localStorage.getItem('genshin_session') || isRestoringSession;
+    const isPlayingOrSelecting = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
+    
+    if (!hasSession && !isPlayingOrSelecting) {
       const msg = currentLang === 'en' ? 'Host left the room. Game ended.' : 'Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.';
       const modal = document.getElementById('game-cancelled-modal');
       const msgEl = document.getElementById('game-cancelled-message');
@@ -940,7 +947,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
     }
 
     console.log('Connection lost, reloading to auto-restore...');
-    window.location.reload();
+    setTimeout(() => window.location.reload(), 1000);
   });
 
   connection.on('error', () => {
@@ -948,7 +955,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
     if (gameIsOver) return;
 
     console.log('Connection error, reloading to auto-restore...');
-    window.location.reload();
+    setTimeout(() => window.location.reload(), 1000);
   });
 }
 
@@ -956,7 +963,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     if (!isHost && conn && conn.open) {
-      conn.send({ type: 'tab-minimized', nickname: myNickname });
+      try { conn.send({ type: 'tab-minimized', nickname: myNickname }); } catch (e) {}
     } else if (isHost) {
       broadcast({ type: 'tab-minimized', nickname: myNickname });
       processGameEvent({ type: 'tab-minimized', nickname: myNickname });
@@ -965,9 +972,14 @@ document.addEventListener('visibilitychange', () => {
     if (!isHost && currentRoomId) {
       if (!conn || !conn.open) {
         console.log('Page visible again, connection is dead — reloading to auto-restore...');
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 500);
       } else {
-        conn.send({ type: 'tab-restored', nickname: myNickname });
+        try {
+          conn.send({ type: 'tab-restored', nickname: myNickname });
+        } catch (e) {
+          console.log('Failed to send tab-restored over frozen socket, reloading...');
+          setTimeout(() => window.location.reload(), 500);
+        }
       }
     } else if (isHost) {
       broadcast({ type: 'tab-restored', nickname: myNickname });
