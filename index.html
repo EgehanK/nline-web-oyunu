@@ -19,6 +19,11 @@
   <!-- MAIN WRAPPER -->
   <div class="app-container">
     
+    <!-- LANGUAGE SWITCHER BUTTON -->
+    <button id="lang-toggle-btn" class="lang-toggle-btn" title="Dili Değiştir / Change Language">
+      🌐 <span id="lang-toggle-text">EN</span>
+    </button>
+    
     <!-- LOBBY SCREEN (LOGIN / JOIN) -->
     <div id="lobby-screen" class="screen active">
 
@@ -26,37 +31,37 @@
         <div class="logo-container">
           <span class="logo-accent">GENSHIN IMPACT</span>
           <h1 class="logo-title">GUESS WHO?</h1>
-          <p class="logo-subtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
+          <p class="logo-subtitle" data-i18n="appSubtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
         </div>
 
         <div class="lobby-card new-lobby-card" style="margin: 0 auto; position: relative;">
           <!-- MASCOT PEEKING OVER EDGE -->
-          <img src="images/gizliqiqi.png" class="lobby-mascot" alt="Qiqi Mascot" onerror="this.src='images/UI_AvatarIcon_Qiqi.png'">
+          <img src="images/paimon.png" class="lobby-mascot" alt="Qiqi Mascot" onerror="this.src='images/UI_AvatarIcon_Qiqi.png'">
           
           <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
           <div class="form-group">
-            <label for="nickname-input">Kullanıcı Adın</label>
-            <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12">
+            <label for="nickname-input" data-i18n="labelNickname">Kullanıcı Adın</label>
+            <input type="text" id="nickname-input" placeholder="Gezgin..." data-i18n-placeholder="placeholderNickname" maxlength="12">
           </div>
 
           <div class="form-group">
-            <label>Oyun Modu</label>
+            <label data-i18n="labelGameMode">Oyun Modu</label>
             <div class="mode-selector" style="display:flex; gap:10px;">
-              <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
-              <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> 2v2 Takımlı</label>
+              <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> <span data-i18n="mode1v1">1v1 Normal</span></label>
+              <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> <span data-i18n="mode2v2">2v2 Takımlı</span></label>
             </div>
           </div>
 
           <div class="action-buttons">
             <button id="create-room-btn" class="primary-btn main-action-btn">
-              <span class="btn-icon">✦</span> Yeni Oda Oluştur
+              <span class="btn-icon">✦</span> <span data-i18n="btnCreateRoom">Yeni Oda Oluştur</span>
             </button>
             
-            <div class="divider"><span>veya</span></div>
+            <div class="divider"><span data-i18n="textOr">veya</span></div>
 
             <div class="join-group">
-              <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" maxlength="6">
-              <button id="join-room-btn" class="secondary-btn">Katıl</button>
+              <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" data-i18n-placeholder="placeholderRoomCode" maxlength="6">
+              <button id="join-room-btn" class="secondary-btn" data-i18n="btnJoin">Katıl</button>
             </div>
           </div>
 
@@ -64,7 +69,7 @@
         </div>
         
         <button id="how-to-play-btn" class="help-btn">
-          <span class="help-icon">?</span> Nasıl Oynanır?
+          <span class="help-icon">?</span> <span data-i18n="btnHowToPlay">Nasıl Oynanır?</span>
         </button>
       </div>
     </div>
@@ -72,25 +77,25 @@
     <!-- HOW TO PLAY MODAL -->
     <div id="how-to-play-modal" class="guide-modal-overlay hidden">
       <div class="guide-modal-content">
-        <h2 class="modal-title" style="color:var(--color-gold-bright);text-align:center;margin-bottom:20px;">Nasıl Oynanır?</h2>
+        <h2 class="modal-title" style="color:var(--color-gold-bright);text-align:center;margin-bottom:20px;" data-i18n="titleHowToPlay">Nasıl Oynanır?</h2>
         <ul class="guide-steps" style="text-align: left;">
-          <li><span class="step-num">1</span> Kendine gizli bir karakter seç.</li>
-          <li><span class="step-num">2</span> Rakibine "Kılıç mı kullanıyor?", "Fontaine'den mi?" gibi Evet/Hayır soruları sor.</li>
-          <li><span class="step-num">3</span> Aldığın cevaplara göre uymayan kartları ele (üzerine tıkla).</li>
-          <li><span class="step-num">4</span> Rakibinin karakterini doğru tahmin eden ilk kişi kazanır!</li>
+          <li><span class="step-num">1</span> <span data-i18n="step1">Kendine gizli bir karakter seç.</span></li>
+          <li><span class="step-num">2</span> <span data-i18n="step2">Rakibine "Kılıç mı kullanıyor?", "Fontaine'den mi?" gibi Evet/Hayır soruları sor.</span></li>
+          <li><span class="step-num">3</span> <span data-i18n="step3">Aldığın cevaplara göre uymayan kartları ele (üzerine tıkla).</span></li>
+          <li><span class="step-num">4</span> <span data-i18n="step4">Rakibinin karakterini doğru tahmin eden ilk kişi kazanır!</span></li>
         </ul>
-        <button id="close-how-to-play-btn" class="primary-btn" style="margin-top: 25px; width: 100%;">Anladım</button>
+        <button id="close-how-to-play-btn" class="primary-btn" style="margin-top: 25px; width: 100%;" data-i18n="btnGotIt">Anladım</button>
       </div>
     </div>
 
     <!-- WAITING SCREEN (WAITING FOR OPPONENT) -->
     <div id="waiting-screen" class="screen">
       <div class="lobby-card text-center" style="max-width: 600px;">
-        <h2 class="section-title text-gold">Oda Kuruldu!</h2>
-        <p class="lobby-desc">Diğer oyuncuların katılması bekleniyor...</p>
+        <h2 class="section-title text-gold" data-i18n="titleRoomCreated">Oda Kuruldu!</h2>
+        <p class="lobby-desc" data-i18n="descWaiting">Diğer oyuncuların katılması bekleniyor...</p>
         
         <div class="room-code-display">
-          <span class="code-label">ODA KODU:</span>
+          <span class="code-label" data-i18n="labelRoomCode">ODA KODU:</span>
           <span id="display-room-id" class="code-value">-----</span>
           <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala">📋</button>
         </div>
@@ -99,27 +104,27 @@
         <div class="teams-container">
           <!-- Team A -->
           <div class="team-panel team-a" style="flex:1; background:rgba(30,58,138,0.3); padding:15px; border-radius:8px; border:1px solid #1e3a8a;">
-            <h3 style="color:#60a5fa; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım A (Mavi)</h3>
+            <h3 style="color:#60a5fa; margin-bottom:10px; font-size:1.1rem; text-align:center;" data-i18n="titleTeamA">Takım A (Mavi)</h3>
             <ul id="team-a-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
-              <li class="player-slot empty">Bekleniyor...</li>
-              <li class="player-slot empty hidden" id="slot-a2">Bekleniyor...</li>
+              <li class="player-slot empty" data-i18n="waitingPlayerSlot">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-a2" data-i18n="waitingPlayerSlot">Bekleniyor...</li>
             </ul>
           </div>
           <!-- Team B -->
           <div class="team-panel team-b" style="flex:1; background:rgba(153,27,27,0.3); padding:15px; border-radius:8px; border:1px solid #991b1b;">
-            <h3 style="color:#f87171; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım B (Kırmızı)</h3>
+            <h3 style="color:#f87171; margin-bottom:10px; font-size:1.1rem; text-align:center;" data-i18n="titleTeamB">Takım B (Kırmızı)</h3>
             <ul id="team-b-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
-              <li class="player-slot empty">Bekleniyor...</li>
-              <li class="player-slot empty hidden" id="slot-b2">Bekleniyor...</li>
+              <li class="player-slot empty" data-i18n="waitingPlayerSlot">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-b2" data-i18n="waitingPlayerSlot">Bekleniyor...</li>
             </ul>
           </div>
         </div>
 
-        <div id="peer-status" class="status-msg text-muted">Sunucuya bağlanılıyor...</div>
+        <div id="peer-status" class="status-msg text-muted" data-i18n="statusConnecting">Sunucuya bağlanılıyor...</div>
         
         <div class="waiting-actions" style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-          <button id="start-game-btn" class="primary-btn hidden" style="width:100%;">Oyunu Başlat!</button>
-          <button id="leave-room-btn" class="secondary-btn" style="width:100%;">Odayı Kapat</button>
+          <button id="start-game-btn" class="primary-btn hidden" style="width:100%;" data-i18n="btnStartGame">Oyunu Başlat!</button>
+          <button id="leave-room-btn" class="secondary-btn" style="width:100%;" data-i18n="btnLeaveRoom">Odayı Kapat</button>
         </div>
       </div>
     </div>
@@ -128,18 +133,18 @@
     <div id="selection-screen" class="screen">
       <header class="game-header">
         <div class="header-left">
-          <h2 class="game-logo">Genshin Guess Who <span>Karakter Seçimi</span></h2>
+          <h2 class="game-logo">Genshin Guess Who <span data-i18n="titleCharSelection">Karakter Seçimi</span></h2>
         </div>
         <div class="header-center">
           <div class="timer-badge active-turn">
-            Süre: <span id="selection-timer-text">30</span>s
+            <span data-i18n="labelTime">Süre:</span> <span id="selection-timer-text">30</span>s
           </div>
         </div>
         <div class="header-right">
           <div id="selection-status-players" class="room-info">
-            <span id="my-ready-label">Sen:</span> <span id="my-ready-status" class="text-red">Seçim Yapmadı</span>
+            <span id="my-ready-label" data-i18n="labelYou">Sen:</span> <span id="my-ready-status" class="text-red" data-i18n="statusNotSelected">Seçim Yapmadı</span>
             <span id="ready-separator"> | </span>
-            <span id="opponent-ready-label">Rakip:</span> <span id="opponent-ready-status" class="text-muted">Seçim Yapıyor...</span>
+            <span id="opponent-ready-label" data-i18n="labelOpponent">Rakip:</span> <span id="opponent-ready-status" class="text-muted" data-i18n="statusSelecting">Seçim Yapıyor...</span>
           </div>
         </div>
       </header>
@@ -155,14 +160,14 @@
         <!-- Right detail card panel -->
         <aside class="selection-detail-panel">
           <div class="genshin-detail-card">
-            <h3 class="detail-section-title">Karakter Detayları</h3>
+            <h3 class="detail-section-title" data-i18n="titleCharDetails">Karakter Detayları</h3>
             
             <div id="detail-card-preview" class="detail-card-preview">
               <!-- Show character graphic preview -->
             </div>
             
             <div class="detail-info-group">
-              <h2 id="detail-char-name" class="detail-char-name">Karakter Seçin</h2>
+              <h2 id="detail-char-name" class="detail-char-name" data-i18n="defaultCharName">Karakter Seçin</h2>
               <div class="detail-badge-list">
                 <span id="detail-char-element" class="detail-badge">Element: -</span>
                 <span id="detail-char-weapon" class="detail-badge">Silah: -</span>
@@ -171,7 +176,7 @@
               </div>
             </div>
 
-            <button id="lock-character-btn" class="primary-btn lock-btn" disabled>
+            <button id="lock-character-btn" class="primary-btn lock-btn" disabled data-i18n="btnLockChar">
               Karakteri Kilitle
             </button>
           </div>
@@ -194,8 +199,8 @@
         </div>
         <div class="header-right">
           <div class="room-info">
-            Oda: <strong id="game-room-id" class="text-gold">-----</strong> | 
-            Rakip: <strong id="opponent-name" class="text-blue">Rakip...</strong>
+            <span data-i18n="labelRoomHeader">Oda:</span> <strong id="game-room-id" class="text-gold">-----</strong> | 
+            <span id="opponent-name-label" data-i18n="labelOpponentHeader">Rakip:</span> <strong id="opponent-name" class="text-blue">Rakip...</strong>
           </div>
         </div>
       </header>
@@ -215,8 +220,8 @@
           
           <!-- YOUR SECRET CHARACTER DISPLAY -->
           <div class="secret-card-panel">
-            <h3 class="panel-section-title">Senin Karakterin</h3>
-            <p class="panel-desc">Rakibin bu karakteri tahmin etmeye çalışıyor:</p>
+            <h3 class="panel-section-title" data-i18n="titleYourChar">Senin Karakterin</h3>
+            <p class="panel-desc" data-i18n="descYourChar">Rakibin bu karakteri tahmin etmeye çalışıyor:</p>
             <div id="my-secret-character-card" class="secret-avatar-container">
               <!-- Dynamically populated secret character -->
             </div>
@@ -224,10 +229,10 @@
 
           <!-- ACTIONS SECTION -->
           <div class="game-actions">
-            <button id="open-guess-modal-btn" class="primary-btn action-btn font-bold">
+            <button id="open-guess-modal-btn" class="primary-btn action-btn font-bold" data-i18n="btnGuess">
               ✦ TAHMİN ET ✦
             </button>
-            <button id="pass-turn-btn" class="secondary-btn action-btn">
+            <button id="pass-turn-btn" class="secondary-btn action-btn" data-i18n="btnPassTurn">
               Sırayı Devret
             </button>
           </div>
@@ -235,18 +240,18 @@
           <!-- CHAT BOX -->
           <div class="chat-container">
             <div class="chat-header" style="display:flex; justify-content:space-between; align-items:center;">
-              <h3>Sohbet</h3>
+              <h3 data-i18n="titleChat">Sohbet</h3>
               <div class="chat-tabs" style="display:flex; gap:5px;">
-                <button id="chat-tab-global" class="chat-tab active">Genel</button>
-                <button id="chat-tab-team" class="chat-tab hidden">Takım</button>
+                <button id="chat-tab-global" class="chat-tab active" data-i18n="tabGlobal">Genel</button>
+                <button id="chat-tab-team" class="chat-tab hidden" data-i18n="tabTeam">Takım</button>
               </div>
             </div>
             <div id="chat-messages" class="chat-messages-area">
-              <div class="system-message">Oyun başladı! Sırayla birbirinize sorular sorun. Karakter özelliklerine göre sol taraftaki kartları eleyebilirsiniz.</div>
+              <div class="system-message" data-i18n="sysMsgStart">Oyun başladı! Sırayla birbirinize sorular sorun. Karakter özelliklerine göre sol taraftaki kartları eleyebilirsiniz.</div>
             </div>
             <form id="chat-form" class="chat-input-form">
-              <input type="text" id="chat-input" placeholder="Sorunu sor veya yazış..." autocomplete="off" maxlength="100">
-              <button type="submit" id="chat-send-btn">Gönder</button>
+              <input type="text" id="chat-input" placeholder="Sorunu sor veya yazış..." data-i18n-placeholder="placeholderChat" autocomplete="off" maxlength="100">
+              <button type="submit" id="chat-send-btn" data-i18n="btnSend">Gönder</button>
             </form>
           </div>
 
@@ -260,22 +265,22 @@
   <div id="guess-modal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 class="text-gold">Karakter Tahmini</h2>
+        <h2 class="text-gold" data-i18n="titleGuessModal">Karakter Tahmini</h2>
         <button id="close-guess-modal-btn" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="modal-desc">Rakibinin gizli karakterinin kim olduğunu düşünüyorsun? Dikkat et, yanlış tahmin sırayı rakibine geçirecektir!</p>
+        <p class="modal-desc" data-i18n="descGuessModal">Rakibinin gizli karakterinin kim olduğunu düşünüyorsun? Dikkat et, yanlış tahmin sırayı rakibine geçirecektir!</p>
         
         <div class="guess-select-container">
-          <label for="guess-select">Karakter Seç:</label>
+          <label for="guess-select" data-i18n="labelSelectChar">Karakter Seç:</label>
           <select id="guess-select">
             <!-- Dynamically populated options -->
           </select>
         </div>
 
         <div class="modal-buttons">
-          <button id="submit-guess-btn" class="primary-btn">Tahminimi Gönder</button>
-          <button id="cancel-guess-btn" class="secondary-btn">İptal</button>
+          <button id="submit-guess-btn" class="primary-btn" data-i18n="btnSubmitGuess">Tahminimi Gönder</button>
+          <button id="cancel-guess-btn" class="secondary-btn" data-i18n="btnCancel">İptal</button>
         </div>
       </div>
     </div>
@@ -285,23 +290,23 @@
   <div id="game-over-screen" class="modal-overlay hidden">
     <div class="game-over-card text-center">
       <div class="stars-animation"></div>
-      <h1 id="game-over-title" class="game-over-title">TEBRİKLER!</h1>
-      <p id="game-over-message" class="game-over-message">Rakibinin karakterini doğru tahmin ettin!</p>
+      <h1 id="game-over-title" class="game-over-title" data-i18n="titleCongrats">TEBRİKLER!</h1>
+      <p id="game-over-message" class="game-over-message" data-i18n="msgCorrectGuess">Rakibinin karakterini doğru tahmin ettin!</p>
       
       <div class="result-details">
-        <p class="result-desc">Rakibinin Gizli Karakteri:</p>
+        <p class="result-desc" data-i18n="labelOpponentSecret">Rakibinin Gizli Karakteri:</p>
         <div id="opponent-secret-card-display" class="opponent-secret-card-display">
           <!-- Final card design -->
         </div>
       </div>
 
       <div class="game-over-actions">
-        <button id="play-again-btn" class="primary-btn">Tekrar Oyna</button>
-        <button id="exit-lobby-btn" class="secondary-btn">Odalara Dön</button>
+        <button id="play-again-btn" class="primary-btn" data-i18n="btnPlayAgain">Tekrar Oyna</button>
+        <button id="exit-lobby-btn" class="secondary-btn" data-i18n="btnReturnLobby">Odalara Dön</button>
       </div>
       <!-- Play again waiting state (shown after request sent) -->
       <div id="play-again-waiting" class="hidden" style="margin-top:15px; text-align:center;">
-        <p style="color:#a78bfa; font-size:0.95rem; margin-bottom:6px;">Oyuncular bekleniyor...</p>
+        <p style="color:#a78bfa; font-size:0.95rem; margin-bottom:6px;" data-i18n="waitingPlayers">Oyuncular bekleniyor...</p>
         <p id="play-again-count-text" style="color:var(--color-gold-bright); font-weight:700; font-size:1.2rem;">1/2 hazır</p>
       </div>
     </div>
@@ -310,11 +315,11 @@
   <!-- PLAY AGAIN REQUEST MODAL -->
   <div id="play-again-modal" class="guide-modal-overlay hidden" style="z-index: 10000;">
     <div class="guide-modal-content text-center">
-      <h2 class="modal-title" style="color:var(--color-gold-bright); margin-bottom: 20px;">Tekrar Oynayalım Mı?</h2>
-      <p style="margin-bottom: 20px; color: #fff;">Rakibin yeni bir tur oynamak istiyor, kabul ediyor musun?</p>
+      <h2 class="modal-title" style="color:var(--color-gold-bright); margin-bottom: 20px;" data-i18n="titlePlayAgain">Tekrar Oynayalım Mı?</h2>
+      <p style="margin-bottom: 20px; color: #fff;" data-i18n="descPlayAgain">Rakibin yeni bir tur oynamak istiyor, kabul ediyor musun?</p>
       <div class="modal-buttons" style="display:flex; gap:15px; justify-content:center;">
-        <button id="accept-play-again-btn" class="primary-btn">Evet, Başla!</button>
-        <button id="reject-play-again-btn" class="secondary-btn">Hayır, Çık</button>
+        <button id="accept-play-again-btn" class="primary-btn" data-i18n="btnAccept">Evet, Başla!</button>
+        <button id="reject-play-again-btn" class="secondary-btn" data-i18n="btnReject">Hayır, Çık</button>
       </div>
     </div>
   </div>
@@ -322,10 +327,10 @@
   <!-- GAME CANCELLED MODAL -->
   <div id="game-cancelled-modal" class="guide-modal-overlay hidden" style="z-index: 10000;">
     <div class="guide-modal-content text-center">
-      <h2 class="modal-title" style="color:#ef4444; margin-bottom: 20px;">Bağlantı Koptu</h2>
-      <p id="game-cancelled-message" style="margin-bottom: 20px; color: #fff;">Bir oyuncu odadan ayrıldı.</p>
+      <h2 class="modal-title" style="color:#ef4444; margin-bottom: 20px;" data-i18n="titleDisconnected">Bağlantı Koptu</h2>
+      <p id="game-cancelled-message" style="margin-bottom: 20px; color: #fff;" data-i18n="msgPlayerLeft">Bir oyuncu odadan ayrıldı.</p>
       <div class="modal-buttons" style="display:flex; justify-content:center;">
-        <button id="ack-game-cancelled-btn" class="primary-btn">Tamam</button>
+        <button id="ack-game-cancelled-btn" class="primary-btn" data-i18n="btnOk">Tamam</button>
       </div>
     </div>
   </div>
