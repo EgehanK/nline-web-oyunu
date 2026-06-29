@@ -1984,13 +1984,14 @@ select:focus {
   .game-header {
     flex-direction: column;
     gap: 6px;
-    padding-right: 85px !important;
+    padding-right: 5px !important;
     padding-bottom: 8px;
     margin-bottom: 6px;
   }
   .header-left {
     width: 100%;
     justify-content: flex-start !important;
+    padding-right: 85px !important;
   }
   .game-logo {
     font-size: 1rem !important;
@@ -2062,6 +2063,19 @@ select:focus {
     background: rgba(15, 15, 25, 0.98);
     border-top: 2px solid var(--color-gold);
     z-index: 100;
+  }
+  .genshin-detail-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+  }
+  .detail-section-title, 
+  .detail-card-preview, 
+  .detail-badge-list {
+    display: none !important;
   }
   .detail-avatar {
     width: 50px;
