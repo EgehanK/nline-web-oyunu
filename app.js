@@ -981,7 +981,11 @@ function handleHostReceivedData(connection, data) {
             team: existingClient.team,
             mySecretCharId: existingClient.lockedCharacterId || null,
             clients: getBroadcastLobbyState(),
-            isInSelectionPhase: isInSelection
+            isInSelectionPhase: isInSelection,
+            isHostTurn: isMyTurn,
+            hostSecretChar: mySecretCharacter,
+            guestSecretChar: opponentSecretCharacter,
+            eliminatedCards: Array.from(document.querySelectorAll('.card.eliminated')).map(c => c.dataset.id)
           });
         }
         break;
@@ -1060,7 +1064,11 @@ function handleHostReceivedData(connection, data) {
           team: existingClient.team,
           mySecretCharId: existingClient.lockedCharacterId || null,
           clients: getBroadcastLobbyState(),
-          isInSelectionPhase: selectionScreen.classList.contains('active')
+          isInSelectionPhase: selectionScreen.classList.contains('active'),
+          isHostTurn: isMyTurn,
+          hostSecretChar: mySecretCharacter,
+          guestSecretChar: opponentSecretCharacter,
+          eliminatedCards: Array.from(document.querySelectorAll('.card.eliminated')).map(c => c.dataset.id)
         });
         // Notify everyone this player is back
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
@@ -1187,16 +1195,39 @@ function handleGuestReceivedData(data) {
           }, 100);
         }
       } else {
-        // Restore game UI from local session
-        const saved = localStorage.getItem('genshin_session');
-        if (saved) {
-          const sess = JSON.parse(saved);
-          mySecretCharacter = sess.mySecretChar;
-          opponentSecretCharacter = sess.oppSecretChar;
-          isMyTurn = sess.isMyTurn;
-          opponentName = sess.opponentName || 'Rakip';
-          if (mySecretCharacter && opponentSecretCharacter) {
-            launchGameBoard();
+        // Always restore from host's source of truth if we are in game!
+        // This makes reconnecting bulletproof even if localStorage was completely wiped.
+        if (data.hostSecretChar && data.guestSecretChar) {
+          mySecretCharacter = data.guestSecretChar;
+          opponentSecretCharacter = data.hostSecretChar;
+          isMyTurn = !data.isHostTurn;
+          opponentName = data.clients.find(c => c.isHost)?.nickname || 'Oda Kurucusu';
+          
+          launchGameBoard();
+          
+          // Re-apply eliminated cards from host state
+          if (data.eliminatedCards && data.eliminatedCards.length > 0) {
+            data.eliminatedCards.forEach(id => {
+              const card = document.querySelector(`.card[data-id="${id}"]`);
+              if (card) {
+                card.classList.add('eliminated');
+                const img = card.querySelector('img');
+                if (img) img.style.opacity = '0.3';
+              }
+            });
+          }
+        } else {
+          // Fallback to local session if host data is somehow missing
+          const saved = localStorage.getItem('genshin_session');
+          if (saved) {
+            const sess = JSON.parse(saved);
+            mySecretCharacter = sess.mySecretChar;
+            opponentSecretCharacter = sess.oppSecretChar;
+            isMyTurn = sess.isMyTurn;
+            opponentName = sess.opponentName || 'Rakip';
+            if (mySecretCharacter && opponentSecretCharacter) {
+              launchGameBoard();
+            }
           }
         }
       }
