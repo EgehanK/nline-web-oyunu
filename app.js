@@ -763,21 +763,13 @@ function initPeer(targetRoomId = null) {
       return;
     }
     
-    // Check if error is related to network drop or temporary disconnect
-    if (err.type === 'network' || err.type === 'server-error' || err.type === 'disconnected' || (err.message && err.message.includes('Lost connection'))) {
-      console.log('Network error detected. Reloading to auto-restore...');
-      setTimeout(() => window.location.reload(), 1500);
+    // If the player is in an active session, NEVER clear the session on ANY PeerJS error.
+    // Always retry until the connection recovers or the host cancels the game.
+    const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
+    if (isGameActive || isRestoringSession) {
+      console.log('PeerJS error during active session. Retrying...', err);
+      setTimeout(() => window.location.reload(), 2000);
       return;
-    }
-    
-    // For peer-unavailable (wrong code or host dropped)
-    if (err.type === 'peer-unavailable') {
-      const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
-      if (isGameActive || isRestoringSession) {
-        console.log('Host temporarily unavailable. Retrying...');
-        setTimeout(() => window.location.reload(), 3000);
-        return;
-      }
     }
 
     // Fatal unrecoverable error for fresh joins
@@ -1043,7 +1035,14 @@ function handleHostReceivedData(connection, data) {
       
     case 'rejoin-request': {
       // Player reconnecting - find their existing slot by nickname
-      const existingClient = clients.find(c => c.nickname === data.nickname);
+      let existingClient = clients.find(c => c.nickname === data.nickname);
+      
+      // Bulletproof fallback: If we couldn't find them by exact nickname, but we are in 1v1 
+      // and there is exactly one guest, it MUST be them reconnecting!
+      if (!existingClient && gameMode === '1v1' && clients.length === 2) {
+        existingClient = clients.find(c => !c.isHost);
+      }
+
       if (existingClient) {
         existingClient.conn = connection;
         existingClient.peerId = connection.peer;
@@ -1117,6 +1116,12 @@ function handleHostReceivedData(connection, data) {
 // Guest Data Handler
 function handleGuestReceivedData(data) {
   switch (data.type) {
+    case 'join-rejected':
+      clearSession();
+      showScreen(lobbyScreen);
+      showLobbyError(data.reason === 'Room is full' ? 'Oda dolu!' : 'Bağlantı reddedildi.');
+      break;
+
     case 'lobby-update':
       gameMode = data.gameMode;
       // Re-assign myPlayerInfo based on what host says
