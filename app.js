@@ -870,7 +870,8 @@ function setupHostConnectionListener() {
       if (!disconnected) return;
       
       const gameIsOver = !gameOverScreen.classList.contains('hidden');
-      const inLobby = !waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active');
+      const isPlaying = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
+      const inLobby = !isPlaying && !gameIsOver;
       
       if (inLobby) {
         // In lobby — remove immediately
@@ -923,12 +924,11 @@ function setupGuestDataHandlers(connection, isRejoining) {
   });
 
   connection.on('close', () => {
-    // If game over screen is visible, the game is done - just silently ignore disconnect
     const gameIsOver = !gameOverScreen.classList.contains('hidden');
     if (gameIsOver) return;
 
-    const inLobby = !waitingScreen.classList.contains('hidden');
-    if (inLobby) {
+    const isPlaying = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
+    if (!isPlaying) {
       const msg = currentLang === 'en' ? 'Host left the room. Game ended.' : 'Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.';
       const modal = document.getElementById('game-cancelled-modal');
       const msgEl = document.getElementById('game-cancelled-message');
