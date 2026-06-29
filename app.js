@@ -422,9 +422,21 @@ const startGameBtn = document.getElementById('start-game-btn');
 const savedNick = localStorage.getItem('genshin_nickname');
 if (savedNick) nicknameInput.value = savedNick;
 
-// Auto-restore session from localStorage
+// Auto-restore session from localStorage or URL fallback
 let isRestoringSession = false;
-const savedSessionStr = localStorage.getItem('genshin_session');
+let savedSessionStr = localStorage.getItem('genshin_session');
+
+// Fallback: If localStorage is wiped (e.g. In-App Browser), try to restore from URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (!savedSessionStr && urlParams.get('room') && urlParams.get('nick')) {
+  savedSessionStr = JSON.stringify({
+    nickname: urlParams.get('nick'),
+    roomId: urlParams.get('room'),
+    isHost: urlParams.get('host') === 'true',
+    gameMode: urlParams.get('mode') || '1v1'
+  });
+}
+
 if (savedSessionStr) {
   try {
     const sess = JSON.parse(savedSessionStr);
@@ -805,10 +817,25 @@ function saveSession() {
     eliminatedCards: eliminated
   };
   localStorage.setItem('genshin_session', JSON.stringify(session));
+  
+  // Update URL to preserve session even if localStorage is wiped
+  const url = new URL(window.location);
+  url.searchParams.set('room', currentRoomId);
+  url.searchParams.set('nick', myNickname);
+  url.searchParams.set('host', isHost);
+  url.searchParams.set('mode', gameMode);
+  window.history.replaceState({}, '', url);
 }
 
 function clearSession() {
   localStorage.removeItem('genshin_session');
+  // Clear URL params
+  const url = new URL(window.location);
+  url.searchParams.delete('room');
+  url.searchParams.delete('nick');
+  url.searchParams.delete('host');
+  url.searchParams.delete('mode');
+  window.history.replaceState({}, '', url);
 }
 
 
