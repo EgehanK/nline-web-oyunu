@@ -107,6 +107,255 @@ const elementTranslations = {
   Geo: "Toprak"
 };
 
+// ==========================================================================
+// LOCALIZATION (TR / EN) SYSTEM
+// ==========================================================================
+let currentLang = localStorage.getItem('genshin_lang') || 'tr';
+
+const i18nDict = {
+  tr: {
+    appSubtitle: "Çok Oyunculu Tahmin Oyunu (P2P)",
+    labelNickname: "Kullanıcı Adın",
+    placeholderNickname: "Gezgin...",
+    labelGameMode: "Oyun Modu",
+    mode2v2: "2v2 Takımlı",
+    btnCreateRoom: "Yeni Oda Oluştur",
+    textOr: "veya",
+    placeholderRoomCode: "ODA KODU (örn. FG49)",
+    btnJoin: "Katıl",
+    btnHowToPlay: "Nasıl Oynanır?",
+    titleHowToPlay: "Nasıl Oynanır?",
+    step1: "Kendine gizli bir karakter seç.",
+    step2: 'Rakibine "Kılıç mı kullanıyor?", "Fontaine\'den mi?" gibi Evet/Hayır soruları sor.',
+    step3: "Aldığın cevaplara göre uymayan kartları ele (üzerine tıkla).",
+    step4: "Rakibinin karakterini doğru tahmin eden ilk kişi kazanır!",
+    btnGotIt: "Anladım",
+    titleRoomCreated: "Oda Kuruldu!",
+    descWaiting: "Diğer oyuncuların katılması bekleniyor...",
+    labelRoomCode: "ODA KODU:",
+    titleTeamA: "Takım A (Mavi)",
+    titleTeamB: "Takım B (Kırmızı)",
+    waitingPlayerSlot: "Bekleniyor...",
+    mode1v1: "1v1 Normal",
+    labelRoomHeader: "Oda:",
+    labelOpponentHeader: "Rakip:",
+    statusWaitingOpponent: "Bekleniyor...",
+    btnStartGame: "Oyunu Başlat!",
+    btnLeaveRoom: "Odayı Kapat",
+    titleCharSelection: "Karakter Seçimi",
+    labelTime: "Süre:",
+    labelYou: "Sen:",
+    statusNotSelected: "Seçim Yapmadı",
+    labelOpponent: "Rakip:",
+    statusSelecting: "Seçim Yapıyor...",
+    titleCharDetails: "Karakter Detayları",
+    defaultCharName: "Karakter Seçin",
+    btnLockChar: "Karakteri Kilitle",
+    titleYourChar: "Senin Karakterin",
+    descYourChar: "Rakibin bu karakteri tahmin etmeye çalışıyor:",
+    btnGuess: "✦ TAHMİN ET ✦",
+    btnPassTurn: "Sırayı Devret",
+    titleChat: "Sohbet",
+    tabGlobal: "Genel",
+    tabTeam: "Takım",
+    sysMsgStart: "Oyun başladı! Sırayla birbirinize sorular sorun. Karakter özelliklerine göre sol taraftaki kartları eleyebilirsiniz.",
+    placeholderChat: "Sorunu sor veya yazış...",
+    btnSend: "Gönder",
+    titleGuessModal: "Karakter Tahmini",
+    descGuessModal: "Rakibinin gizli karakterinin kim olduğunu düşünüyorsun? Dikkat et, yanlış tahmin sırayı rakibine geçirecektir!",
+    labelSelectChar: "Karakter Seç:",
+    btnSubmitGuess: "Tahminimi Gönder",
+    btnCancel: "İptal",
+    titleCongrats: "TEBRİKLER!",
+    msgCorrectGuess: "Rakibinin karakterini doğru tahmin ettin!",
+    labelOpponentSecret: "Rakibinin Gizli Karakteri:",
+    btnPlayAgain: "Tekrar Oyna",
+    btnReturnLobby: "Odalara Dön",
+    waitingPlayers: "Oyuncular bekleniyor...",
+    titlePlayAgain: "Tekrar Oynayalım Mı?",
+    descPlayAgain: "Rakibin yeni bir tur oynamak istiyor, kabul ediyor musun?",
+    btnAccept: "Evet, Başla!",
+    btnReject: "Hayır, Çık",
+    titleDisconnected: "Bağlantı Koptu",
+    msgPlayerLeft: "Bir oyuncu odadan ayrıldı.",
+    btnOk: "Tamam"
+  },
+  en: {
+    appSubtitle: "Multiplayer Guessing Game (P2P)",
+    labelNickname: "Your Nickname",
+    placeholderNickname: "Traveler...",
+    labelGameMode: "Game Mode",
+    mode2v2: "2v2 Team",
+    btnCreateRoom: "Create New Room",
+    textOr: "or",
+    placeholderRoomCode: "ROOM CODE (e.g. FG49)",
+    btnJoin: "Join",
+    btnHowToPlay: "How to Play?",
+    titleHowToPlay: "How to Play?",
+    step1: "Select a secret character for yourself.",
+    step2: 'Ask Yes/No questions like "Does they use a sword?", "Are they from Fontaine?".',
+    step3: "Eliminate mismatching cards by clicking on them based on the answers.",
+    step4: "The first player to correctly guess the opponent's character wins!",
+    btnGotIt: "Got It",
+    titleRoomCreated: "Room Created!",
+    descWaiting: "Waiting for other players to join...",
+    labelRoomCode: "ROOM CODE:",
+    titleTeamA: "Team A (Blue)",
+    titleTeamB: "Team B (Red)",
+    waitingPlayerSlot: "Waiting...",
+    mode1v1: "1v1 Classic",
+    labelRoomHeader: "Room:",
+    labelOpponentHeader: "Opponent:",
+    statusWaitingOpponent: "Waiting...",
+    btnStartGame: "Start Game!",
+    btnLeaveRoom: "Close Room",
+    titleCharSelection: "Character Selection",
+    labelTime: "Time:",
+    labelYou: "You:",
+    statusNotSelected: "Not Selected",
+    labelOpponent: "Opponent:",
+    statusSelecting: "Selecting...",
+    titleCharDetails: "Character Details",
+    defaultCharName: "Select Character",
+    btnLockChar: "Lock Character",
+    titleYourChar: "Your Character",
+    descYourChar: "Opponent is trying to guess this character:",
+    btnGuess: "✦ GUESS WHO ✦",
+    btnPassTurn: "Pass Turn",
+    titleChat: "Chat",
+    tabGlobal: "Global",
+    tabTeam: "Team",
+    sysMsgStart: "Game started! Take turns asking questions and eliminate cards on the left board.",
+    placeholderChat: "Ask a question or chat...",
+    btnSend: "Send",
+    titleGuessModal: "Character Guess",
+    descGuessModal: "Who do you think your opponent's secret character is? Be careful, a wrong guess passes your turn!",
+    labelSelectChar: "Select Character:",
+    btnSubmitGuess: "Submit Guess",
+    btnCancel: "Cancel",
+    titleCongrats: "CONGRATULATIONS!",
+    msgCorrectGuess: "You correctly guessed your opponent's character!",
+    labelOpponentSecret: "Opponent's Secret Character:",
+    btnPlayAgain: "Play Again",
+    btnReturnLobby: "Return to Lobby",
+    waitingPlayers: "Waiting for players...",
+    titlePlayAgain: "Play Again?",
+    descPlayAgain: "Your opponent wants to play another round, do you accept?",
+    btnAccept: "Yes, Start!",
+    btnReject: "No, Leave",
+    titleDisconnected: "Disconnected",
+    msgPlayerLeft: "A player has left the room.",
+    btnOk: "OK"
+  }
+};
+
+function translateWeapon(weaponTr) {
+  if (currentLang === 'tr') return weaponTr;
+  const map = {
+    "Kılıç": "Sword",
+    "Çift Elli Kılıç": "Claymore",
+    "Katalizör": "Catalyst",
+    "Yay": "Bow",
+    "Mızrak": "Polearm"
+  };
+  return map[weaponTr] || weaponTr;
+}
+
+function translateGender(genderTr) {
+  if (currentLang === 'tr') return genderTr;
+  return genderTr === 'Erkek' ? 'Male' : 'Female';
+}
+
+function translateElement(elementEn) {
+  if (currentLang === 'en') return elementEn;
+  return elementTranslations[elementEn] || elementEn;
+}
+
+function applyTranslations() {
+  const dict = i18nDict[currentLang] || i18nDict.tr;
+  
+  // Update toggle button text
+  const toggleTextEl = document.getElementById('lang-toggle-text');
+  if (toggleTextEl) {
+    toggleTextEl.textContent = currentLang === 'tr' ? 'EN' : 'TR';
+  }
+
+  // Update text content elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key]) {
+      el.placeholder = dict[key];
+    }
+  });
+
+  // Update waiting screen (lobby room) if active
+  const waitingScreenEl = document.getElementById('waiting-screen');
+  if (waitingScreenEl && !waitingScreenEl.classList.contains('hidden')) {
+    updateLobbyUI();
+  }
+
+  // Re-render selection screen details if active
+  const selectionScreenEl = document.getElementById('selection-screen');
+  if (selectionScreenEl && selectionScreenEl.classList.contains('active')) {
+    if (selectedCharacterLocally) {
+      showPreviewDetails(selectedCharacterLocally);
+    }
+    if (typeof updateSelectionHeaders === 'function') {
+      updateSelectionHeaders();
+    }
+  }
+  
+  // Update opponent name element if present
+  const oppNameEl = document.getElementById('opponent-name');
+  if (oppNameEl) {
+    if (opponentName && opponentName !== 'Rakip' && opponentName !== 'Opponent' && opponentName !== 'Rakip...' && opponentName !== 'Waiting...' && opponentName !== 'Bekleniyor...') {
+      oppNameEl.textContent = gameMode === '2v2' ? (currentLang === 'en' ? 'Opposing Team' : 'Rakip Takım') : opponentName;
+    } else {
+      oppNameEl.textContent = currentLang === 'en' ? 'Waiting...' : 'Bekleniyor...';
+    }
+  }
+
+  // Update turn text and guess select if game screen is active
+  const gameScreenEl = document.getElementById('game-screen');
+  if (gameScreenEl && gameScreenEl.classList.contains('active')) {
+    updateTurnUI(true);
+    populateGuessSelect(characters);
+    renderBoard(characters);
+    if (mySecretCharacter && typeof renderSecretCharacter === 'function') {
+      renderSecretCharacter(mySecretCharacter);
+    }
+    const oppLabel = document.getElementById('opponent-name-label');
+    if (oppLabel) {
+      if (gameMode === '2v2') {
+        oppLabel.textContent = currentLang === 'en' ? 'Opposing Team:' : 'Rakip Takım:';
+      } else {
+        oppLabel.textContent = currentLang === 'en' ? 'Opponent:' : 'Rakip:';
+      }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const langBtn = document.getElementById('lang-toggle-btn');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'tr' ? 'en' : 'tr';
+      localStorage.setItem('genshin_lang', currentLang);
+      applyTranslations();
+    });
+  }
+  applyTranslations();
+});
+
+
 
 // PeerJS Connection State
 let peer = null;
@@ -401,6 +650,7 @@ function updateLobbyUI() {
   
   const teamA = clients.filter(c => c.team === 'A');
   const teamB = clients.filter(c => c.team === 'B');
+  const waitingText = currentLang === 'en' ? 'Waiting...' : 'Bekleniyor...';
   
   // Fill A slots
   const aList = document.getElementById('team-a-list').querySelectorAll('.player-slot');
@@ -410,7 +660,7 @@ function updateLobbyUI() {
       slot.textContent = teamA[i].nickname;
       slot.className = 'player-slot filled' + (teamA[i].isHost ? ' host' : '');
     } else {
-      slot.textContent = 'Bekleniyor...';
+      slot.textContent = waitingText;
       slot.className = 'player-slot empty' + (i===1 && !is2v2 ? ' hidden' : '');
     }
   });
@@ -423,23 +673,28 @@ function updateLobbyUI() {
       slot.textContent = teamB[i].nickname;
       slot.className = 'player-slot filled' + (teamB[i].isHost ? ' host' : '');
     } else {
-      slot.textContent = 'Bekleniyor...';
+      slot.textContent = waitingText;
       slot.className = 'player-slot empty' + (i===1 && !is2v2 ? ' hidden' : '');
     }
   });
 
+  const maxPlayers = is2v2 ? 4 : 2;
   // Host starts game logic
   if (isHost) {
-    const maxPlayers = is2v2 ? 4 : 2;
     if (clients.length === maxPlayers) {
       startGameBtn.classList.remove('hidden');
-      peerStatus.textContent = "Oda dolu! Oyunu başlatabilirsin.";
+      peerStatus.textContent = currentLang === 'en' ? "Room full! You can start the game." : "Oda dolu! Oyunu başlatabilirsin.";
     } else {
       startGameBtn.classList.add('hidden');
-      peerStatus.textContent = `${clients.length}/${maxPlayers} oyuncu katıldı. Bekleniyor...`;
+      peerStatus.textContent = currentLang === 'en' ? `${clients.length}/${maxPlayers} players joined. Waiting...` : `${clients.length}/${maxPlayers} oyuncu katıldı. Bekleniyor...`;
     }
   } else {
     startGameBtn.classList.add('hidden');
+    if (clients.length === maxPlayers) {
+      peerStatus.textContent = currentLang === 'en' ? "Room full! Waiting for host to start..." : "Oda dolu! Hostun başlatması bekleniyor...";
+    } else {
+      peerStatus.textContent = currentLang === 'en' ? `${clients.length}/${maxPlayers} players joined. Waiting...` : `${clients.length}/${maxPlayers} oyuncu katıldı. Bekleniyor...`;
+    }
   }
 }
 
@@ -453,8 +708,7 @@ leaveRoomBtn.addEventListener('click', () => {
 copyCodeBtn.addEventListener('click', () => {
   const codeText = displayRoomId.textContent;
   navigator.clipboard.writeText(codeText).then(() => {
-    const originalText = copyCodeBtn.textContent;
-    copyCodeBtn.textContent = 'Kopyalandı!';
+    copyCodeBtn.textContent = currentLang === 'en' ? 'Copied!' : 'Kopyalandı!';
     setTimeout(() => {
       copyCodeBtn.textContent = '📋';
     }, 1500);
@@ -491,7 +745,7 @@ function initPeer(targetRoomId = null) {
     if (isHost) {
       setupHostConnectionListener();
     } else {
-      peerStatus.textContent = `Odaya (${currentRoomId}) bağlanılıyor...`;
+      peerStatus.textContent = currentLang === 'en' ? `Connecting to room (${currentRoomId})...` : `Odaya (${currentRoomId}) bağlanılıyor...`;
       displayRoomId.textContent = currentRoomId;
       showScreen(waitingScreen);
       const hostPeerId = PEER_PREFIX + currentRoomId;
@@ -529,7 +783,7 @@ function initPeer(targetRoomId = null) {
     // Fatal unrecoverable error for fresh joins
     clearSession();
     showScreen(lobbyScreen);
-    showLobbyError(`Bağlantı hatası: ${err.message || err.type}`);
+    showLobbyError(currentLang === 'en' ? `Connection error: ${err.message || err.type}` : `Bağlantı hatası: ${err.message || err.type}`);
   });
 }
 
@@ -635,10 +889,10 @@ function setupGuestDataHandlers(connection, isRejoining) {
   connection.on('open', () => {
     setTimeout(() => {
       if (isRestoringSession || isRejoining) {
-        peerStatus.textContent = 'Yeniden bağlanılıyor...';
+        peerStatus.textContent = currentLang === 'en' ? 'Reconnecting...' : 'Yeniden bağlanılıyor...';
         connection.send({ type: 'rejoin-request', nickname: myNickname });
       } else {
-        peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
+        peerStatus.textContent = currentLang === 'en' ? 'Connected, waiting for room state...' : 'Bağlantı kuruldu, odanın durumu bekleniyor...';
         connection.send({ type: 'join-request', nickname: myNickname });
       }
       startPing();
@@ -656,7 +910,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
 
     const inLobby = !waitingScreen.classList.contains('hidden');
     if (inLobby) {
-      const msg = `Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.`;
+      const msg = currentLang === 'en' ? 'Host left the room. Game ended.' : 'Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.';
       const modal = document.getElementById('game-cancelled-modal');
       const msgEl = document.getElementById('game-cancelled-message');
       if (modal && msgEl) {
@@ -869,9 +1123,9 @@ function handleGuestReceivedData(data) {
       clients = data.clients;
       updateLobbyUI();
       if (gameMode === '1v1') {
-        opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || 'Rakip';
+        opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || (currentLang === 'en' ? 'Opponent' : 'Rakip');
       } else {
-        opponentName = 'Rakip Takım';
+        opponentName = currentLang === 'en' ? 'Opposing Team' : 'Rakip Takım';
       }
       break;
       
@@ -885,7 +1139,8 @@ function handleGuestReceivedData(data) {
         myReadyStatus.className = data.readyCount === data.maxPlayers ? 'text-green' : 'text-muted';
       } else {
         if (data.lastReadyPlayer !== myNickname) {
-          opponentReadyStatus.textContent = 'Hazır!';
+          isOpponentSelectionLocked = true;
+          opponentReadyStatus.textContent = currentLang === 'en' ? 'Ready!' : 'Hazır!';
           opponentReadyStatus.className = 'text-green';
         }
       }
@@ -910,7 +1165,7 @@ function handleGuestReceivedData(data) {
           isMySelectionLocked = true;
           mySecretCharacter = selectedCharacterLocally;
           lockCharacterBtn.disabled = true;
-          lockCharacterBtn.textContent = 'Seçildi ve Kilitlendi';
+          lockCharacterBtn.textContent = currentLang === 'en' ? 'Selected & Locked' : 'Seçildi ve Kilitlendi';
           showPreviewDetails(selectedCharacterLocally);
           // Highlight selected character card in grid visually after rendering
           setTimeout(() => {
@@ -982,7 +1237,7 @@ function handleGuestReceivedData(data) {
 function processGameEvent(data) {
   switch (data.type) {
     case 'game-cancelled':
-      const msg = `${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırıldı.`;
+      const msg = currentLang === 'en' ? `${data.nickname || 'A player'} left the room. Game ended.` : `${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırıldı.`;
       const modal = document.getElementById('game-cancelled-modal');
       const msgEl = document.getElementById('game-cancelled-message');
       if (modal && msgEl) {
@@ -1012,7 +1267,8 @@ function processGameEvent(data) {
           myReadyStatus.className = readyCount === maxPlayers ? 'text-green' : 'text-muted';
         } else {
           if (data.nickname !== myNickname) {
-            opponentReadyStatus.textContent = 'Hazır!';
+            isOpponentSelectionLocked = true;
+            opponentReadyStatus.textContent = currentLang === 'en' ? 'Ready!' : 'Hazır!';
             opponentReadyStatus.className = 'text-green';
           }
         }
@@ -1073,7 +1329,7 @@ function processGameEvent(data) {
       chatMsg.dataset.nickname = data.nickname;
       
       let timeLeft = 60;
-      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+      chatMsg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} disconnected, waiting to reconnect (${timeLeft}s)...` : `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
       
       if (chatMessages) {
         chatMessages.appendChild(chatMsg);
@@ -1091,7 +1347,7 @@ function processGameEvent(data) {
           }
           processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
         } else {
-          chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+          chatMsg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} disconnected, waiting to reconnect (${timeLeft}s)...` : `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
         }
       }, 1000);
       
@@ -1110,7 +1366,7 @@ function processGameEvent(data) {
          const msgs = chatMessages.querySelectorAll('.reconnect-countdown-msg');
          msgs.forEach(msg => {
             if (msg.dataset.nickname === data.nickname) {
-               msg.textContent = `⏳ ${data.nickname} dönüş yapıyor...`;
+               msg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} is returning...` : `⏳ ${data.nickname} dönüş yapıyor...`;
                msg.classList.remove('reconnect-countdown-msg');
             }
          });
@@ -1118,7 +1374,7 @@ function processGameEvent(data) {
 
       const chatMsg2 = document.createElement('div');
       chatMsg2.className = 'system-message';
-      chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandı!`;
+      chatMsg2.textContent = currentLang === 'en' ? `✅ ${data.nickname} reconnected!` : `✅ ${data.nickname} yeniden bağlandı!`;
       if (chatMessages) {
         chatMessages.appendChild(chatMsg2);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1206,10 +1462,38 @@ function processGameEvent(data) {
 
     case 'play-again-reject':
       playAgainAccepts.clear();
-      alert("Bir oyuncu tekrar oynama teklifini reddetti. Lobiye dönülüyor.");
+      alert(currentLang === 'en' ? "A player rejected playing again. Returning to lobby." : "Bir oyuncu tekrar oynama teklifini reddetti. Lobiye dönülüyor.");
       clearSession();
       window.location.reload();
       break;
+  }
+}
+
+function updateSelectionHeaders() {
+  const is2v2 = gameMode === '2v2';
+  const myReadyLabelEl = document.getElementById('my-ready-label');
+  const opponentReadyLabelEl = document.getElementById('opponent-ready-label');
+  
+  if (is2v2) {
+    if (myReadyLabelEl) myReadyLabelEl.textContent = currentLang === 'en' ? 'Ready:' : 'Hazır:';
+  } else {
+    if (myReadyLabelEl) myReadyLabelEl.textContent = currentLang === 'en' ? 'You:' : 'Sen:';
+    if (opponentReadyLabelEl) opponentReadyLabelEl.textContent = currentLang === 'en' ? 'Opponent:' : 'Rakip:';
+    if (isMySelectionLocked || myReadyStatus.textContent === 'Hazır!' || myReadyStatus.textContent === 'Ready!') {
+      myReadyStatus.textContent = currentLang === 'en' ? 'Ready!' : 'Hazır!';
+    } else if (myReadyStatus.textContent === 'Seçim Yapmadı' || myReadyStatus.textContent === 'Not Selected') {
+      myReadyStatus.textContent = currentLang === 'en' ? 'Not Selected' : 'Seçim Yapmadı';
+    }
+    if (isOpponentSelectionLocked || opponentReadyStatus.textContent === 'Hazır!' || opponentReadyStatus.textContent === 'Ready!') {
+      opponentReadyStatus.textContent = currentLang === 'en' ? 'Ready!' : 'Hazır!';
+    } else if (opponentReadyStatus.textContent === 'Seçim Yapıyor...' || opponentReadyStatus.textContent === 'Selecting...') {
+      opponentReadyStatus.textContent = currentLang === 'en' ? 'Selecting...' : 'Seçim Yapıyor...';
+    }
+  }
+  if (lockCharacterBtn && lockCharacterBtn.disabled && !isMySelectionLocked) {
+    lockCharacterBtn.textContent = currentLang === 'en' ? 'Lock Character' : 'Karakteri Kilitle';
+  } else if (isMySelectionLocked) {
+    lockCharacterBtn.textContent = currentLang === 'en' ? 'Selected & Locked' : 'Seçildi ve Kilitlendi';
   }
 }
 
@@ -1230,39 +1514,33 @@ function startSelectionPhase() {
   
   if (isHost) {
     if (is2v2) {
-      opponentName = 'Rakip Takım';
+      opponentName = currentLang === 'en' ? 'Opposing Team' : 'Rakip Takım';
     } else {
-      opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || 'Rakip';
+      opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || (currentLang === 'en' ? 'Opponent' : 'Rakip');
     }
   }
 
-  // Update selection screen header labels - use existing DOM refs (don't replace innerHTML!)
-  const myReadyLabelEl = document.getElementById('my-ready-label');
+  // Update selection screen header labels
   const readySeparatorEl = document.getElementById('ready-separator');
   const opponentReadyLabelEl = document.getElementById('opponent-ready-label');
-  
   if (is2v2) {
-    // Unified ready counter mode
-    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Hazır:';
     myReadyStatus.textContent = `0/${maxPlayers}`;
     myReadyStatus.className = 'text-red';
     if (readySeparatorEl) readySeparatorEl.style.display = 'none';
     if (opponentReadyLabelEl) opponentReadyLabelEl.style.display = 'none';
     opponentReadyStatus.style.display = 'none';
   } else {
-    // Individual status mode
-    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Sen:';
-    myReadyStatus.textContent = 'Seçim Yapmadı';
+    myReadyStatus.textContent = currentLang === 'en' ? 'Not Selected' : 'Seçim Yapmadı';
     myReadyStatus.className = 'text-red';
     if (readySeparatorEl) readySeparatorEl.style.display = '';
-    if (opponentReadyLabelEl) { opponentReadyLabelEl.style.display = ''; opponentReadyLabelEl.textContent = 'Rakip:'; }
+    if (opponentReadyLabelEl) opponentReadyLabelEl.style.display = '';
     opponentReadyStatus.style.display = '';
-    opponentReadyStatus.textContent = 'Seçim Yapıyor...';
+    opponentReadyStatus.textContent = currentLang === 'en' ? 'Selecting...' : 'Seçim Yapıyor...';
     opponentReadyStatus.className = 'text-muted';
   }
   
   lockCharacterBtn.disabled = true;
-  lockCharacterBtn.textContent = 'Karakteri Kilitle';
+  updateSelectionHeaders();
   
   renderSelectionGrid(characters);
   
@@ -1295,7 +1573,7 @@ function startSelectionPhase() {
 function renderSelectionGrid(chars) {
   selectionGrid.innerHTML = '';
   // Sort alphabetically
-  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, currentLang));
   
   sorted.forEach(char => {
     const card = document.createElement('div');
@@ -1333,11 +1611,12 @@ function renderSelectionGrid(chars) {
 // Show selection details on right preview card
 function showPreviewDetails(char) {
   if (!char) {
-    detailCharName.textContent = 'Karakter Seçin';
-    detailCharElement.textContent = 'Element: -';
-    detailCharWeapon.textContent = 'Silah: -';
-    detailCharRegion.textContent = 'Bölge: -';
-    detailCharGender.textContent = 'Cinsiyet: -';
+    const dict = i18nDict[currentLang] || i18nDict.tr;
+    detailCharName.textContent = dict.defaultCharName;
+    detailCharElement.textContent = currentLang === 'en' ? 'Element: -' : 'Element: -';
+    detailCharWeapon.textContent = currentLang === 'en' ? 'Weapon: -' : 'Silah: -';
+    detailCharRegion.textContent = currentLang === 'en' ? 'Region: -' : 'Bölge: -';
+    detailCharGender.textContent = currentLang === 'en' ? 'Gender: -' : 'Cinsiyet: -';
     detailCardPreview.className = 'detail-card-preview';
     detailCardPreview.innerHTML = `<div class="preview-gfx">?</div>`;
     return;
@@ -1352,13 +1631,20 @@ function showPreviewDetails(char) {
     <div class="preview-gfx">${firstLetter}</div>
   `;
   
-  const trElement = elementTranslations[char.element] || char.element;
-  
-  detailCharName.textContent = char.name;
-  detailCharElement.textContent = `Bu karakter ${trElement} elementini kullanıyor.`;
-  detailCharWeapon.textContent = `Silah olarak ${char.weapon} tercih ediyor.`;
-  detailCharRegion.textContent = `Kökeni ${char.region} topraklarına dayanıyor.`;
-  detailCharGender.textContent = `Kendisi ${char.gender} bir kahramandır.`;
+  if (currentLang === 'en') {
+    detailCharName.textContent = char.name;
+    detailCharElement.textContent = `Uses the ${char.element} element.`;
+    detailCharWeapon.textContent = `Wields a ${translateWeapon(char.weapon)}.`;
+    detailCharRegion.textContent = `Hails from the region of ${char.region}.`;
+    detailCharGender.textContent = `This hero is ${translateGender(char.gender).toLowerCase()}.`;
+  } else {
+    const trElement = elementTranslations[char.element] || char.element;
+    detailCharName.textContent = char.name;
+    detailCharElement.textContent = `Bu karakter ${trElement} elementini kullanıyor.`;
+    detailCharWeapon.textContent = `Silah olarak ${char.weapon} tercih ediyor.`;
+    detailCharRegion.textContent = `Kökeni ${char.region} topraklarına dayanıyor.`;
+    detailCharGender.textContent = `Kendisi ${char.gender} bir kahramandır.`;
+  }
 }
 
 // Lock Local Choice
@@ -1386,7 +1672,7 @@ function lockMySelection(char) {
   isMySelectionLocked = true;
   
   lockCharacterBtn.disabled = true;
-  lockCharacterBtn.textContent = 'Seçildi ve Kilitlendi';
+  lockCharacterBtn.textContent = currentLang === 'en' ? 'Selected & Locked' : 'Seçildi ve Kilitlendi';
   
   // Disable selection clicks visually
   document.querySelectorAll('.select-card').forEach(c => {
@@ -1398,7 +1684,7 @@ function lockMySelection(char) {
   
   // In 1v1: show personal ready status. In 2v2: host's ready-count broadcast handles the counter
   if (gameMode !== '2v2') {
-    myReadyStatus.textContent = 'Hazır!';
+    myReadyStatus.textContent = currentLang === 'en' ? 'Ready!' : 'Hazır!';
     myReadyStatus.className = 'text-green';
   }
   
@@ -1429,7 +1715,8 @@ function autoLockRandomCharacter() {
 function launchGameBoard() {
   // Update header info
   gameRoomId.textContent = currentRoomId;
-  opponentNameLabel.textContent = gameMode === '2v2' ? 'Rakip Takım' : opponentName;
+  const displayOppName = (opponentName === 'Rakip' || !opponentName) ? (currentLang === 'en' ? 'Opponent' : 'Rakip') : opponentName;
+  opponentNameLabel.textContent = gameMode === '2v2' ? (currentLang === 'en' ? 'Opposing Team' : 'Rakip Takım') : displayOppName;
   
   // Render Guess Board
   renderBoard(characters);
@@ -1457,7 +1744,10 @@ function launchGameBoard() {
     }
   }
 
-  chatMessages.innerHTML = `<div class="system-message">Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
+  const startMsgText = currentLang === 'en' 
+    ? `Game started! ${gameMode === '2v2' ? 'Team Mode' : 'Opponent: ' + opponentName}. Turn: ${isMyTurn ? 'You' : opponentName}.`
+    : `Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.`;
+  chatMessages.innerHTML = `<div class="system-message">${startMsgText}</div>`;
   updateTurnUI();
   
   showScreen(gameScreen);
@@ -1467,7 +1757,7 @@ function launchGameBoard() {
 // Render Character Card Grid
 function renderBoard(chars) {
   charactersGrid.innerHTML = '';
-  const sorted = [...chars].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  const sorted = [...chars].sort((a, b) => a.name.localeCompare(b.name, currentLang));
   
   let eliminatedState = [];
   const saved = localStorage.getItem('genshin_session');
@@ -1494,8 +1784,8 @@ function renderBoard(chars) {
             <img src="${imgSrc(char)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
             <div class="character-avatar-gfx">${firstLetter}</div>
           </div>
-          <div class="weapon-badge">${char.weapon}</div>
-          <div class="gender-badge">${char.gender}</div>
+          <div class="weapon-badge">${translateWeapon(char.weapon)}</div>
+          <div class="gender-badge">${translateGender(char.gender)}</div>
           <div class="card-info">
             <span class="char-name">${char.name}</span>
             <span class="char-region">${char.region}</span>
@@ -1538,8 +1828,8 @@ function renderSecretCharacter(char) {
           <img src="${imgSrc(char)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
           <div class="character-avatar-gfx">${char.name.charAt(0)}</div>
         </div>
-        <div class="weapon-badge">${char.weapon}</div>
-        <div class="gender-badge">${char.gender}</div>
+        <div class="weapon-badge">${translateWeapon(char.weapon)}</div>
+        <div class="gender-badge">${translateGender(char.gender)}</div>
         <div class="card-info">
           <span class="char-name">${char.name}</span>
           <span class="char-region">${char.region}</span>
@@ -1551,8 +1841,9 @@ function renderSecretCharacter(char) {
 
 // Populate Guess Dropdown
 function populateGuessSelect(chars) {
-  guessSelect.innerHTML = '<option value="" disabled selected>Karakter seç...</option>';
-  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+  const placeholderText = currentLang === 'en' ? 'Select character...' : 'Karakter seç...';
+  guessSelect.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
+  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, currentLang));
   sorted.forEach(char => {
     const opt = document.createElement('option');
     opt.value = char.id;
@@ -1570,30 +1861,33 @@ passTurnBtn.addEventListener('click', () => {
 });
 
 // Turn UI update helper
-function updateTurnUI() {
-  if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
-  currentTurnTime = 60;
-  
+function updateTurnUI(preserveTimer = false) {
   const timerTextEl = document.getElementById('turn-timer-text');
 
   if (isMyTurn) {
     turnBadge.classList.add('active-turn');
-    turnStatusText.textContent = 'SENİN SIRAN';
+    turnStatusText.textContent = currentLang === 'en' ? 'YOUR TURN' : 'SENİN SIRAN';
     passTurnBtn.disabled = false;
     openGuessModalBtn.disabled = false;
     if (timerTextEl) {
-      timerTextEl.classList.remove('hidden', 'timer-warning');
+      timerTextEl.classList.remove('hidden');
+      if (!preserveTimer) timerTextEl.classList.remove('timer-warning');
       timerTextEl.textContent = `(${currentTurnTime}s)`;
     }
   } else {
     turnBadge.classList.remove('active-turn');
-    turnStatusText.textContent = `${opponentName.toUpperCase()} SIRASINDA`;
+    turnStatusText.textContent = currentLang === 'en' ? `${opponentName.toUpperCase()}'S TURN` : `${opponentName.toUpperCase()} SIRASINDA`;
     passTurnBtn.disabled = true;
     openGuessModalBtn.disabled = true;
     if (timerTextEl) {
       timerTextEl.classList.add('hidden');
     }
   }
+
+  if (preserveTimer) return;
+
+  if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
+  currentTurnTime = 60;
 
   activeTurnTimerInterval = setInterval(() => {
     currentTurnTime--;
@@ -1654,7 +1948,7 @@ function appendChatMessage(senderName, text, isSelf, isTeamMsg = false) {
   const msgElement = document.createElement('div');
   msgElement.className = `chat-msg ${msgClass}${teamClass}${teamColorClass}`;
   
-  const teamLabel = isTeamMsg ? ' <span class="team-chat-badge">🔒 Takım</span>' : '';
+  const teamLabel = isTeamMsg ? (currentLang === 'en' ? ' <span class="team-chat-badge">🔒 Team</span>' : ' <span class="team-chat-badge">🔒 Takım</span>') : '';
   msgElement.innerHTML = `
     <span class="msg-sender">${senderName}${teamLabel}</span>
     <div class="msg-bubble">
@@ -1702,7 +1996,7 @@ submitGuessBtn.addEventListener('click', () => {
 // Handle Guess Result (Both Sides)
 function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
   const guessedChar = characters.find(c => c.id === guessedCharId);
-  const guessedName = guessedChar ? guessedChar.name : 'Bilinmeyen';
+  const guessedName = guessedChar ? guessedChar.name : (currentLang === 'en' ? 'Unknown' : 'Bilinmeyen');
   const isMyTeam = (team === myPlayerInfo.team);
   
   if (isCorrect) {
@@ -1711,13 +2005,13 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
     if (timerTextEl) timerTextEl.classList.add('hidden');
 
     if (isMyTeam) {
-      gameOverTitle.textContent = 'TEBRİKLER!';
+      gameOverTitle.textContent = currentLang === 'en' ? 'CONGRATULATIONS!' : 'TEBRİKLER!';
       gameOverTitle.className = 'game-over-title win';
-      gameOverMessage.textContent = `Takımınızdan ${guesserName}, rakibin gizli karakterini doğru tahmin etti!`;
+      gameOverMessage.textContent = currentLang === 'en' ? `${guesserName} from your team correctly guessed the secret character!` : `Takımınızdan ${guesserName}, rakibin gizli karakterini doğru tahmin etti!`;
     } else {
-      gameOverTitle.textContent = 'KAYBETTİN...';
+      gameOverTitle.textContent = currentLang === 'en' ? 'YOU LOST...' : 'KAYBETTİN...';
       gameOverTitle.className = 'game-over-title lose';
-      gameOverMessage.textContent = `${guesserName} sizin karakterinizi doğru tahmin etti!`;
+      gameOverMessage.textContent = currentLang === 'en' ? `${guesserName} correctly guessed your character!` : `${guesserName} sizin karakterinizi doğru tahmin etti!`;
     }
     
     const secretCharShow = isMyTeam ? opponentSecretCharacter : mySecretCharacter;
@@ -1730,8 +2024,8 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
             <img src="${imgSrc(secretCharShow)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
             <div class="character-avatar-gfx">${secretCharShow.name.charAt(0)}</div>
           </div>
-          <div class="weapon-badge">${secretCharShow.weapon}</div>
-          <div class="gender-badge">${secretCharShow.gender}</div>
+          <div class="weapon-badge">${translateWeapon(secretCharShow.weapon)}</div>
+          <div class="gender-badge">${translateGender(secretCharShow.gender)}</div>
           <div class="card-info">
             <span class="char-name">${secretCharShow.name}</span>
             <span class="char-region">${secretCharShow.region}</span>
@@ -1744,7 +2038,7 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
   } else {
     const logDiv = document.createElement('div');
     logDiv.className = 'system-message error';
-    logDiv.innerHTML = `❌ <strong>${guesserName}</strong> yanlış tahminde bulundu (${guessedName})! Sıra devredildi.`;
+    logDiv.innerHTML = currentLang === 'en' ? `❌ <strong>${guesserName}</strong> made a wrong guess (${guessedName})! Turn passed.` : `❌ <strong>${guesserName}</strong> yanlış tahminde bulundu (${guessedName})! Sıra devredildi.`;
     chatMessages.appendChild(logDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
@@ -1757,13 +2051,13 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
 // Restart game round
 playAgainBtn.addEventListener('click', () => {
   // Show waiting state immediately for the requester
-  playAgainBtn.textContent = 'Talep Gönderildi...';
+  playAgainBtn.textContent = currentLang === 'en' ? 'Request Sent...' : 'Talep Gönderildi...';
   playAgainBtn.disabled = true;
   const waiting = document.getElementById('play-again-waiting');
   const countText = document.getElementById('play-again-count-text');
   const maxPlayers = gameMode === '2v2' ? 4 : 2;
   if (waiting) waiting.classList.remove('hidden');
-  if (countText) countText.textContent = `1/${maxPlayers} hazır`;
+  if (countText) countText.textContent = currentLang === 'en' ? `1/${maxPlayers} ready` : `1/${maxPlayers} hazır`;
   
   sendMessage({ type: 'play-again-request', requester: myNickname });
 });
@@ -1772,7 +2066,7 @@ acceptPlayAgainBtn.addEventListener('click', () => {
   playAgainModal.classList.add('hidden');
   // Disable Tekrar Oyna so player can't double-click
   playAgainBtn.disabled = true;
-  playAgainBtn.textContent = 'Kabul Edildi...';
+  playAgainBtn.textContent = currentLang === 'en' ? 'Accepted...' : 'Kabul Edildi...';
   // Show waiting state for the accepter too
   const waiting = document.getElementById('play-again-waiting');
   if (waiting) waiting.classList.remove('hidden');
@@ -1787,7 +2081,8 @@ rejectPlayAgainBtn.addEventListener('click', () => {
 
 function resetSelectionAndRestart() {
   gameOverScreen.classList.add('hidden');
-  playAgainBtn.textContent = 'Tekrar Oyna';
+  const dict = i18nDict[currentLang] || i18nDict.tr;
+  playAgainBtn.textContent = dict.btnPlayAgain || 'Tekrar Oyna';
   playAgainBtn.disabled = false;
   
   // Clear the board completely so saveSession doesn't see old eliminated cards
@@ -1855,7 +2150,7 @@ function handleOpponentDisconnect() {
   
   if (selectionTimerInterval) clearInterval(selectionTimerInterval);
   
-  const msg = `⚠️ <strong>${opponentName || 'Rakip'}</strong> bağlantıyı kesti! Yeniden bağlanılıyor...`;
+  const msg = currentLang === 'en' ? `⚠️ <strong>${opponentName || 'Opponent'}</strong> disconnected! Reconnecting...` : `⚠️ <strong>${opponentName || 'Rakip'}</strong> bağlantıyı kesti! Yeniden bağlanılıyor...`;
   
   const logDiv = document.createElement('div');
   logDiv.className = 'system-message error';
@@ -1865,7 +2160,7 @@ function handleOpponentDisconnect() {
   
   synth.playError();
   
-  peerStatus.textContent = 'Rakip ayrıldı. Yeni oyuncu bekleniyor...';
+  peerStatus.textContent = currentLang === 'en' ? 'Opponent left. Waiting for new player...' : 'Rakip ayrıldı. Yeni oyuncu bekleniyor...';
   displayRoomId.textContent = currentRoomId;
   showScreen(waitingScreen);
 }
