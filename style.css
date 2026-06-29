@@ -115,6 +115,44 @@ input, textarea {
   z-index: 1;
 }
 
+/* Language Switcher Button */
+.lang-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  background: rgba(15, 25, 45, 0.8);
+  border: 1px solid var(--color-gold-bright);
+  color: var(--color-gold-bright);
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(235, 194, 114, 0.2);
+  transition: all 0.3s ease;
+}
+
+.lang-toggle-btn:hover {
+  background: var(--color-gold-bright);
+  color: #0f192d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(235, 194, 114, 0.4);
+}
+
+@media (max-width: 600px) {
+  .lang-toggle-btn {
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+
 /* Screens */
 .screen {
   display: none;
@@ -576,8 +614,27 @@ input[type="text"]:focus {
   align-items: center;
   width: 100%;
   padding-bottom: 15px;
+  padding-right: 140px;
   border-bottom: 1px solid rgba(235, 194, 114, 0.15);
   margin-bottom: 15px;
+}
+
+.header-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.header-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .game-logo {
@@ -600,13 +657,29 @@ input[type="text"]:focus {
 .turn-status-badge, .timer-badge {
   background: rgba(235, 194, 114, 0.05);
   border: 1px solid rgba(235, 194, 114, 0.3);
-  padding: 8px 24px;
+  padding: 8px 20px;
   border-radius: 30px;
   font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 1px;
   box-shadow: 0 0 10px rgba(235, 194, 114, 0.05);
   transition: all var(--transition-speed);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 300px;
+}
+
+#turn-status-text {
+  display: inline-block;
+  min-width: 220px;
+  text-align: center;
+}
+
+#turn-timer-text {
+  display: inline-block;
+  width: 48px;
+  text-align: left;
 }
 
 .turn-status-badge.active-turn, .timer-badge.active-turn {
@@ -779,9 +852,21 @@ input[type="text"]:focus {
   background: rgba(15, 15, 25, 0.7);
   border: 1px solid var(--color-card-border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.selection-detail-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selection-detail-panel::-webkit-scrollbar-thumb {
+  background: rgba(235, 194, 114, 0.2);
+  border-radius: 4px;
 }
 
 .genshin-detail-card {
@@ -789,6 +874,7 @@ input[type="text"]:focus {
   flex-direction: column;
   align-items: center;
   height: 100%;
+  min-height: min-content;
 }
 
 .detail-section-title {
@@ -802,8 +888,8 @@ input[type="text"]:focus {
 
 .detail-card-preview {
   width: 100%;
-  max-width: 220px;
-  aspect-ratio: 1 / 1.25;
+  max-width: 170px;
+  aspect-ratio: 1 / 1.1;
   border: 1.5px solid var(--color-card-border);
   border-radius: 12px;
   overflow: hidden;
@@ -850,41 +936,42 @@ input[type="text"]:focus {
 .detail-card-preview.el-hydro .preview-gfx { background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
 
 .detail-info-group {
-  margin: 20px 0;
+  margin: 10px 0;
   width: 100%;
   text-align: center;
 }
 
 .detail-char-name {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .detail-badge-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .detail-badge {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 16px;
+  padding: 5px 12px;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--color-gold);
-  width: 80%;
+  width: 90%;
   text-align: center;
 }
 
 .lock-btn {
   width: 100%;
-  padding: 16px !important;
-  font-size: 1.1rem !important;
+  padding: 12px !important;
+  font-size: 1.05rem !important;
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1653,34 +1740,34 @@ select:focus {
 .lobby-mascot {
   position: absolute;
   bottom: 100%;
-  right: -15px; /* Shifted to the right as requested */
-  width: 145px; 
+  left: 35px; /* Sol tarafa, köşeden hafif içeride olacak şekilde yerleştirildi */
+  right: auto;
+  width: 80px; /* Biraz daha küçültüldü */
   height: auto;
+  margin-bottom: -25px; /* Yeni boyuta göre ellerin pervaza oturması için ayarlandı */
   z-index: 10;
   pointer-events: none; 
   
-  /* Alt kısımdaki kahverengi masayı kırpıyoruz (yaklaşık %24) */
-  clip-path: inset(0 0 24% 0);
-  
-  /* Kırpılan kısmı kartın üst çizgisine oturtmak için aşağı çekiyoruz */
-  transform: translateY(calc(24% + 1px));
-  
   /* Görselliği artırmak için hafif şeffaflık ve parlaklık/gölge ayarı */
-  opacity: 0.92;
-  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.1)) drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.6));
+  opacity: 0.95;
+  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.15)) drop-shadow(0 -6px 18px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 768px) {
   .lobby-mascot {
-    width: 115px;
-    right: -10px;
+    width: 70px;
+    left: 25px;
+    right: auto;
+    margin-bottom: -22px;
   }
 }
 
 @media (max-width: 480px) {
   .lobby-mascot {
-    width: 95px;
-    right: 0px;
+    width: 60px;
+    left: 15px;
+    right: auto;
+    margin-bottom: -18px;
   }
 }
 
