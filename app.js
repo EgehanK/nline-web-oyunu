@@ -954,7 +954,19 @@ function handleHostReceivedData(connection, data) {
   switch (data.type) {
     case 'join-request': {
       // Check if nickname already exists in clients (e.g. they refreshed)
-      const existingClient = clients.find(c => c.nickname === data.nickname);
+      let existingClient = clients.find(c => c.nickname === data.nickname);
+      
+      // Bulletproof fallback: If we couldn't find them by exact nickname, but we are in 1v1 
+      // and there is exactly one guest, it MUST be them reconnecting!
+      if (!existingClient && gameMode === '1v1' && clients.length === 2) {
+        const disconnectedGuest = clients.find(c => !c.isHost && (c.isReconnecting || !c.conn || !c.conn.open));
+        if (disconnectedGuest) {
+          existingClient = disconnectedGuest;
+          // Update nickname to whatever they typed now
+          existingClient.nickname = data.nickname;
+        }
+      }
+
       if (existingClient) {
         existingClient.conn = connection;
         existingClient.peerId = connection.peer;
