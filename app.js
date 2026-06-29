@@ -474,7 +474,7 @@ if (savedSessionStr) {
         opponentName = sess.opponentName || 'Rakip';
 
         if (mySecretCharacter && opponentSecretCharacter) {
-          showScreen(gameScreen);
+          launchGameBoard();
         } else {
           showScreen(waitingScreen);
         }
@@ -998,7 +998,7 @@ function handleHostReceivedData(connection, data) {
       // If it's a completely new player, check if room is full
       const maxPlayers = gameMode === '2v2' ? 4 : 2;
       if (clients.length >= maxPlayers) {
-        connection.send({ type: 'game-cancelled', reason: 'room-full', nickname: data.nickname });
+        connection.send({ type: 'join-rejected', reason: 'Room is full' });
         setTimeout(() => connection.close(), 500);
         break;
       }
@@ -1352,8 +1352,11 @@ function processGameEvent(data) {
             delete window.reconnectIntervals[data.nickname];
           }
           if (isHost) {
-            broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
-            processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+            const client = clients.find(c => c.nickname === data.nickname);
+            if (!client || client.isReconnecting) {
+              broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+              processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+            }
           }
         } else {
           chatMsg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} disconnected, waiting to reconnect (${timeLeft}s)...` : `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
