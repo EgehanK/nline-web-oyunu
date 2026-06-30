@@ -937,9 +937,15 @@ function setupGuestConnection(connection) {
 
 // Shared data handler setup for guest (used on first join AND reconnect)
 function setupGuestDataHandlers(connection, isRejoining) {
-  connection.on('open', () => {
+  const sendJoinOrRejoin = () => {
+    if (!myNickname && localStorage.getItem('genshin_session')) {
+      try {
+        const s = JSON.parse(localStorage.getItem('genshin_session'));
+        if (s && s.nickname) myNickname = s.nickname;
+      } catch(e) {}
+    }
     setTimeout(() => {
-      if (isRestoringSession || isRejoining) {
+      if (isRestoringSession || isRejoining || localStorage.getItem('genshin_session')) {
         peerStatus.textContent = currentLang === 'en' ? 'Reconnecting...' : 'Yeniden bağlanılıyor...';
         connection.send({ type: 'rejoin-request', nickname: myNickname });
       } else {
@@ -948,7 +954,13 @@ function setupGuestDataHandlers(connection, isRejoining) {
       }
       startPing();
     }, 250);
-  });
+  };
+
+  if (connection.open) {
+    sendJoinOrRejoin();
+  } else {
+    connection.on('open', sendJoinOrRejoin);
+  }
 
   connection.on('data', (data) => {
     handleGuestReceivedData(data);
@@ -1508,23 +1520,29 @@ function processGameEvent(data) {
 
     case 'player-reconnected': {
       if (window.reconnectIntervals) {
-        if (window.reconnectIntervals[data.nickname]) {
-          clearInterval(window.reconnectIntervals[data.nickname]);
-          delete window.reconnectIntervals[data.nickname];
-        }
-        // Also clean up any interval if name matches loosely
-        Object.keys(window.reconnectIntervals).forEach(nick => {
-          if (nick.trim() === data.nickname.trim()) {
+        if (gameMode === '1v1') {
+          Object.keys(window.reconnectIntervals).forEach(nick => {
             clearInterval(window.reconnectIntervals[nick]);
             delete window.reconnectIntervals[nick];
+          });
+        } else {
+          if (window.reconnectIntervals[data.nickname]) {
+            clearInterval(window.reconnectIntervals[data.nickname]);
+            delete window.reconnectIntervals[data.nickname];
           }
-        });
+          Object.keys(window.reconnectIntervals).forEach(nick => {
+            if (!data.nickname || nick.trim() === data.nickname.trim()) {
+              clearInterval(window.reconnectIntervals[nick]);
+              delete window.reconnectIntervals[nick];
+            }
+          });
+        }
       }
       
       if (chatMessages) {
          const msgs = chatMessages.querySelectorAll('.reconnect-countdown-msg');
          msgs.forEach(msg => {
-            if (msg.dataset.nickname === data.nickname) {
+            if (gameMode === '1v1' || msg.dataset.nickname === data.nickname) {
                msg.textContent = currentLang === 'en' ? `⏳ ${data.nickname} is returning...` : `⏳ ${data.nickname} dönüş yapıyor...`;
                msg.classList.remove('reconnect-countdown-msg');
             }
