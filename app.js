@@ -665,9 +665,12 @@ joinRoomBtn.addEventListener('click', () => {
   isMySelectionLocked = false;
   isOpponentSelectionLocked = false;
   currentRoomId = roomId;
+  displayRoomId.textContent = currentRoomId;
+  gameRoomId.textContent = currentRoomId;
   
   // Save nickname for next visit
   localStorage.setItem('genshin_nickname', myNickname);
+  saveSession();
   
   initPeer(); // random ID for Guest
 });
@@ -747,7 +750,7 @@ copyCodeBtn.addEventListener('click', () => {
 // Start Game Action (Host only)
 startGameBtn.addEventListener('click', () => {
   if (!isHost) return;
-  broadcast({ type: 'start-game' });
+  broadcast({ type: 'start-game', roomId: currentRoomId });
   startSelectionPhase();
 });
 
@@ -982,11 +985,27 @@ function setupGuestDataHandlers(connection, isRejoining) {
     console.log('Connection error, reloading to auto-restore...');
     setTimeout(() => window.location.reload(), 1000);
   });
+
+  if (connection.peerConnection) {
+    connection.peerConnection.addEventListener('iceconnectionstatechange', () => {
+      const state = connection.peerConnection.iceConnectionState;
+      if (['disconnected', 'failed', 'closed'].includes(state)) {
+        const gameIsOver = !gameOverScreen.classList.contains('hidden');
+        if (!gameIsOver) {
+          console.log('ICE connection state dead on guest:', state);
+          setTimeout(() => window.location.reload(), 500);
+        }
+      }
+    });
+  }
 }
+
+let lastHiddenTime = 0;
 
 // Page Visibility API — reconnect when phone comes back to foreground or goes to background
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
+    lastHiddenTime = Date.now();
     if (!isHost && conn && conn.open) {
       try { conn.send({ type: 'tab-minimized', nickname: myNickname }); } catch (e) {}
     } else if (isHost) {
@@ -994,23 +1013,24 @@ document.addEventListener('visibilitychange', () => {
       processGameEvent({ type: 'tab-minimized', nickname: myNickname });
     }
   } else {
-    if (!isHost && currentRoomId) {
+    const timeHidden = lastHiddenTime ? (Date.now() - lastHiddenTime) : 0;
+    if (!isHost && (currentRoomId || localStorage.getItem('genshin_session'))) {
       const isDead = !conn || !conn.open || (conn.peerConnection && ['disconnected', 'failed', 'closed'].includes(conn.peerConnection.iceConnectionState));
-      if (isDead) {
-        console.log('Page visible again, connection is dead — reloading to auto-restore...');
-        setTimeout(() => window.location.reload(), 300);
+      if (isDead || timeHidden > 1000) {
+        console.log('Page visible again after sleep/dead connection — reloading to auto-restore...');
+        setTimeout(() => window.location.reload(), 200);
       } else {
         try {
           conn.send({ type: 'tab-restored', nickname: myNickname });
         } catch (e) {
           console.log('Failed to send tab-restored over frozen socket, reloading...');
-          setTimeout(() => window.location.reload(), 300);
+          setTimeout(() => window.location.reload(), 200);
         }
       }
     } else if (isHost) {
-      if (!peer || peer.disconnected || peer.destroyed) {
-        console.log('Host page visible again, peer disconnected — reloading to auto-restore...');
-        setTimeout(() => window.location.reload(), 300);
+      if (!peer || peer.disconnected || peer.destroyed || timeHidden > 3000) {
+        console.log('Host page visible again, peer disconnected/slept — reloading to auto-restore...');
+        setTimeout(() => window.location.reload(), 200);
       } else {
         broadcast({ type: 'tab-restored', nickname: myNickname });
         processGameEvent({ type: 'tab-restored', nickname: myNickname });
@@ -1059,6 +1079,7 @@ function handleHostReceivedData(connection, data) {
         if (isInSelection || isInGame) {
           connection.send({
             type: 'rejoin-ack',
+            roomId: currentRoomId,
             gameMode,
             team: existingClient.team,
             mySecretCharId: existingClient.lockedCharacterId || null,
@@ -1143,6 +1164,7 @@ function handleHostReceivedData(connection, data) {
         // Send them the current game state
         connection.send({
           type: 'rejoin-ack',
+          roomId: currentRoomId,
           gameMode,
           team: existingClient.team,
           mySecretCharId: existingClient.lockedCharacterId || null,
@@ -1215,6 +1237,11 @@ function handleGuestReceivedData(data) {
       break;
 
     case 'lobby-update':
+      if (data.roomId) {
+        currentRoomId = data.roomId;
+        if (displayRoomId) displayRoomId.textContent = currentRoomId;
+        if (gameRoomId) gameRoomId.textContent = currentRoomId;
+      }
       gameMode = data.gameMode;
       // Re-assign myPlayerInfo based on what host says
       myPlayerInfo = data.clients.find(c => c.nickname === myNickname);
@@ -1226,9 +1253,15 @@ function handleGuestReceivedData(data) {
       } else {
         opponentName = currentLang === 'en' ? 'Opposing Team' : 'Rakip Takım';
       }
+      saveSession();
       break;
       
     case 'start-game':
+      if (data.roomId) {
+        currentRoomId = data.roomId;
+        if (displayRoomId) displayRoomId.textContent = currentRoomId;
+        if (gameRoomId) gameRoomId.textContent = currentRoomId;
+      }
       startSelectionPhase();
       break;
     
@@ -1247,6 +1280,11 @@ function handleGuestReceivedData(data) {
       
     case 'rejoin-ack':
       // Restore state from host confirmation
+      if (data.roomId) {
+        currentRoomId = data.roomId;
+        if (displayRoomId) displayRoomId.textContent = currentRoomId;
+        if (gameRoomId) gameRoomId.textContent = currentRoomId;
+      }
       gameMode = data.gameMode;
       myPlayerInfo = data.clients.find(c => c.nickname === myNickname);
       clients = data.clients;
