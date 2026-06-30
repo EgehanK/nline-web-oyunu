@@ -617,6 +617,12 @@ createRoomBtn.addEventListener('click', () => {
   
   myNickname = nickname;
   isHost = true;
+  isRestoringSession = false;
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
+  selectedCharacterLocally = null;
+  isMySelectionLocked = false;
+  isOpponentSelectionLocked = false;
   gameMode = document.querySelector('input[name="game-mode"]:checked').value;
   currentRoomId = generateRoomId();
   
@@ -652,6 +658,12 @@ joinRoomBtn.addEventListener('click', () => {
   
   myNickname = nickname;
   isHost = false;
+  isRestoringSession = false;
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
+  selectedCharacterLocally = null;
+  isMySelectionLocked = false;
+  isOpponentSelectionLocked = false;
   currentRoomId = roomId;
   
   // Save nickname for next visit
@@ -764,8 +776,7 @@ function initPeer(targetRoomId = null) {
     } else {
       peerStatus.textContent = currentLang === 'en' ? `Connecting to room (${currentRoomId})...` : `Odaya (${currentRoomId}) bağlanılıyor...`;
       displayRoomId.textContent = currentRoomId;
-      const isPlayingOrSelecting = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
-      if (!isRestoringSession && !isPlayingOrSelecting) {
+      if (!isRestoringSession) {
         showScreen(waitingScreen);
       }
       const hostPeerId = PEER_PREFIX + currentRoomId;
@@ -984,21 +995,22 @@ document.addEventListener('visibilitychange', () => {
     }
   } else {
     if (!isHost && currentRoomId) {
-      if (!conn || !conn.open) {
+      const isDead = !conn || !conn.open || (conn.peerConnection && ['disconnected', 'failed', 'closed'].includes(conn.peerConnection.iceConnectionState));
+      if (isDead) {
         console.log('Page visible again, connection is dead — reloading to auto-restore...');
-        setTimeout(() => window.location.reload(), 500);
+        setTimeout(() => window.location.reload(), 300);
       } else {
         try {
           conn.send({ type: 'tab-restored', nickname: myNickname });
         } catch (e) {
           console.log('Failed to send tab-restored over frozen socket, reloading...');
-          setTimeout(() => window.location.reload(), 500);
+          setTimeout(() => window.location.reload(), 300);
         }
       }
     } else if (isHost) {
       if (!peer || peer.disconnected || peer.destroyed) {
         console.log('Host page visible again, peer disconnected — reloading to auto-restore...');
-        setTimeout(() => window.location.reload(), 500);
+        setTimeout(() => window.location.reload(), 300);
       } else {
         broadcast({ type: 'tab-restored', nickname: myNickname });
         processGameEvent({ type: 'tab-restored', nickname: myNickname });
@@ -1052,6 +1064,7 @@ function handleHostReceivedData(connection, data) {
             mySecretCharId: existingClient.lockedCharacterId || null,
             clients: getBroadcastLobbyState(),
             isInSelectionPhase: isInSelection,
+            isInGame: isInGame,
             isHostTurn: isMyTurn,
             hostSecretChar: mySecretCharacter,
             guestSecretChar: opponentSecretCharacter,
@@ -1135,6 +1148,7 @@ function handleHostReceivedData(connection, data) {
           mySecretCharId: existingClient.lockedCharacterId || null,
           clients: getBroadcastLobbyState(),
           isInSelectionPhase: selectionScreen.classList.contains('active'),
+          isInGame: gameScreen.classList.contains('active'),
           isHostTurn: isMyTurn,
           hostSecretChar: mySecretCharacter,
           guestSecretChar: opponentSecretCharacter,
@@ -1252,7 +1266,6 @@ function handleGuestReceivedData(data) {
           lockCharacterBtn.disabled = true;
           lockCharacterBtn.textContent = currentLang === 'en' ? 'Selected & Locked' : 'Seçildi ve Kilitlendi';
           showPreviewDetails(selectedCharacterLocally);
-          // Highlight selected character card in grid visually after rendering
           setTimeout(() => {
             document.querySelectorAll('.select-card').forEach(c => {
               c.classList.add('locked');
@@ -1264,19 +1277,24 @@ function handleGuestReceivedData(data) {
             });
           }, 100);
         }
-      } else {
-        // Restore game UI from local session
+      } else if (data.isInGame) {
+        // Restore active game authoritative state from Host
         const saved = localStorage.getItem('genshin_session');
-        if (saved) {
-          const sess = JSON.parse(saved);
-          mySecretCharacter = sess.mySecretChar;
-          opponentSecretCharacter = sess.oppSecretChar;
-          isMyTurn = sess.isMyTurn;
-          opponentName = sess.opponentName || 'Rakip';
-          if (mySecretCharacter && opponentSecretCharacter) {
-            launchGameBoard();
-          }
+        const sess = saved ? JSON.parse(saved) : {};
+        mySecretCharacter = data.guestSecretChar || sess.mySecretChar;
+        opponentSecretCharacter = data.hostSecretChar || sess.oppSecretChar;
+        isMyTurn = data.isHostTurn !== undefined ? !data.isHostTurn : sess.isMyTurn;
+        opponentName = sess.opponentName || (currentLang === 'en' ? 'Opponent' : 'Rakip');
+        if (mySecretCharacter && opponentSecretCharacter) {
+          launchGameBoard(data.eliminatedCards || sess.eliminatedCards);
         }
+      } else {
+        // Host is in waiting lobby room! Switch back to lobby room
+        mySecretCharacter = null;
+        opponentSecretCharacter = null;
+        selectedCharacterLocally = null;
+        showScreen(waitingScreen);
+        updateLobbyUI();
       }
       saveSession(); // Save restored session state
       break;
@@ -1816,7 +1834,7 @@ function autoLockRandomCharacter() {
 // Wait for Host to calculate team characters and trigger lock-exchange
 
 // Trigger active game board
-function launchGameBoard() {
+function launchGameBoard(eliminatedList = null) {
   // Update header info
   gameRoomId.textContent = currentRoomId;
   const displayOppName = (opponentName === 'Rakip' || !opponentName) ? (currentLang === 'en' ? 'Opponent' : 'Rakip') : opponentName;
@@ -1855,7 +1873,30 @@ function launchGameBoard() {
   updateTurnUI();
   
   showScreen(gameScreen);
-  saveSession();
+  let toEliminate = eliminatedList;
+  if (!toEliminate && isRestoringSession) {
+    try {
+      const saved = localStorage.getItem('genshin_session');
+      if (saved) {
+        const sess = JSON.parse(saved);
+        if (sess && Array.isArray(sess.eliminatedCards)) {
+          toEliminate = sess.eliminatedCards;
+        }
+      }
+    } catch(e) {}
+  }
+  if (toEliminate && Array.isArray(toEliminate)) {
+    setTimeout(() => {
+      document.querySelectorAll('.card').forEach(card => {
+        if (toEliminate.includes(card.dataset.id)) {
+          card.classList.add('eliminated');
+        }
+      });
+      saveSession();
+    }, 50);
+  } else {
+    saveSession();
+  }
   synth.playVictory();
 }
 
