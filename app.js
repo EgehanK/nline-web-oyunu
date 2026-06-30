@@ -1041,8 +1041,8 @@ document.addEventListener('visibilitychange', () => {
     const timeHidden = lastHiddenTime ? (Date.now() - lastHiddenTime) : 0;
     if (!isHost && (currentRoomId || localStorage.getItem('genshin_session'))) {
       const isDead = !conn || !conn.open || (conn.peerConnection && ['disconnected', 'failed', 'closed'].includes(conn.peerConnection.iceConnectionState));
-      if (isDead || timeHidden > 1000) {
-        console.log('Page visible again after sleep/dead connection — reloading to auto-restore...');
+      if (isDead) {
+        console.log('Connection dead after sleep — reloading to auto-restore...');
         setTimeout(() => window.location.reload(), 200);
       } else {
         try {
@@ -1107,12 +1107,11 @@ function handleHostReceivedData(connection, data) {
       let existingClient = clients.find(c => c.nickname === data.nickname);
       
       // Bulletproof fallback: If we couldn't find them by exact nickname, but we are in 1v1 
-      // and there is exactly one guest, it MUST be them reconnecting!
-      if (!existingClient && gameMode === '1v1' && clients.length === 2) {
-        const disconnectedGuest = clients.find(c => !c.isHost && (c.isReconnecting || !c.conn || !c.conn.open));
-        if (disconnectedGuest) {
-          existingClient = disconnectedGuest;
-          // Update nickname to whatever they typed now
+      // and there is a guest slot, it MUST be them reconnecting!
+      if (!existingClient && gameMode === '1v1') {
+        const guest = clients.find(c => !c.isHost);
+        if (guest) {
+          existingClient = guest;
           existingClient.nickname = data.nickname;
         }
       }
@@ -1205,10 +1204,12 @@ function handleHostReceivedData(connection, data) {
       // Player reconnecting - find their existing slot by nickname
       let existingClient = clients.find(c => c.nickname === data.nickname);
       
-      // Bulletproof fallback: If we couldn't find them by exact nickname, but we are in 1v1 
-      // and there is exactly one guest, it MUST be them reconnecting!
-      if (!existingClient && gameMode === '1v1' && clients.length === 2) {
-        existingClient = clients.find(c => !c.isHost);
+      if (!existingClient && gameMode === '1v1') {
+        const guest = clients.find(c => !c.isHost);
+        if (guest) {
+          existingClient = guest;
+          existingClient.nickname = data.nickname;
+        }
       }
 
       if (existingClient) {
@@ -1379,13 +1380,11 @@ function handleGuestReceivedData(data) {
         // Restore active game authoritative state from Host
         const saved = localStorage.getItem('genshin_session');
         const sess = saved ? JSON.parse(saved) : {};
-        mySecretCharacter = data.guestSecretChar || sess.mySecretChar;
-        opponentSecretCharacter = data.hostSecretChar || sess.oppSecretChar;
-        isMyTurn = data.isHostTurn !== undefined ? !data.isHostTurn : sess.isMyTurn;
-        opponentName = sess.opponentName || (currentLang === 'en' ? 'Opponent' : 'Rakip');
-        if (mySecretCharacter && opponentSecretCharacter) {
-          launchGameBoard(data.eliminatedCards || sess.eliminatedCards);
-        }
+        mySecretCharacter = data.guestSecretChar || sess.mySecretChar || mySecretCharacter || characters[0];
+        opponentSecretCharacter = data.hostSecretChar || sess.oppSecretChar || opponentSecretCharacter || characters[1];
+        isMyTurn = data.isHostTurn !== undefined ? !data.isHostTurn : (sess.isMyTurn !== undefined ? sess.isMyTurn : isMyTurn);
+        opponentName = sess.opponentName || opponentName || (currentLang === 'en' ? 'Opponent' : 'Rakip');
+        launchGameBoard(data.eliminatedCards || sess.eliminatedCards);
       } else {
         // Host is in waiting lobby room! Switch back to lobby room
         mySecretCharacter = null;
