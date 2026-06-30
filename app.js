@@ -937,14 +937,26 @@ function setupGuestConnection(connection) {
 
 // Shared data handler setup for guest (used on first join AND reconnect)
 function setupGuestDataHandlers(connection, isRejoining) {
+  let watchdogCleared = false;
+  const openWatchdog = setTimeout(() => {
+    if (!watchdogCleared && !connection.open && peer && !peer.destroyed && currentRoomId) {
+      console.log('Connection open timed out (mobile radio wake-up delay), retrying...');
+      try { connection.close(); } catch(e) {}
+      const retryConn = peer.connect(PEER_PREFIX + currentRoomId, { reliable: true });
+      setupGuestConnection(retryConn);
+    }
+  }, 3000);
+
   const sendJoinOrRejoin = () => {
+    watchdogCleared = true;
+    clearTimeout(openWatchdog);
     if (!myNickname && localStorage.getItem('genshin_session')) {
       try {
         const s = JSON.parse(localStorage.getItem('genshin_session'));
         if (s && s.nickname) myNickname = s.nickname;
       } catch(e) {}
     }
-    setTimeout(() => {
+    const sendReq = () => {
       if (isRestoringSession || isRejoining || localStorage.getItem('genshin_session')) {
         peerStatus.textContent = currentLang === 'en' ? 'Reconnecting...' : 'Yeniden bağlanılıyor...';
         connection.send({ type: 'rejoin-request', nickname: myNickname });
@@ -952,8 +964,9 @@ function setupGuestDataHandlers(connection, isRejoining) {
         peerStatus.textContent = currentLang === 'en' ? 'Connected, waiting for room state...' : 'Bağlantı kuruldu, odanın durumu bekleniyor...';
         connection.send({ type: 'join-request', nickname: myNickname });
       }
-      startPing();
-    }, 250);
+    };
+    setTimeout(() => { sendReq(); startPing(); }, 100);
+    setTimeout(() => { if (connection.open) sendReq(); }, 1200);
   };
 
   if (connection.open) {
