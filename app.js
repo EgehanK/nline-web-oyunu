@@ -1066,6 +1066,41 @@ document.addEventListener('visibilitychange', () => {
 
 // Host Data Handler
 function handleHostReceivedData(connection, data) {
+  // UNIVERSAL ALIVE WATCHDOG:
+  // If the host receives ANY data from a client (chat, ping, rejoin, etc.), that client is guaranteed alive.
+  // Immediately cancel any reconnect timer for them!
+  if (data && data.nickname && data.type !== 'tab-minimized') {
+    let client = clients.find(c => c.nickname === data.nickname);
+    if (!client && gameMode === '1v1' && clients.length === 2) {
+      client = clients.find(c => !c.isHost);
+    }
+    if (client) {
+      client.conn = connection;
+      client.peerId = connection.peer;
+      if (client.isReconnecting) {
+        client.isReconnecting = false;
+        broadcast({ type: 'player-reconnected', nickname: client.nickname });
+      }
+    }
+    if (window.reconnectIntervals) {
+      if (gameMode === '1v1') {
+        Object.keys(window.reconnectIntervals).forEach(nick => {
+          clearInterval(window.reconnectIntervals[nick]);
+          delete window.reconnectIntervals[nick];
+        });
+      } else if (window.reconnectIntervals[data.nickname]) {
+        clearInterval(window.reconnectIntervals[data.nickname]);
+        delete window.reconnectIntervals[data.nickname];
+      }
+    }
+    const msgs = document.querySelectorAll('.reconnect-countdown-msg');
+    msgs.forEach(m => {
+      if (gameMode === '1v1' || m.dataset.nickname === data.nickname) {
+        m.remove();
+      }
+    });
+  }
+
   switch (data.type) {
     case 'join-request': {
       // Check if nickname already exists in clients (e.g. they refreshed)
