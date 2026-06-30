@@ -472,9 +472,11 @@ if (savedSessionStr) {
         isMyTurn = sess.isMyTurn;
         opponentName = sess.opponentName || 'Rakip';
 
-        if (mySecretCharacter && opponentSecretCharacter) {
+        if (sess.isInGame || (mySecretCharacter && opponentSecretCharacter)) {
           showScreen(gameScreen);
-          launchGameBoard();
+          if (mySecretCharacter && opponentSecretCharacter) launchGameBoard();
+        } else if (sess.isInSelectionPhase) {
+          startSelectionPhase();
         } else {
           showScreen(waitingScreen);
         }
@@ -485,8 +487,11 @@ if (savedSessionStr) {
         isMyTurn = sess.isMyTurn;
         opponentName = sess.opponentName || 'Rakip';
 
-        if (mySecretCharacter && opponentSecretCharacter) {
-          launchGameBoard();
+        if (sess.isInGame || (mySecretCharacter && opponentSecretCharacter)) {
+          showScreen(gameScreen);
+          if (mySecretCharacter && opponentSecretCharacter) launchGameBoard();
+        } else if (sess.isInSelectionPhase) {
+          startSelectionPhase();
         } else {
           showScreen(waitingScreen);
         }
@@ -759,7 +764,10 @@ function initPeer(targetRoomId = null) {
     } else {
       peerStatus.textContent = currentLang === 'en' ? `Connecting to room (${currentRoomId})...` : `Odaya (${currentRoomId}) bağlanılıyor...`;
       displayRoomId.textContent = currentRoomId;
-      showScreen(waitingScreen);
+      const isPlayingOrSelecting = gameScreen.classList.contains('active') || selectionScreen.classList.contains('active');
+      if (!isRestoringSession && !isPlayingOrSelecting) {
+        showScreen(waitingScreen);
+      }
       const hostPeerId = PEER_PREFIX + currentRoomId;
       const connection = peer.connect(hostPeerId);
       setupGuestConnection(connection);
@@ -782,14 +790,13 @@ function initPeer(targetRoomId = null) {
       return;
     }
 
-    // For peer-unavailable (wrong code or host dropped)
-    if (err.type === 'peer-unavailable') {
-      const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
-      if (isGameActive || isRestoringSession) {
-        console.log('Host temporarily unavailable. Retrying...');
-        setTimeout(() => window.location.reload(), 3000);
-        return;
-      }
+    // For peer-unavailable or any error during an active room/session, NEVER clear the session!
+    const hasSession = currentRoomId || localStorage.getItem('genshin_session') || isRestoringSession;
+    const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
+    if (hasSession || isGameActive) {
+      console.log('Peer error during active session. Retrying...', err);
+      setTimeout(() => window.location.reload(), 2000);
+      return;
     }
 
     // Fatal unrecoverable error for fresh joins
@@ -822,7 +829,9 @@ function saveSession() {
     oppSecretChar: opponentSecretCharacter,
     isMyTurn,
     opponentName,
-    eliminatedCards: eliminated
+    eliminatedCards: eliminated,
+    isInGame: gameScreen.classList.contains('active'),
+    isInSelectionPhase: selectionScreen.classList.contains('active')
   };
   localStorage.setItem('genshin_session', JSON.stringify(session));
   
@@ -987,8 +996,13 @@ document.addEventListener('visibilitychange', () => {
         }
       }
     } else if (isHost) {
-      broadcast({ type: 'tab-restored', nickname: myNickname });
-      processGameEvent({ type: 'tab-restored', nickname: myNickname });
+      if (!peer || peer.disconnected || peer.destroyed) {
+        console.log('Host page visible again, peer disconnected — reloading to auto-restore...');
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        broadcast({ type: 'tab-restored', nickname: myNickname });
+        processGameEvent({ type: 'tab-restored', nickname: myNickname });
+      }
     }
   }
 });
@@ -1637,6 +1651,7 @@ function startSelectionPhase() {
   showPreviewDetails(null);
   
   showScreen(selectionScreen);
+  saveSession();
   synth.playSuccess();
   
   // Start countdown timer
@@ -1840,6 +1855,7 @@ function launchGameBoard() {
   updateTurnUI();
   
   showScreen(gameScreen);
+  saveSession();
   synth.playVictory();
 }
 
