@@ -115,44 +115,6 @@ input, textarea {
   z-index: 1;
 }
 
-/* Language Switcher Button */
-.lang-toggle-btn {
-  position: absolute;
-  top: 20px;
-  right: 25px;
-  background: rgba(15, 25, 45, 0.8);
-  border: 1px solid var(--color-gold-bright);
-  color: var(--color-gold-bright);
-  padding: 8px 16px;
-  border-radius: 25px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(235, 194, 114, 0.2);
-  transition: all 0.3s ease;
-}
-
-.lang-toggle-btn:hover {
-  background: var(--color-gold-bright);
-  color: #0f192d;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(235, 194, 114, 0.4);
-}
-
-@media (max-width: 600px) {
-  .lang-toggle-btn {
-    top: 15px;
-    right: 15px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-}
-
-
 /* Screens */
 .screen {
   display: none;
@@ -614,27 +576,8 @@ input[type="text"]:focus {
   align-items: center;
   width: 100%;
   padding-bottom: 15px;
-  padding-right: 140px;
   border-bottom: 1px solid rgba(235, 194, 114, 0.15);
   margin-bottom: 15px;
-}
-
-.header-left {
-  flex: 1;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.header-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.header-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .game-logo {
@@ -657,29 +600,13 @@ input[type="text"]:focus {
 .turn-status-badge, .timer-badge {
   background: rgba(235, 194, 114, 0.05);
   border: 1px solid rgba(235, 194, 114, 0.3);
-  padding: 8px 20px;
+  padding: 8px 24px;
   border-radius: 30px;
   font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 1px;
   box-shadow: 0 0 10px rgba(235, 194, 114, 0.05);
   transition: all var(--transition-speed);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 300px;
-}
-
-#turn-status-text {
-  display: inline-block;
-  min-width: 220px;
-  text-align: center;
-}
-
-#turn-timer-text {
-  display: inline-block;
-  width: 48px;
-  text-align: left;
 }
 
 .turn-status-badge.active-turn, .timer-badge.active-turn {
@@ -852,21 +779,9 @@ input[type="text"]:focus {
   background: rgba(15, 15, 25, 0.7);
   border: 1px solid var(--color-card-border);
   border-radius: 12px;
-  padding: 15px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  min-height: 0;
-  max-height: 100%;
-}
-
-.selection-detail-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.selection-detail-panel::-webkit-scrollbar-thumb {
-  background: rgba(235, 194, 114, 0.2);
-  border-radius: 4px;
 }
 
 .genshin-detail-card {
@@ -874,7 +789,6 @@ input[type="text"]:focus {
   flex-direction: column;
   align-items: center;
   height: 100%;
-  min-height: min-content;
 }
 
 .detail-section-title {
@@ -888,8 +802,8 @@ input[type="text"]:focus {
 
 .detail-card-preview {
   width: 100%;
-  max-width: 170px;
-  aspect-ratio: 1 / 1.1;
+  max-width: 220px;
+  aspect-ratio: 1 / 1.25;
   border: 1.5px solid var(--color-card-border);
   border-radius: 12px;
   overflow: hidden;
@@ -936,42 +850,41 @@ input[type="text"]:focus {
 .detail-card-preview.el-hydro .preview-gfx { background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
 
 .detail-info-group {
-  margin: 10px 0;
+  margin: 20px 0;
   width: 100%;
   text-align: center;
 }
 
 .detail-char-name {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .detail-badge-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 
 .detail-badge {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 5px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-gold);
-  width: 90%;
+  width: 80%;
   text-align: center;
 }
 
 .lock-btn {
   width: 100%;
-  padding: 12px !important;
-  font-size: 1.05rem !important;
+  padding: 16px !important;
+  font-size: 1.1rem !important;
   margin-top: auto;
-  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1740,34 +1653,34 @@ select:focus {
 .lobby-mascot {
   position: absolute;
   bottom: 100%;
-  left: 35px; /* Sol tarafa, köşeden hafif içeride olacak şekilde yerleştirildi */
-  right: auto;
-  width: 80px; /* Biraz daha küçültüldü */
+  right: -15px; /* Shifted to the right as requested */
+  width: 145px; 
   height: auto;
-  margin-bottom: -25px; /* Yeni boyuta göre ellerin pervaza oturması için ayarlandı */
   z-index: 10;
   pointer-events: none; 
   
+  /* Alt kısımdaki kahverengi masayı kırpıyoruz (yaklaşık %24) */
+  clip-path: inset(0 0 24% 0);
+  
+  /* Kırpılan kısmı kartın üst çizgisine oturtmak için aşağı çekiyoruz */
+  transform: translateY(calc(24% + 1px));
+  
   /* Görselliği artırmak için hafif şeffaflık ve parlaklık/gölge ayarı */
-  opacity: 0.95;
-  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.15)) drop-shadow(0 -6px 18px rgba(0, 0, 0, 0.6));
+  opacity: 0.92;
+  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.1)) drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 768px) {
   .lobby-mascot {
-    width: 70px;
-    left: 25px;
-    right: auto;
-    margin-bottom: -22px;
+    width: 115px;
+    right: -10px;
   }
 }
 
 @media (max-width: 480px) {
   .lobby-mascot {
-    width: 60px;
-    left: 15px;
-    right: auto;
-    margin-bottom: -18px;
+    width: 95px;
+    right: 0px;
   }
 }
 
@@ -1983,34 +1896,16 @@ select:focus {
   /* Header Responsive */
   .game-header {
     flex-direction: column;
-    gap: 6px;
-    padding-right: 5px !important;
-    padding-bottom: 8px;
-    margin-bottom: 6px;
-  }
-  .header-left {
-    width: 100%;
-    justify-content: flex-start !important;
-    padding-right: 85px !important;
+    gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
   }
   .game-logo {
-    font-size: 1rem !important;
-    line-height: 1.3;
+    font-size: 1.1rem;
   }
   .turn-status-badge, .timer-badge {
-    min-width: 250px !important;
-    padding: 6px 14px !important;
-    font-size: 0.85rem !important;
-  }
-  #turn-status-text {
-    min-width: 160px !important;
-  }
-  #turn-timer-text {
-    width: 42px !important;
-  }
-  .room-info {
-    font-size: 0.8rem !important;
-    text-align: center;
+    padding: 4px 16px;
+    font-size: 0.85rem;
   }
 
   /* Game Over Modal Responsive */
@@ -2046,8 +1941,8 @@ select:focus {
     padding-right: 0;
   }
   .selection-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 6px !important;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
   }
   .selection-detail-panel {
     position: fixed;
@@ -2059,27 +1954,25 @@ select:focus {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px !important;
+    padding: 12px 20px;
+    border-radius: 20px 20px 0 0;
     background: rgba(15, 15, 25, 0.98);
-    border-top: 2px solid var(--color-gold);
-    z-index: 100;
+    border: 1px solid rgba(235, 194, 114, 0.3);
+    border-bottom: none;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+    z-index: 1000;
   }
   .genshin-detail-card {
-    display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
     width: 100%;
-    gap: 10px;
+    align-items: center;
+    height: auto;
   }
   .detail-section-title, 
   .detail-card-preview, 
   .detail-badge-list {
-    display: none !important;
-  }
-  .detail-avatar {
-    width: 50px;
-    height: 50px;
+    display: none; /* Hide huge image and badges on mobile */
   }
   .detail-info-group {
     flex: 1;
@@ -2134,20 +2027,20 @@ select:focus {
     padding-bottom: 10px;
   }
   .grid-layout {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 6px !important;
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 8px;
   }
   
   /* Robust CSS Grid for the Control Panel */
   .control-panel {
     display: grid;
-    grid-template-columns: 96px 1fr;
+    grid-template-columns: 85px 1fr;
     grid-template-rows: auto 1fr;
     gap: 10px;
-    height: 270px; /* Fixed height for the bottom UI */
+    height: 280px; /* Fixed height for the bottom UI */
     flex-shrink: 0;
     margin: 0 -5px -5px -5px; /* Extend to edges */
-    padding: 12px 10px;
+    padding: 15px 10px;
     background: rgba(15, 15, 25, 0.98);
     border-top: 1px solid rgba(235, 194, 114, 0.3);
     border-radius: 20px 20px 0 0;
@@ -2163,18 +2056,14 @@ select:focus {
     border: none;
     background: transparent;
   }
-  .mini-char-card .weapon-badge,
-  .mini-char-card .gender-badge {
-    display: none !important;
-  }
   .game-actions {
     grid-column: 1;
     grid-row: 2;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     width: 100%;
-    margin-top: 4px;
+    margin-top: 5px;
   }
   
   /* Right Side: Chat */
@@ -2190,29 +2079,29 @@ select:focus {
   }
   .secret-avatar-container {
     width: 100%;
-    max-width: 90px;
+    max-width: 85px;
     margin: 0 auto;
   }
   .action-btn {
     width: 100%;
-    padding: 8px 2px !important;
-    font-size: 0.78rem !important;
+    padding: 10px 4px !important;
+    font-size: 0.8rem !important;
   }
   .chat-header {
-    padding: 8px 10px;
+    padding: 10px;
   }
   .chat-header h3 {
     font-size: 0.85rem;
   }
   .chat-messages-area {
-    padding: 8px 10px;
+    padding: 10px;
   }
   .msg-bubble {
-    padding: 6px 10px;
-    font-size: 0.82rem;
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
   .chat-input-form button {
-    padding: 0 10px;
+    padding: 0 12px;
   }
   
   /* =========================================================
@@ -2226,36 +2115,26 @@ select:focus {
     flex-direction: column !important;
   }
   
-  /* Place badges neatly at bottom corners without overlapping faces */
+  /* Stack badges vertically on small screens to prevent overlap */
   .weapon-badge {
-    bottom: 44px !important;
-    left: 4px !important;
-    right: auto !important;
-    font-size: 0.52rem !important;
-    padding: 2px 4px !important;
-    max-width: 48% !important;
+    bottom: 64px;
+    left: 4px;
+    right: auto;
+    font-size: 0.55rem;
+    padding: 2px 4px;
+    max-width: 90%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .gender-badge {
-    bottom: 44px !important;
-    right: 4px !important;
-    left: auto !important;
-    font-size: 0.52rem !important;
-    padding: 2px 4px !important;
-    max-width: 48% !important;
+    bottom: 46px;
+    left: 4px;
+    right: auto;
+    font-size: 0.55rem;
+    padding: 2px 4px;
+    max-width: 90%;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .card-info {
-    padding: 4px !important;
-    min-height: 40px !important;
-  }
-  .char-name {
-    font-size: 0.75rem !important;
-  }
-  .char-region {
-    font-size: 0.65rem !important;
   }
 }
 
