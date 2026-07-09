@@ -1653,34 +1653,36 @@ select:focus {
 .lobby-mascot {
   position: absolute;
   bottom: 100%;
-  right: -15px; /* Shifted to the right as requested */
-  width: 145px; 
+  left: 20px;
+  right: auto;
+  width: 96px; 
   height: auto;
   z-index: 10;
   pointer-events: none; 
   
-  /* Alt kısımdaki kahverengi masayı kırpıyoruz (yaklaşık %24) */
-  clip-path: inset(0 0 24% 0);
+  /* Paimon'un minik ellerini kartın sol üst kenarına tam olarak sarılması için aşağı çekiyoruz */
+  transform: translateY(24px);
   
-  /* Kırpılan kısmı kartın üst çizgisine oturtmak için aşağı çekiyoruz */
-  transform: translateY(calc(24% + 1px));
-  
-  /* Görselliği artırmak için hafif şeffaflık ve parlaklık/gölge ayarı */
-  opacity: 0.92;
-  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.1)) drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.6));
+  /* Parlaklık, netlik ve gölge ayarı */
+  opacity: 0.98;
+  filter: drop-shadow(0 -4px 15px rgba(255, 255, 255, 0.15)) drop-shadow(0 -8px 25px rgba(0, 0, 0, 0.7));
 }
 
 @media (max-width: 768px) {
   .lobby-mascot {
-    width: 115px;
-    right: -10px;
+    width: 86px;
+    left: 15px;
+    right: auto;
+    transform: translateY(21px);
   }
 }
 
 @media (max-width: 480px) {
   .lobby-mascot {
-    width: 95px;
-    right: 0px;
+    width: 76px;
+    left: 12px;
+    right: auto;
+    transform: translateY(18px);
   }
 }
 
