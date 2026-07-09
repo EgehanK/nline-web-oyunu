@@ -132,6 +132,7 @@ let selectionTimerInterval = null;
 let playAgainAccepts = new Set();
 let activeTurnTimerInterval = null;
 let currentTurnTime = 60;
+let turnEndTime = 0;
 
 // Reconnection state
 let reconnectTimer = null;
@@ -695,14 +696,14 @@ document.addEventListener('visibilitychange', () => {
         window.location.reload();
       } else {
         conn.send({ type: 'tab-restored', nickname: myNickname });
-        if (gameScreen.classList.contains('active')) updateTurnUI();
+        if (gameScreen.classList.contains('active')) updateTurnUI(false);
       }
     } else if (isHost) {
       broadcast({ type: 'tab-restored', nickname: myNickname });
       processGameEvent({ type: 'tab-restored', nickname: myNickname });
       if (gameScreen.classList.contains('active')) {
-        broadcast({ type: 'sync-turn', hostTurn: isMyTurn });
-        updateTurnUI();
+        broadcast({ type: 'sync-turn', hostTurn: isMyTurn, turnEndTime });
+        updateTurnUI(false);
       }
     }
   }
@@ -739,7 +740,8 @@ function handleHostReceivedData(connection, data) {
             mySecretCharId: existingClient.lockedCharacterId || null,
             clients: getBroadcastLobbyState(),
             isInSelectionPhase: isInSelection,
-            hostTurn: isMyTurn
+            hostTurn: isMyTurn,
+            turnEndTime: turnEndTime
           });
         }
         break;
@@ -812,7 +814,8 @@ function handleHostReceivedData(connection, data) {
           mySecretCharId: existingClient.lockedCharacterId || null,
           clients: getBroadcastLobbyState(),
           isInSelectionPhase: selectionScreen.classList.contains('active'),
-          hostTurn: isMyTurn
+          hostTurn: isMyTurn,
+          turnEndTime: turnEndTime
         });
         // Notify everyone this player is back
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
@@ -946,7 +949,8 @@ function handleGuestReceivedData(data) {
           opponentName = sess.opponentName || 'Rakip';
           if (mySecretCharacter && opponentSecretCharacter) {
             launchGameBoard();
-            updateTurnUI();
+            if (data.turnEndTime) turnEndTime = data.turnEndTime;
+            updateTurnUI(false);
           }
         }
       }
@@ -1590,9 +1594,12 @@ passTurnBtn.addEventListener('click', () => {
 });
 
 // Turn UI update helper
-function updateTurnUI() {
+function updateTurnUI(resetTimer = true) {
   if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
-  currentTurnTime = 60;
+  if (resetTimer || !turnEndTime || turnEndTime < Date.now()) {
+    turnEndTime = Date.now() + 60000;
+  }
+  currentTurnTime = Math.max(0, Math.ceil((turnEndTime - Date.now()) / 1000));
   
   const timerTextEl = document.getElementById('turn-timer-text');
 
@@ -1616,7 +1623,7 @@ function updateTurnUI() {
   }
 
   activeTurnTimerInterval = setInterval(() => {
-    currentTurnTime--;
+    currentTurnTime = Math.max(0, Math.ceil((turnEndTime - Date.now()) / 1000));
     if (timerTextEl && isMyTurn) {
       timerTextEl.textContent = `(${currentTurnTime}s)`;
       if (currentTurnTime <= 10) {
@@ -1630,11 +1637,11 @@ function updateTurnUI() {
       clearInterval(activeTurnTimerInterval);
       if (isMyTurn) {
         isMyTurn = false;
-        updateTurnUI();
+        updateTurnUI(true);
         sendMessage({ type: 'pass-turn', team: myPlayerInfo.team });
       }
     }
-  }, 1000);
+  }, 250);
 }
 
 // Chat submit
