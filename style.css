@@ -38,7 +38,7 @@ html, body {
   height: 100%;
   overflow: hidden; /* Prevent all scroll/rubber-banding */
   position: fixed; /* Lock body on iOS */
-  touch-action: pan-y !important; /* Allow vertical scrolling on touch devices */
+  touch-action: none; /* Disable touch gestures on body */
 }
 
 body {
@@ -649,8 +649,6 @@ input[type="text"]:focus {
 .selection-grid-container {
   overflow-y: auto;
   padding-right: 8px;
-  touch-action: pan-y !important;
-  -webkit-overflow-scrolling: touch !important;
 }
 
 .selection-grid-container::-webkit-scrollbar {
@@ -913,8 +911,6 @@ input[type="text"]:focus {
 .board-container {
   overflow-y: auto;
   padding-right: 8px;
-  touch-action: pan-y !important;
-  -webkit-overflow-scrolling: touch !important;
 }
 
 .board-container::-webkit-scrollbar {
@@ -1657,36 +1653,34 @@ select:focus {
 .lobby-mascot {
   position: absolute;
   bottom: 100%;
-  left: 20px;
-  right: auto;
-  width: 96px; 
+  right: -15px; /* Shifted to the right as requested */
+  width: 145px; 
   height: auto;
   z-index: 10;
   pointer-events: none; 
   
-  /* Paimon'un minik ellerini kartın sol üst kenarına tam olarak sarılması için aşağı çekiyoruz */
-  transform: translateY(24px);
+  /* Alt kısımdaki kahverengi masayı kırpıyoruz (yaklaşık %24) */
+  clip-path: inset(0 0 24% 0);
   
-  /* Parlaklık, netlik ve gölge ayarı */
-  opacity: 0.98;
-  filter: drop-shadow(0 -4px 15px rgba(255, 255, 255, 0.15)) drop-shadow(0 -8px 25px rgba(0, 0, 0, 0.7));
+  /* Kırpılan kısmı kartın üst çizgisine oturtmak için aşağı çekiyoruz */
+  transform: translateY(calc(24% + 1px));
+  
+  /* Görselliği artırmak için hafif şeffaflık ve parlaklık/gölge ayarı */
+  opacity: 0.92;
+  filter: drop-shadow(0 -4px 12px rgba(255, 255, 255, 0.1)) drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 768px) {
   .lobby-mascot {
-    width: 86px;
-    left: 15px;
-    right: auto;
-    transform: translateY(21px);
+    width: 115px;
+    right: -10px;
   }
 }
 
 @media (max-width: 480px) {
   .lobby-mascot {
-    width: 76px;
-    left: 12px;
-    right: auto;
-    transform: translateY(18px);
+    width: 95px;
+    right: 0px;
   }
 }
 
@@ -1771,33 +1765,6 @@ select:focus {
 
 /* Responsive Scaling */
 @media (max-width: 992px) {
-  html, body {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
-    overscroll-behavior: none;
-    align-items: flex-start;
-    justify-content: flex-start;
-    touch-action: pan-y !important;
-  }
-  
-  .app-container {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important;
-    align-items: flex-start;
-  }
-
   .game-layout, .selection-layout {
     grid-template-columns: 1fr;
   }
@@ -1807,13 +1774,7 @@ select:focus {
   }
   
   #game-screen, #selection-screen {
-    padding: 15px 10px;
-  }
-
-  #selection-screen {
-    height: auto !important;
-    min-height: 100vh;
-    overflow: visible !important;
+    padding: 10px;
   }
   
   .control-panel {
