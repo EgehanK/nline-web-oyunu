@@ -695,10 +695,15 @@ document.addEventListener('visibilitychange', () => {
         window.location.reload();
       } else {
         conn.send({ type: 'tab-restored', nickname: myNickname });
+        if (gameScreen.classList.contains('active')) updateTurnUI();
       }
     } else if (isHost) {
       broadcast({ type: 'tab-restored', nickname: myNickname });
       processGameEvent({ type: 'tab-restored', nickname: myNickname });
+      if (gameScreen.classList.contains('active')) {
+        broadcast({ type: 'sync-turn', hostTurn: isMyTurn });
+        updateTurnUI();
+      }
     }
   }
 });
@@ -733,7 +738,8 @@ function handleHostReceivedData(connection, data) {
             team: existingClient.team,
             mySecretCharId: existingClient.lockedCharacterId || null,
             clients: getBroadcastLobbyState(),
-            isInSelectionPhase: isInSelection
+            isInSelectionPhase: isInSelection,
+            hostTurn: isMyTurn
           });
         }
         break;
@@ -805,7 +811,8 @@ function handleHostReceivedData(connection, data) {
           team: existingClient.team,
           mySecretCharId: existingClient.lockedCharacterId || null,
           clients: getBroadcastLobbyState(),
-          isInSelectionPhase: selectionScreen.classList.contains('active')
+          isInSelectionPhase: selectionScreen.classList.contains('active'),
+          hostTurn: isMyTurn
         });
         // Notify everyone this player is back
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
@@ -837,6 +844,10 @@ function handleHostReceivedData(connection, data) {
         }
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
         processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      }
+      if (gameScreen.classList.contains('active')) {
+        broadcast({ type: 'sync-turn', hostTurn: isMyTurn });
+        updateTurnUI();
       }
       break;
     }
@@ -931,10 +942,11 @@ function handleGuestReceivedData(data) {
           const sess = JSON.parse(saved);
           mySecretCharacter = sess.mySecretChar;
           opponentSecretCharacter = sess.oppSecretChar;
-          isMyTurn = sess.isMyTurn;
+          isMyTurn = (data.hostTurn !== undefined) ? !data.hostTurn : sess.isMyTurn;
           opponentName = sess.opponentName || 'Rakip';
           if (mySecretCharacter && opponentSecretCharacter) {
             launchGameBoard();
+            updateTurnUI();
           }
         }
       }
@@ -954,6 +966,14 @@ function handleGuestReceivedData(data) {
     case 'player-reconnected':
     case 'tab-restored':
       processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      break;
+
+    case 'sync-turn':
+      if (data.hostTurn !== undefined) {
+        isMyTurn = !data.hostTurn;
+        updateTurnUI();
+        saveSession();
+      }
       break;
 
     case 'ping':
