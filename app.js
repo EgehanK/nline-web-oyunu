@@ -210,11 +210,12 @@ if (savedSessionStr) {
         mySecretCharacter = sess.mySecretChar;
         opponentSecretCharacter = sess.oppSecretChar;
         isMyTurn = sess.isMyTurn;
+        if (sess.turnEndTime && sess.turnEndTime > Date.now()) turnEndTime = sess.turnEndTime;
         opponentName = sess.opponentName || 'Rakip';
 
         if (mySecretCharacter && opponentSecretCharacter) {
           showScreen(gameScreen);
-          launchGameBoard();
+          launchGameBoard(false);
         } else {
           showScreen(waitingScreen);
         }
@@ -223,6 +224,7 @@ if (savedSessionStr) {
         mySecretCharacter = sess.mySecretChar;
         opponentSecretCharacter = sess.oppSecretChar;
         isMyTurn = sess.isMyTurn;
+        if (sess.turnEndTime && sess.turnEndTime > Date.now()) turnEndTime = sess.turnEndTime;
         opponentName = sess.opponentName || 'Rakip';
 
         if (mySecretCharacter && opponentSecretCharacter) {
@@ -556,6 +558,7 @@ function saveSession() {
     mySecretChar: mySecretCharacter,
     oppSecretChar: opponentSecretCharacter,
     isMyTurn,
+    turnEndTime,
     opponentName,
     eliminatedCards: eliminated
   };
@@ -849,8 +852,8 @@ function handleHostReceivedData(connection, data) {
         processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
       }
       if (gameScreen.classList.contains('active')) {
-        broadcast({ type: 'sync-turn', hostTurn: isMyTurn });
-        updateTurnUI();
+        broadcast({ type: 'sync-turn', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+        updateTurnUI(false);
       }
       break;
     }
@@ -975,7 +978,8 @@ function handleGuestReceivedData(data) {
     case 'sync-turn':
       if (data.hostTurn !== undefined) {
         isMyTurn = !data.hostTurn;
-        updateTurnUI();
+        if (data.turnEndTime && data.turnEndTime > Date.now()) turnEndTime = data.turnEndTime;
+        updateTurnUI(false);
         saveSession();
       }
       break;
@@ -1450,7 +1454,7 @@ function autoLockRandomCharacter() {
 // Wait for Host to calculate team characters and trigger lock-exchange
 
 // Trigger active game board
-function launchGameBoard() {
+function launchGameBoard(resetTimer = true) {
   // Update header info
   gameRoomId.textContent = currentRoomId;
   opponentNameLabel.textContent = gameMode === '2v2' ? 'Rakip Takım' : opponentName;
@@ -1482,7 +1486,7 @@ function launchGameBoard() {
   }
 
   chatMessages.innerHTML = `<div class="system-message">Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
-  updateTurnUI();
+  updateTurnUI(resetTimer);
   
   showScreen(gameScreen);
   synth.playVictory();
