@@ -1029,7 +1029,50 @@ function processGameEvent(data) {
       }
       break;
 
+    case 'team-hover-char':
+      if (gameMode === '2v2' && myPlayerInfo && data.team === myPlayerInfo.team && data.nickname !== myNickname) {
+        document.querySelectorAll('.select-card').forEach(card => {
+          if (card.dataset.id === data.characterId) {
+            card.classList.add('teammate-hover');
+            let badge = card.querySelector('.teammate-hover-badge');
+            if (!badge) {
+              badge = document.createElement('div');
+              badge.className = 'teammate-hover-badge';
+              card.appendChild(badge);
+            }
+            badge.textContent = `🤝 ${data.nickname} düşünüyor...`;
+            badge.classList.remove('locked-badge');
+          } else {
+            card.classList.remove('teammate-hover');
+            const badge = card.querySelector('.teammate-hover-badge');
+            if (badge) badge.remove();
+          }
+        });
+      }
+      break;
+
     case 'ready-state':
+      if (gameMode === '2v2' && myPlayerInfo && data.team === myPlayerInfo.team && data.nickname !== myNickname) {
+        document.querySelectorAll('.select-card').forEach(card => {
+          if (card.dataset.id === data.characterId) {
+            card.classList.add('teammate-hover');
+            card.classList.add('teammate-locked');
+            let badge = card.querySelector('.teammate-hover-badge');
+            if (!badge) {
+              badge = document.createElement('div');
+              badge.className = 'teammate-hover-badge';
+              card.appendChild(badge);
+            }
+            badge.textContent = `🔒 ${data.nickname} kilitledi!`;
+            badge.classList.add('locked-badge');
+          } else {
+            card.classList.remove('teammate-hover');
+            card.classList.remove('teammate-locked');
+            const badge = card.querySelector('.teammate-hover-badge');
+            if (badge) badge.remove();
+          }
+        });
+      }
       if (isHost) {
         const client = clients.find(c => c.nickname === data.nickname);
         if (client) client.lockedCharacterId = data.characterId;
@@ -1369,6 +1412,14 @@ function renderSelectionGrid(chars) {
       showPreviewDetails(char);
       lockCharacterBtn.disabled = false;
       synth.playTick();
+      if (gameMode === '2v2' && myPlayerInfo && myPlayerInfo.team) {
+        sendMessage({
+          type: 'team-hover-char',
+          characterId: char.id,
+          nickname: myNickname,
+          team: myPlayerInfo.team
+        });
+      }
     });
     
     selectionGrid.appendChild(card);
@@ -1447,12 +1498,12 @@ function lockMySelection(char) {
     myReadyStatus.className = 'text-green';
   }
   
-  // Notify host
   sendMessage({
     type: 'ready-state',
     isReady: true,
     characterId: char.id,
-    nickname: myNickname
+    nickname: myNickname,
+    team: myPlayerInfo ? myPlayerInfo.team : null
   });
 }
 
