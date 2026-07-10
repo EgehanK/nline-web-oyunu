@@ -705,7 +705,7 @@ document.addEventListener('visibilitychange', () => {
       broadcast({ type: 'tab-restored', nickname: myNickname });
       processGameEvent({ type: 'tab-restored', nickname: myNickname });
       if (gameScreen.classList.contains('active')) {
-        broadcast({ type: 'sync-turn', hostTurn: isMyTurn, turnEndTime });
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime });
         updateTurnUI(false);
       }
     }
@@ -743,6 +743,7 @@ function handleHostReceivedData(connection, data) {
             mySecretCharId: existingClient.lockedCharacterId || null,
             clients: getBroadcastLobbyState(),
             isInSelectionPhase: isInSelection,
+            activeTeam: isMyTurn ? 'A' : 'B',
             hostTurn: isMyTurn,
             turnEndTime: turnEndTime
           });
@@ -817,6 +818,7 @@ function handleHostReceivedData(connection, data) {
           mySecretCharId: existingClient.lockedCharacterId || null,
           clients: getBroadcastLobbyState(),
           isInSelectionPhase: selectionScreen.classList.contains('active'),
+          activeTeam: isMyTurn ? 'A' : 'B',
           hostTurn: isMyTurn,
           turnEndTime: turnEndTime
         });
@@ -852,7 +854,7 @@ function handleHostReceivedData(connection, data) {
         processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
       }
       if (gameScreen.classList.contains('active')) {
-        broadcast({ type: 'sync-turn', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
         updateTurnUI(false);
       }
       break;
@@ -948,10 +950,11 @@ function handleGuestReceivedData(data) {
           const sess = JSON.parse(saved);
           mySecretCharacter = sess.mySecretChar;
           opponentSecretCharacter = sess.oppSecretChar;
-          isMyTurn = (data.hostTurn !== undefined) ? !data.hostTurn : sess.isMyTurn;
+          const activeTeam = data.activeTeam !== undefined ? data.activeTeam : (data.hostTurn !== undefined ? (data.hostTurn ? 'A' : 'B') : null);
+          isMyTurn = activeTeam ? (myPlayerInfo.team === activeTeam) : sess.isMyTurn;
           opponentName = sess.opponentName || 'Rakip';
           if (mySecretCharacter && opponentSecretCharacter) {
-            launchGameBoard();
+            launchGameBoard(false);
             if (data.turnEndTime) turnEndTime = data.turnEndTime;
             updateTurnUI(false);
           }
@@ -976,11 +979,14 @@ function handleGuestReceivedData(data) {
       break;
 
     case 'sync-turn':
-      if (data.hostTurn !== undefined) {
-        isMyTurn = !data.hostTurn;
-        if (data.turnEndTime && data.turnEndTime > Date.now()) turnEndTime = data.turnEndTime;
-        updateTurnUI(false);
-        saveSession();
+      {
+        const activeTeam = data.activeTeam !== undefined ? data.activeTeam : (data.hostTurn !== undefined ? (data.hostTurn ? 'A' : 'B') : null);
+        if (activeTeam) {
+          isMyTurn = (myPlayerInfo.team === activeTeam);
+          if (data.turnEndTime && data.turnEndTime > Date.now()) turnEndTime = data.turnEndTime;
+          updateTurnUI(false);
+          saveSession();
+        }
       }
       break;
 
@@ -1166,11 +1172,22 @@ function processGameEvent(data) {
       }
       saveSession(); // Save state for potential reconnect
       launchGameBoard();
+      if (isHost) {
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+      }
       break;
       
     case 'pass-turn':
-      isMyTurn = (data.team !== myPlayerInfo.team);
-      updateTurnUI();
+      {
+        const activeTeam = data.team === 'A' ? 'B' : 'A';
+        isMyTurn = (myPlayerInfo.team === activeTeam);
+        if (isHost) {
+          turnEndTime = Date.now() + 60000;
+          broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+        }
+        updateTurnUI(isHost);
+        saveSession();
+      }
       break;
       
     case 'guess':
