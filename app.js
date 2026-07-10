@@ -173,11 +173,15 @@ const startGameBtn = document.getElementById('start-game-btn');
 // Auto-fill nickname from localStorage
 const savedNick = localStorage.getItem('genshin_nickname');
 if (savedNick) nicknameInput.value = savedNick;
+if (roomIdInput) roomIdInput.value = '';
 
-// Auto-restore session from localStorage
+// Auto-restore session from localStorage ONLY if this reload was triggered by an unexpected connection drop
 let isRestoringSession = false;
+const shouldAutoRestore = sessionStorage.getItem('genshin_auto_reconnect') === 'true';
+sessionStorage.removeItem('genshin_auto_reconnect');
+
 const savedSessionStr = localStorage.getItem('genshin_session');
-if (savedSessionStr) {
+if (shouldAutoRestore && savedSessionStr) {
   try {
     const sess = JSON.parse(savedSessionStr);
     if (sess.nickname && sess.roomId) {
@@ -239,6 +243,9 @@ if (savedSessionStr) {
     console.error("Error restoring session:", e);
     clearSession();
   }
+} else {
+  // Fresh normal entry: clear any old stale session so they start purely on the homepage
+  clearSession();
 }
 
 // How to Play Modal Elements
@@ -671,6 +678,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
     }
 
     console.log('Connection lost, reloading to auto-restore...');
+    sessionStorage.setItem('genshin_auto_reconnect', 'true');
     window.location.reload();
   });
 
@@ -679,6 +687,7 @@ function setupGuestDataHandlers(connection, isRejoining) {
     if (gameIsOver) return;
 
     console.log('Connection error, reloading to auto-restore...');
+    sessionStorage.setItem('genshin_auto_reconnect', 'true');
     window.location.reload();
   });
 }
