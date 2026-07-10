@@ -1040,7 +1040,7 @@ function processGameEvent(data) {
               badge.className = 'teammate-hover-badge';
               card.appendChild(badge);
             }
-            badge.textContent = `🤝 ${data.nickname} düşünüyor...`;
+            badge.textContent = `👀 ${data.nickname}`;
             badge.classList.remove('locked-badge');
           } else {
             card.classList.remove('teammate-hover');
@@ -1063,7 +1063,7 @@ function processGameEvent(data) {
               badge.className = 'teammate-hover-badge';
               card.appendChild(badge);
             }
-            badge.textContent = `🔒 ${data.nickname} kilitledi!`;
+            badge.textContent = `🔒 ${data.nickname}`;
             badge.classList.add('locked-badge');
           } else {
             card.classList.remove('teammate-hover');
