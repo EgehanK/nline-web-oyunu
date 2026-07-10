@@ -170,34 +170,14 @@ const lobbyError = document.getElementById('lobby-error');
 const peerStatus = document.getElementById('peer-status');
 const startGameBtn = document.getElementById('start-game-btn');
 
-// Bulletproof Autocomplete Blocker for Chrome/Edge
-['nickname-input', 'room-id-input'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.setAttribute('autocomplete', 'one-time-code');
-    el.setAttribute('data-lpignore', 'true');
-    el.setAttribute('name', 'rnd_' + Math.random().toString(36).substring(2));
-    el.addEventListener('focus', function() {
-      if (!this.hasAttribute('readonly')) {
-        this.setAttribute('readonly', 'readonly');
-        setTimeout(() => this.removeAttribute('readonly'), 40);
-      }
-    });
-  }
-});
-
 // Auto-fill nickname from localStorage
 const savedNick = localStorage.getItem('genshin_nickname');
-if (savedNick && nicknameInput) nicknameInput.value = savedNick;
-if (roomIdInput) roomIdInput.value = '';
+if (savedNick) nicknameInput.value = savedNick;
 
-// Auto-restore session from localStorage ONLY if this reload was triggered by an unexpected connection drop
+// Auto-restore session from localStorage
 let isRestoringSession = false;
-const shouldAutoRestore = sessionStorage.getItem('genshin_auto_reconnect') === 'true';
-sessionStorage.removeItem('genshin_auto_reconnect');
-
 const savedSessionStr = localStorage.getItem('genshin_session');
-if (shouldAutoRestore && savedSessionStr) {
+if (savedSessionStr) {
   try {
     const sess = JSON.parse(savedSessionStr);
     if (sess.nickname && sess.roomId) {
@@ -259,9 +239,6 @@ if (shouldAutoRestore && savedSessionStr) {
     console.error("Error restoring session:", e);
     clearSession();
   }
-} else {
-  // Fresh normal entry: clear any old stale session so they start purely on the homepage
-  clearSession();
 }
 
 // How to Play Modal Elements
