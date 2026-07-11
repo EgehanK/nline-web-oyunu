@@ -2894,20 +2894,20 @@ select:focus {
     padding: 1px 5px !important;
   }
 
-  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone without hitting tabs above or KULLANICI ADIN below */
+  /* 4. Reposition Paimon Mascot right on TOP of the card peeking over the top-left edge cleanly without covering KULLANICI ADIN or hitting tabs */
   .lobby-mascot {
-    width: 66px !important;
-    left: 12px !important;
+    width: 74px !important;
+    left: 18px !important;
     right: auto !important;
-    top: -18px !important;
-    bottom: auto !important;
-    transform: translateY(0) !important;
+    bottom: 100% !important;
+    top: auto !important;
+    transform: translateY(15px) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Balanced & Compact Lobby Card inside so EVERYTHING fits 100% on the mobile screen without getting cut off at bottom! */
+  /* 5. Balanced & Compact Lobby Card inside (Pulled down slightly to fill bottom empty space!) */
   .new-lobby-card {
-    margin-top: 10px !important;
+    margin-top: 30px !important;
     padding: 18px 16px 14px 16px !important;
     border-radius: 18px !important;
     gap: 10px !important;
