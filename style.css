@@ -2947,9 +2947,10 @@ select:focus {
 ======================================================== */
 @media (max-width: 680px) {
   /* 1. Prevent top/bottom clipping in iPhone Safari! Compact padding so everything fits 100% above bottom bar */
+  /* 1. Prevent top/bottom clipping & push GENSHIN IMPACT GUESS WHO down so it is never too close to top edge (`çok dipte olmasın, aşağı çekilsin`) */
   .screen.active {
     justify-content: flex-start !important;
-    padding: 4px 10px 10px 10px !important;
+    padding: 18px 10px 8px 10px !important;
   }
 
   .lobby-wrapper {
@@ -2958,9 +2959,9 @@ select:focus {
     margin: 0 auto !important;
   }
 
-  /* 2. Compact Top Logo so it never gets cut and saves vertical height */
+  /* 2. Compact Top Logo & add neat spacing */
   .logo-container {
-    margin-bottom: 0 !important;
+    margin-bottom: 2px !important;
   }
   .logo-accent {
     font-size: 0.65rem !important;
@@ -2974,13 +2975,13 @@ select:focus {
     display: none !important;
   }
 
-  /* 3. Sleek & Compact Tab Bar right below logo so it is never too wide (`daha düzgün ve çok geniş değil`) */
+  /* 3. Sleek & Compact Tab Bar right below logo so it is never too wide */
   .mobile-lobby-nav {
     width: 90% !important;
     max-width: 350px !important;
     padding: 3px !important;
     border-radius: 12px !important;
-    margin: 0 auto 4px auto !important;
+    margin: 0 auto 3px auto !important;
     display: flex !important;
   }
   .mobile-nav-btn {
@@ -2999,9 +3000,7 @@ select:focus {
     border-radius: 10px !important;
   }
 
-  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space */
-  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın, haresi ve saçı tab barın altında kalmasın`) */
-  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın, haresi ve saçı tab barın altında kalmasın`) */
+  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın`) */
   .lobby-mascot {
     width: 78px !important;
     left: 22px !important;
@@ -3012,12 +3011,12 @@ select:focus {
     z-index: 30 !important;
   }
 
-  /* 5. Shaved 13 pixels from inner gaps (`böylece Nasıl Oynanır aşağı çekildiği halde Safari barının altında kalmaz`) */
+  /* 5. Balanced card positioning (`logo aşağı çekildiği için kart ile uyumlu`) */
   .new-lobby-card {
-    margin-top: 45px !important;
-    padding: 16px 15px 12px 15px !important;
+    margin-top: 42px !important;
+    padding: 15px 15px 11px 15px !important;
     border-radius: 18px !important;
-    gap: 9px !important;
+    gap: 8px !important;
   }
 
   .new-lobby-card .form-group {
