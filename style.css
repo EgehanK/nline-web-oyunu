@@ -2894,12 +2894,14 @@ select:focus {
     padding: 1px 5px !important;
   }
 
-  /* 4. Reposition Paimon Mascot to top-right corner so she never overlaps KULLANICI ADIN label */
+  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone */
   .lobby-mascot {
-    width: 56px !important;
-    top: -30px !important;
-    right: 22px !important;
-    left: auto !important;
+    width: 78px !important;
+    left: 16px !important;
+    right: auto !important;
+    bottom: 100% !important;
+    top: auto !important;
+    transform: translateY(21px) !important;
     z-index: 30 !important;
   }
 
