@@ -808,11 +808,17 @@ input[type="text"]:focus {
 /* ==========================================================================
    CHARACTER SELECTION SCREEN
    ========================================================================== */
+/* ==========================================================================
+   CHARACTER SELECTION SCREEN (LOCKED 100VH TO PREVENT WINDOW SCROLLBAR ON PC)
+   ========================================================================== */
 #selection-screen {
   flex-direction: column;
   padding: 15px 30px;
   max-width: 1400px;
   margin: 0 auto;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important; /* Prevents right-edge window scrollbar when character badges expand! */
 }
 
 .selection-layout {
@@ -822,11 +828,15 @@ input[type="text"]:focus {
   width: 100%;
   flex: 1;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .selection-grid-container {
   overflow-y: auto;
   padding: 8px 12px 8px 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .selection-grid-container::-webkit-scrollbar {
@@ -1025,43 +1035,52 @@ input[type="text"]:focus {
 
 /* Detail Panel (Right Column Selection) */
 .selection-detail-panel {
-  background: rgba(15, 15, 25, 0.7);
+  background: rgba(15, 15, 25, 0.75);
   border: 1px solid var(--color-card-border);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 .genshin-detail-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  justify-content: space-between;
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
 }
 
 .detail-section-title {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: var(--color-gold-bright);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
   text-shadow: 0 0 5px rgba(235, 194, 114, 0.3);
 }
 
 .detail-card-preview {
   width: 100%;
-  max-width: 220px;
-  aspect-ratio: 1 / 1.25;
+  max-width: 180px;
+  aspect-ratio: 1 / 1.18;
   border: 1.5px solid var(--color-card-border);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   background: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 .detail-card-preview .preview-img {
@@ -1080,7 +1099,7 @@ input[type="text"]:focus {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 800;
   color: rgba(255, 255, 255, 0.9);
   background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%);
@@ -1099,34 +1118,48 @@ input[type="text"]:focus {
 .detail-card-preview.el-hydro .preview-gfx { background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
 
 .detail-info-group {
-  margin: 20px 0;
+  margin: 8px 0;
   width: 100%;
   text-align: center;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Hide scrollbar inside detail info box if it ever needs to scroll internally */
+.detail-info-group::-webkit-scrollbar {
+  display: none;
 }
 
 .detail-char-name {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .detail-badge-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  width: 100%;
 }
 
 .detail-badge {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 0.78rem;
   color: var(--color-gold);
-  width: 80%;
+  width: 92%;
   text-align: center;
+  line-height: 1.3;
 }
 
 .lock-btn {
