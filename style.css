@@ -3001,22 +3001,23 @@ select:focus {
 
   /* 4. Reposition Paimon Mascot right on TOP of the card inside top space */
   /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın, haresi ve saçı tab barın altında kalmasın`) */
+  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın, haresi ve saçı tab barın altında kalmasın`) */
   .lobby-mascot {
     width: 78px !important;
     left: 22px !important;
     right: auto !important;
     bottom: 100% !important;
     top: auto !important;
-    transform: translateY(22px) !important;
+    transform: translateY(19px) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Golden Sweet Spot (`bi tık aşağı çek daha güzel yap, ne çok yukarı ne çok aşağı`) */
+  /* 5. Shaved 13 pixels from inner gaps (`böylece Nasıl Oynanır aşağı çekildiği halde Safari barının altında kalmaz`) */
   .new-lobby-card {
-    margin-top: 50px !important;
-    padding: 18px 16px 14px 16px !important;
+    margin-top: 45px !important;
+    padding: 16px 15px 12px 15px !important;
     border-radius: 18px !important;
-    gap: 10px !important;
+    gap: 9px !important;
   }
 
   .new-lobby-card .form-group {
@@ -3066,8 +3067,8 @@ select:focus {
   }
 
   .action-buttons {
-    margin-top: 11px !important;
-    gap: 9px !important;
+    margin-top: 10px !important;
+    gap: 8px !important;
   }
 
   .new-lobby-card .main-action-btn {
@@ -3079,7 +3080,7 @@ select:focus {
   }
 
   .new-lobby-card .divider {
-    margin: 4px 0 !important;
+    margin: 3px 0 !important;
   }
 
   /* KEY FIX: Put Room ID input and Katıl button on ONE horizontal row on phone! */
@@ -3108,12 +3109,17 @@ select:focus {
     border-radius: 10px !important;
   }
 
-  /* Pull Nasıl Oynanır right above bottom bar cleanly (`az yukarı çıkartıp tam sığdır`) */
+  /* Pull Nasıl Oynanır down (`az aşağı çek`) and make it bigger/brighter (`ufak büyült ve tam belli olsun`) */
   .help-btn {
-    font-size: 0.84rem !important;
-    padding: 5px 14px !important;
-    margin-top: -2px !important;
-    margin-bottom: 6px !important;
+    font-size: 0.94rem !important;
+    padding: 7px 18px !important;
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+    color: #fff !important;
+    background: rgba(255, 215, 0, 0.16) !important;
+    border: 1px solid rgba(255, 215, 0, 0.5) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
   }
 
   .nickname-title-row {
