@@ -2946,132 +2946,131 @@ select:focus {
    ULTRA-COMPACT MOBILE & iPHONE RESPONSIVE (<= 680px)
 ======================================================== */
 @media (max-width: 680px) {
-  /* 1. Prevent top logo from clipping! Use flex-start and compact top/bottom padding so everything fits on screen 100% */
+  /* 1. Prevent top/bottom clipping in iPhone Safari! Compact padding so everything fits 100% above bottom bar */
   .screen.active {
     justify-content: flex-start !important;
-    padding: 8px 12px 14px 12px !important;
+    padding: 4px 10px 10px 10px !important;
   }
 
   .lobby-wrapper {
-    padding: 2px 8px !important;
-    gap: 6px !important;
+    padding: 0 6px !important;
+    gap: 4px !important;
     margin: 0 auto !important;
   }
 
-  /* 2. Compact Top Logo so it never gets cut in half */
+  /* 2. Compact Top Logo so it never gets cut and saves vertical height */
   .logo-container {
-    margin-bottom: 2px !important;
+    margin-bottom: 0 !important;
   }
   .logo-accent {
-    font-size: 0.68rem !important;
-    letter-spacing: 2.5px !important;
-    margin-bottom: 1px !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 0 !important;
   }
   .logo-title {
-    font-size: 1.75rem !important;
+    font-size: 1.55rem !important;
   }
   .logo-subtitle {
-    font-size: 0.74rem !important;
-    margin-top: 1px !important;
+    display: none !important;
   }
 
-  /* 3. Compact Tab Bar so Paimon doesn't collide with it */
+  /* 3. Compact Tab Bar */
   .mobile-lobby-nav {
     max-width: 100% !important;
-    padding: 3px !important;
-    border-radius: 12px !important;
-    margin-bottom: 2px !important;
+    padding: 2px !important;
+    border-radius: 10px !important;
+    margin-bottom: 0 !important;
   }
   .mobile-nav-btn {
-    padding: 7px 10px !important;
-    font-size: 0.8rem !important;
-    border-radius: 10px !important;
+    padding: 6px 8px !important;
+    font-size: 0.76rem !important;
+    border-radius: 8px !important;
   }
   .nav-badge {
-    font-size: 0.62rem !important;
-    padding: 1px 5px !important;
+    font-size: 0.6rem !important;
+    padding: 1px 4px !important;
   }
 
-  /* 4. Reposition Paimon Mascot right on TOP of the card inside the 54px wide gap so her hair is NEVER covered by tabs above or text below */
+  /* 4. Reposition Paimon Mascot right on TOP of the card */
   .lobby-mascot {
-    width: 80px !important;
-    left: 24px !important;
+    width: 74px !important;
+    left: 18px !important;
     right: auto !important;
     bottom: 100% !important;
     top: auto !important;
-    transform: translateY(22px) !important;
+    transform: translateY(18px) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Balanced & Expanded Lobby Card inside (Pulled down by 54px to fill bottom space and expanded slightly downward!) */
+  /* 5. Compact Lobby Card inside to guarantee 100% zero-scroll single screen fit on iPhone */
   .new-lobby-card {
-    margin-top: 54px !important;
-    padding: 24px 18px 20px 18px !important;
-    border-radius: 20px !important;
-    gap: 13px !important;
+    margin-top: 48px !important;
+    padding: 16px 14px 14px 14px !important;
+    border-radius: 16px !important;
+    gap: 8px !important;
   }
 
   .new-lobby-card .form-group {
-    gap: 5px !important;
+    gap: 3px !important;
   }
 
   .new-lobby-card label {
-    font-size: 0.76rem !important;
-    margin-bottom: 2px !important;
-    letter-spacing: 1.2px !important;
+    font-size: 0.72rem !important;
+    margin-bottom: 1px !important;
+    letter-spacing: 1px !important;
   }
 
   .new-lobby-card input[type="text"] {
-    padding: 12px 14px !important;
-    font-size: 0.92rem !important;
-    border-radius: 10px !important;
+    padding: 9px 12px !important;
+    font-size: 0.86rem !important;
+    border-radius: 8px !important;
   }
 
   .title-form-group {
-    margin-top: 12px !important;
+    margin-top: 8px !important;
   }
 
   .full-width-title-btn {
-    padding: 11px 14px !important;
-    font-size: 0.9rem !important;
-    border-radius: 10px !important;
-    margin-top: 4px !important;
-    margin-bottom: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 0.84rem !important;
+    border-radius: 8px !important;
+    margin-top: 2px !important;
+    margin-bottom: 3px !important;
   }
 
   /* Make stats bar sleek and well-padded on mobile */
   .lobby-stats-bar {
-    font-size: 0.74rem !important;
-    padding: 6px 10px !important;
-    margin-top: 6px !important;
+    font-size: 0.7rem !important;
+    padding: 4px 8px !important;
+    margin-top: 4px !important;
   }
 
   .mode-form-group {
-    margin-top: 14px !important;
+    margin-top: 8px !important;
   }
 
   /* Segmented buttons for mode */
   .new-lobby-card .mode-btn {
-    padding: 9px 12px !important;
-    font-size: 0.82rem !important;
-    border-radius: 10px !important;
+    padding: 7px 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 8px !important;
   }
 
   .action-buttons {
-    margin-top: 14px !important;
-    gap: 10px !important;
+    margin-top: 10px !important;
+    gap: 8px !important;
   }
 
   .new-lobby-card .main-action-btn {
-    padding: 13px 16px !important;
-    font-size: 0.98rem !important;
-    margin-top: 3px !important;
-    margin-bottom: 3px !important;
-    border-radius: 12px !important;
+    padding: 11px 14px !important;
+    font-size: 0.92rem !important;
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+    border-radius: 10px !important;
   }
 
   .new-lobby-card .divider {
-    margin: 8px 0 !important;
+    margin: 4px 0 !important;
   }
 
   /* KEY FIX: Put Room ID input and Katıl button on ONE horizontal row on phone! */
@@ -3079,31 +3078,31 @@ select:focus {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     width: 100% !important;
   }
 
   .new-lobby-card #room-id-input {
     flex: 1 !important;
-    padding: 10px 12px !important;
-    font-size: 0.88rem !important;
+    padding: 8px 10px !important;
+    font-size: 0.82rem !important;
     margin: 0 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
   }
 
   .new-lobby-card #join-room-btn {
     width: auto !important;
-    padding: 10px 14px !important;
-    font-size: 0.88rem !important;
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
   }
 
   .help-btn {
-    font-size: 0.84rem !important;
-    padding: 6px 12px !important;
-    margin-top: 2px !important;
+    font-size: 0.8rem !important;
+    padding: 4px 10px !important;
+    margin-top: 0 !important;
   }
 
   .nickname-title-row {
