@@ -107,231 +107,6 @@ const elementTranslations = {
   Geo: "Toprak"
 };
 
-// ==========================================================================
-// PLAYER TITLES & CAREER STATS LOGIC
-// ==========================================================================
-const titleDefinitions = [
-  { id: "rookie", name: "🌱 Maceracı Çaylağı", desc: "Maceracılar Loncası'na yeni katılan gezgin.", reqText: "Başlangıç (Herkese Açık)", checkUnlocked: (s) => true },
-  { id: "favonius", name: "⚔️ Favonius Şövalyesi", desc: "Mondstadt'ın rüzgarını ve onurunu savunan savaşçı.", reqText: "3 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 3 },
-  { id: "adeptus", name: "🪨 Liyue Adeptusu", desc: "Kayalar kadar sarsılmaz ve bilgili strateji ustası.", reqText: "5 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 5 },
-  { id: "streak3", name: "🔥 Yenilmez Serüvenci", desc: "Art arda zaferler kazanarak rakiplerine korku salan usta.", reqText: "3 Maç Üst Üste Kazan (Win Streak)", checkUnlocked: (s) => (s.bestStreak || 0) >= 3 || (s.winStreak || 0) >= 3 },
-  { id: "veteran", name: "🔍 Akıl Havası", desc: "Teyvat'taki tüm sırları ve ipuçlarını şıp diye çözen dedektif.", reqText: "Toplam 10 Maç Oyna", checkUnlocked: (s) => (s.totalMatches || 0) >= 10 },
-  { id: "shogun", name: "⚡ Shogun Muhafızı", desc: "Inazuma'nın ebediyet kuralına sadık yıldırım keskinliği.", reqText: "10 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 10 },
-  { id: "scholar", name: "🌿 Akademiya Bilgesi", desc: "Sumeru'nun en yüksek bilgi ağacına ulaşmış büyük bilgin.", reqText: "15 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 15 },
-  { id: "duelist", name: "🌊 Fontaine Düellocusu", desc: "Mahkeme salonunda adaleti ve zerafeti temsil eden asilzade.", reqText: "20 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 20 },
-  { id: "legend", name: "👑 Teyvat Efsanesi", desc: "Yedi ulusun tamamında nam salmış nihai tahmin üstadı!", reqText: "25 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 25 }
-];
-
-function getPlayerStats() {
-  const saved = localStorage.getItem('genshin_career_stats');
-  if (saved) {
-    try { return JSON.parse(saved); } catch(e) {}
-  }
-  return { wins: 0, winStreak: 0, bestStreak: 0, totalMatches: 0, selectedTitleId: "rookie" };
-}
-
-function savePlayerStats(stats) {
-  localStorage.setItem('genshin_career_stats', JSON.stringify(stats));
-}
-
-function getActiveTitleLabel() {
-  const stats = getPlayerStats();
-  const t = titleDefinitions.find(x => x.id === stats.selectedTitleId) || titleDefinitions[0];
-  return t.name;
-}
-
-function updateCareerStatsUI() {
-  const stats = getPlayerStats();
-  const activeLabelEl = document.getElementById('active-title-label');
-  if (activeLabelEl) activeLabelEl.textContent = getActiveTitleLabel();
-
-  const winEl = document.getElementById('stat-wins');
-  const streakEl = document.getElementById('stat-streak');
-  const totalEl = document.getElementById('stat-total');
-  if (winEl) winEl.textContent = stats.wins || 0;
-  if (streakEl) streakEl.textContent = stats.winStreak || 0;
-  if (totalEl) totalEl.textContent = stats.totalMatches || 0;
-}
-
-// ==========================================================================
-// DAILY GENSHIN TRIVIA (GÜNÜN BULMACASI) LOGIC
-// ==========================================================================
-const dailyTriviaQuestions = [
-  {
-    q: "Hu Tao'nun Wangsheng Cenaze Evi'nde çalışan gizemli danışmanı kimdir?",
-    options: ["Xiao", "Zhongli", "Ganyu"],
-    answer: 1,
-    note: "Doğru! Zhongli, Wangsheng Cenaze Evi'nde saygın ve bilgili bir danışman olarak görev yapar."
-  },
-  {
-    q: "Mondstadt'ın 'Favonius Şövalyeleri'nde Dandelion Şövalyesi unvanını taşıyan kimdir?",
-    options: ["Eula", "Jean", "Klee"],
-    answer: 1,
-    note: "Doğru! Jean hem Büyük Üstat Vekili hem de Dandelion (Karahindiba) Şövalyesi unvanını taşır."
-  },
-  {
-    q: "Inazuma'da 'Ebediyet'i arayan ve Yıldırım Tanrısı olan Raiden Shogun'un asıl adı nedir?",
-    options: ["Ei (Beelzebul)", "Yae Miko", "Kujou Sara"],
-    answer: 0,
-    note: "Doğru! Raiden Shogun'un asıl adı Ei'dir ve Hükümdar unvanı Beelzebul'dur."
-  },
-  {
-    q: "Fontaine'in Yüce Yargıcı Neuvillette'in gerçek ve gizli kimliği nedir?",
-    options: ["Yüce Sular Ejderi (Hydro Dragon)", "Eski Bir Archon", "Fatui Öncüsü"],
-    answer: 0,
-    note: "Doğru! Neuvillette, Fontaine'in adaleti sağlayan Yüce Sular Ejderi'dir."
-  },
-  {
-    q: "Ateş Archon'u Mavuika hangi ulusun lideridir?",
-    options: ["Sumeru", "Natlan", "Snezhnaya"],
-    answer: 1,
-    note: "Doğru! Mavuika, savaş ve ateşin ulusu Natlan'ın Archon'udur."
-  },
-  {
-    q: "Liyue'deki Wangshu Hanı'nın çatısında yalnız başına iblis avlayan Yaksha kimdir?",
-    options: ["Xiao", "Chongyun", "Shenhe"],
-    answer: 0,
-    note: "Doğru! Xiao, binlerce yıldır Liyue'yi gölgelerden koruyan son Vigilant Yaksha'dır."
-  },
-  {
-    q: "Sumeru'nun Bilgelik Archon'u olan Küçük Kusanali Lordu kimdir?",
-    options: ["Nilou", "Nahida", "Collei"],
-    answer: 1,
-    note: "Doğru! Nahida, Sumeru halkına bilgelik ve rüyalarda rehberlik eden Dendro Archon'dur."
-  },
-  {
-    q: "Fatui Öncüleri'nden 'Çocuk' (Childe) unvanına sahip Tartaglia, savaşta özellikle hangi silahı sevdiğini söyler?",
-    options: ["Katalizör", "Yay (Çünkü en az usta olduğu silah)", "Çift Elli Kılıç"],
-    answer: 1,
-    note: "Doğru! Tartaglia, kendini zorlamak için en zayıf olduğu silah olan yayı kullanır."
-  },
-  {
-    q: "Maceracılar Loncası'nın her ulusta bulunan ve 'Ad astra abyssosque' diyen resepsiyonisti kimdir?",
-    options: ["Katheryne", "Ella Musk", "Ying'er"],
-    answer: 0,
-    note: "Doğru! Katheryne tüm Teyvat'ta maceracılara günlük görevlerini verir."
-  },
-  {
-    q: "Klee'nin en sevdiği ve Balık Gümletme'de kullandığı patlayıcısının adı nedir?",
-    options: ["Dodoco", "Jumpty Dumpty", "Baron Tavşan"],
-    answer: 1,
-    note: "Doğru! Jumpty Dumpty, Klee'nin sevimli ama süper patlayıcı bombasıdır."
-  },
-  {
-    q: "Kamisato Ayaka'nın ağabeyi ve Yashiro Komisyonu'nun başındaki kişi kimdir?",
-    options: ["Thoma", "Kamisato Ayato", "Kaedehara Kazuha"],
-    answer: 1,
-    note: "Doğru! Kamisato Ayato hem klanın lideri hem de Ayaka'nın ağabeyidir."
-  },
-  {
-    q: "Shenhe, çocukluğunda hangi Liyue Adeptus'u tarafından dağlarda büyütülmüştür?",
-    options: ["Madame Ping", "Xianyun (Bulutların Hâkimi)", "Zhongli"],
-    answer: 1,
-    note: "Doğru! Xianyun (Bulutların Hâkimi / Cloud Retainer), Shenhe ve Ganyu'nun ustasıdır."
-  }
-];
-
-let triviaCountdownInterval = null;
-
-function initDailyTriviaWidget() {
-  const contentEl = document.getElementById('trivia-content');
-  if (!contentEl) return;
-
-  if (triviaCountdownInterval) clearInterval(triviaCountdownInterval);
-
-  const todayStr = new Date().toDateString();
-  const solvedDate = localStorage.getItem('genshin_trivia_solved_date');
-
-  if (solvedDate === todayStr) {
-    renderTriviaSolvedState(contentEl);
-  } else {
-    // Pick today's question based on day index
-    const now = new Date();
-    const daySeed = now.getFullYear() * 365 + (now.getMonth() + 1) * 31 + now.getDate();
-    const qIndex = daySeed % dailyTriviaQuestions.length;
-    const qData = dailyTriviaQuestions[qIndex];
-
-    contentEl.innerHTML = `
-      <div class="trivia-question-text">${qData.q}</div>
-      <div class="trivia-options-grid" id="trivia-options-list"></div>
-      <div id="trivia-feedback" style="margin-top:10px; font-size:0.85rem; font-weight:600;"></div>
-    `;
-
-    const optionsList = document.getElementById('trivia-options-list');
-    const feedbackEl = document.getElementById('trivia-feedback');
-    const letters = ['A', 'B', 'C'];
-
-    qData.options.forEach((optText, idx) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'trivia-opt-btn';
-      btn.innerHTML = `<span class="trivia-opt-letter">${letters[idx]}</span> <span style="flex:1;">${optText}</span>`;
-      
-      btn.addEventListener('click', () => {
-        if (idx === qData.answer) {
-          btn.style.borderColor = '#10b981';
-          btn.style.background = 'rgba(16, 185, 129, 0.25)';
-          if (typeof synth !== 'undefined' && synth.playTick) synth.playTick();
-
-          feedbackEl.style.color = '#34d399';
-          feedbackEl.innerHTML = `✨ <strong>Tebrikler!</strong> ${qData.note}`;
-
-          // Mark solved
-          localStorage.setItem('genshin_trivia_solved_date', todayStr);
-
-          setTimeout(() => {
-            renderTriviaSolvedState(contentEl);
-          }, 3500);
-        } else {
-          btn.style.borderColor = '#ef4444';
-          btn.style.background = 'rgba(239, 68, 68, 0.25)';
-          if (typeof synth !== 'undefined' && synth.playError) synth.playError();
-
-          feedbackEl.style.color = '#f87171';
-          feedbackEl.textContent = '❌ Yanlış şık, tekrar denemeye ne dersin Gezgin?';
-          setTimeout(() => {
-            btn.style.borderColor = '';
-            btn.style.background = '';
-          }, 1200);
-        }
-      });
-
-      optionsList.appendChild(btn);
-    });
-  }
-}
-
-function renderTriviaSolvedState(containerEl) {
-  if (!containerEl) return;
-  containerEl.innerHTML = `
-    <div class="trivia-solved-box">
-      <div class="trivia-solved-title">🎉 Günün Bulmacası Çözüldü!</div>
-      <p style="font-size:0.85rem; color:#d1fae5; margin-top:4px;">Genshin evrenine dair harika bilgilere sahipsin!</p>
-      <div class="trivia-countdown" id="trivia-timer-clock">⏳ Yeni bulmaca: --:--:--</div>
-    </div>
-  `;
-
-  const updateClock = () => {
-    const clockEl = document.getElementById('trivia-timer-clock');
-    if (!clockEl) return;
-    const now = new Date();
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0);
-    const diffMs = midnight - now;
-    if (diffMs <= 0) {
-      initDailyTriviaWidget();
-      return;
-    }
-    const hrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
-    clockEl.textContent = `⏳ Yeni bulmaca: ${String(hrs).padStart(2, '0')} saat ${String(mins).padStart(2, '0')} dk ${String(secs).padStart(2, '0')} sn`;
-  };
-
-  updateClock();
-  triviaCountdownInterval = setInterval(updateClock, 1000);
-}
-
 
 // PeerJS Connection State
 let peer = null;
@@ -479,64 +254,6 @@ closeHowToPlayBtn?.addEventListener('click', () => {
   howToPlayModal.classList.add('hidden');
 });
 
-// Player Titles Modal Elements & Logic
-const titleModal = document.getElementById('title-modal');
-const openTitleModalBtn = document.getElementById('open-title-modal-btn');
-const closeTitleModalBtn = document.getElementById('close-title-modal-btn');
-const saveTitleBtn = document.getElementById('save-title-btn');
-const titlesGridList = document.getElementById('titles-grid-list');
-
-function renderTitleModal() {
-  if (!titlesGridList) return;
-  const stats = getPlayerStats();
-  titlesGridList.innerHTML = '';
-
-  titleDefinitions.forEach(t => {
-    const isUnlocked = t.checkUnlocked(stats);
-    const isSelected = stats.selectedTitleId === t.id;
-
-    const card = document.createElement('div');
-    card.className = `title-item-card ${isUnlocked ? 'unlocked' : 'locked'} ${isSelected ? 'active-selected' : ''}`;
-    card.innerHTML = `
-      <div class="title-item-header">
-        <span class="title-item-name">${t.name}</span>
-        <span class="title-status-icon">${isSelected ? '✅' : (isUnlocked ? '🔓' : '🔒')}</span>
-      </div>
-      <div class="title-item-desc">${t.desc}</div>
-      <div class="title-item-req">${isUnlocked ? '✦ KİLİT AÇILDI ✦' : '🔒 Şart: ' + t.reqText}</div>
-    `;
-
-    if (isUnlocked) {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.title-item-card').forEach(c => c.classList.remove('active-selected'));
-        card.classList.add('active-selected');
-        stats.selectedTitleId = t.id;
-        savePlayerStats(stats);
-      });
-    }
-
-    titlesGridList.appendChild(card);
-  });
-}
-
-openTitleModalBtn?.addEventListener('click', () => {
-  renderTitleModal();
-  titleModal?.classList.remove('hidden');
-});
-
-closeTitleModalBtn?.addEventListener('click', () => {
-  titleModal?.classList.add('hidden');
-});
-
-saveTitleBtn?.addEventListener('click', () => {
-  titleModal?.classList.add('hidden');
-  updateCareerStatsUI();
-});
-
-// Initialize Career Stats and Daily Trivia on page load
-updateCareerStatsUI();
-initDailyTriviaWidget();
-
 // Character Selection Elements
 const selectionGrid = document.getElementById('selection-grid');
 const detailCardPreview = document.getElementById('detail-card-preview');
@@ -643,7 +360,7 @@ createRoomBtn.addEventListener('click', () => {
   // Save nickname for next visit
   localStorage.setItem('genshin_nickname', myNickname);
   
-  myPlayerInfo = { peerId: 'host', nickname: myNickname, title: getActiveTitleLabel(), team: 'A', isHost: true };
+  myPlayerInfo = { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
   clients = [ { conn: null, ...myPlayerInfo } ];
   
   saveSession(); // Save host session
@@ -693,7 +410,7 @@ function updateLobbyUI() {
   aList.forEach((slot, i) => {
     if (i === 1 && !is2v2) return;
     if (teamA[i]) {
-      slot.innerHTML = `${teamA[i].nickname} <span class="player-title-badge">${teamA[i].title || '🌱 Maceracı Çaylağı'}</span>`;
+      slot.textContent = teamA[i].nickname;
       slot.className = 'player-slot filled' + (teamA[i].isHost ? ' host' : '');
     } else {
       slot.textContent = 'Bekleniyor...';
@@ -706,7 +423,7 @@ function updateLobbyUI() {
   bList.forEach((slot, i) => {
     if (i === 1 && !is2v2) return;
     if (teamB[i]) {
-      slot.innerHTML = `${teamB[i].nickname} <span class="player-title-badge">${teamB[i].title || '🌱 Maceracı Çaylağı'}</span>`;
+      slot.textContent = teamB[i].nickname;
       slot.className = 'player-slot filled' + (teamB[i].isHost ? ' host' : '');
     } else {
       slot.textContent = 'Bekleniyor...';
@@ -820,7 +537,7 @@ function initPeer(targetRoomId = null) {
 }
 
 function getBroadcastLobbyState() {
-  return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, title: c.title || getActiveTitleLabel(), team: c.team, isHost: c.isHost, lockedCharacterId: c.lockedCharacterId }));
+  return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, team: c.team, isHost: c.isHost, lockedCharacterId: c.lockedCharacterId }));
 }
 
 // --- Session Save/Restore ---
@@ -923,10 +640,10 @@ function setupGuestDataHandlers(connection, isRejoining) {
     setTimeout(() => {
       if (isRestoringSession || isRejoining) {
         peerStatus.textContent = 'Yeniden bağlanılıyor...';
-        connection.send({ type: 'rejoin-request', nickname: myNickname, title: getActiveTitleLabel() });
+        connection.send({ type: 'rejoin-request', nickname: myNickname });
       } else {
         peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
-        connection.send({ type: 'join-request', nickname: myNickname, title: getActiveTitleLabel() });
+        connection.send({ type: 'join-request', nickname: myNickname });
       }
       startPing();
     }, 250);
@@ -1056,7 +773,6 @@ function handleHostReceivedData(connection, data) {
         conn: connection,
         peerId: connection.peer,
         nickname: data.nickname,
-        title: data.title || '🌱 Maceracı Çaylağı',
         team: assignedTeam,
         isHost: false
       });
@@ -2093,26 +1809,15 @@ function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
     const timerTextEl = document.getElementById('turn-timer-text');
     if (timerTextEl) timerTextEl.classList.add('hidden');
 
-    const stats = getPlayerStats();
-    stats.totalMatches = (stats.totalMatches || 0) + 1;
-
     if (isMyTeam) {
-      stats.wins = (stats.wins || 0) + 1;
-      stats.winStreak = (stats.winStreak || 0) + 1;
-      if (stats.winStreak > (stats.bestStreak || 0)) stats.bestStreak = stats.winStreak;
-
       gameOverTitle.textContent = 'TEBRİKLER!';
       gameOverTitle.className = 'game-over-title win';
       gameOverMessage.textContent = `Takımınızdan ${guesserName}, rakibin gizli karakterini doğru tahmin etti!`;
     } else {
-      stats.winStreak = 0;
-
       gameOverTitle.textContent = 'KAYBETTİN...';
       gameOverTitle.className = 'game-over-title lose';
       gameOverMessage.textContent = `${guesserName} sizin karakterinizi doğru tahmin etti!`;
     }
-    savePlayerStats(stats);
-    updateCareerStatsUI();
     
     const secretCharShow = isMyTeam ? opponentSecretCharacter : mySecretCharacter;
     const elClass = `el-${secretCharShow.element.toLowerCase()}`;
@@ -2287,60 +1992,4 @@ if (chatTabGlobal && chatTabTeam) {
     e.target.classList.add('active');
     chatTabGlobal.classList.remove('active');
   });
-}
-
-// Mobile & Tablet Lobby Tab Switcher Logic
-function initMobileLobbySwitcher() {
-  const navButtons = document.querySelectorAll('.mobile-nav-btn');
-  const heroCard = document.getElementById('lobby-hero-card') || document.querySelector('.center-hero-card');
-  const triviaCard = document.getElementById('daily-trivia-widget');
-
-  if (!navButtons.length || !heroCard || !triviaCard) return;
-
-  // Initial state for tablet/mobile screen sizes (< 1100px)
-  if (window.innerWidth < 1100) {
-    triviaCard.classList.add('mobile-hidden');
-    heroCard.classList.remove('mobile-hidden');
-  }
-
-  navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      navButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const target = btn.dataset.target;
-      if (target === 'lobby') {
-        heroCard.classList.remove('mobile-hidden');
-        triviaCard.classList.add('mobile-hidden');
-      } else if (target === 'trivia') {
-        heroCard.classList.add('mobile-hidden');
-        triviaCard.classList.remove('mobile-hidden');
-      }
-      synth.playTick();
-    });
-  });
-
-  // Handle screen resize smoothly
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 1100) {
-      heroCard.classList.remove('mobile-hidden');
-      triviaCard.classList.remove('mobile-hidden');
-    } else {
-      const activeBtn = document.querySelector('.mobile-nav-btn.active');
-      if (activeBtn && activeBtn.dataset.target === 'trivia') {
-        heroCard.classList.add('mobile-hidden');
-        triviaCard.classList.remove('mobile-hidden');
-      } else {
-        heroCard.classList.remove('mobile-hidden');
-        triviaCard.classList.add('mobile-hidden');
-      }
-    }
-  });
-}
-
-// Initialize Mobile Switcher on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMobileLobbySwitcher);
-} else {
-  initMobileLobbySwitcher();
 }
