@@ -29,85 +29,40 @@
           <p class="logo-subtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
         </div>
 
-        <!-- MOBILE / TABLET INTERACTIVE TAB SWITCHER (Hidden on large Desktop screens) -->
-        <div id="mobile-lobby-nav" class="mobile-lobby-nav">
-          <button type="button" class="mobile-nav-btn active" data-target="lobby">
-            <span class="nav-icon">🎮</span> <span class="nav-text">Lobi & Giriş</span>
-          </button>
-          <button type="button" class="mobile-nav-btn" data-target="trivia">
-            <span class="nav-icon">📜</span> <span class="nav-text">Günün Bulmacası</span>
-            <span class="nav-badge">Bugün</span>
-          </button>
-        </div>
-
-        <!-- CENTERED HERO + SIDE PANEL LAYOUT -->
-        <div class="lobby-centered-layout">
-          <!-- LEFT DUMMY BALANCER (Hidden on mobile/tablet, balances exact center on PC) -->
-          <div class="lobby-side-spacer"></div>
-
-          <!-- CENTER COLUMN: HERO LOBBY CARD (Dead center of the site) -->
-          <div id="lobby-hero-card" class="lobby-card new-lobby-card center-hero-card">
-            <!-- MASCOT PEEKING OVER EDGE -->
-            <img src="images/paimon.png" class="lobby-mascot" alt="Paimon Mascot" onerror="this.src='images/paimon.png'">
-            
-            <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
-            
-            <div class="form-group">
-              <label for="nickname-input">Kullanıcı Adın</label>
-              <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12" autocomplete="one-time-code" data-lpignore="true" spellcheck="false">
-            </div>
-
-            <div class="form-group" style="margin-top: -6px;">
-              <label for="open-title-modal-btn">Seçili Rütbe Ünvanın</label>
-              <button type="button" id="open-title-modal-btn" class="title-select-btn full-width-title-btn" title="Rütbe Ünvanını Değiştir">
-                <span id="active-title-label" class="title-label-text">🌱 Maceracı Çaylağı</span>
-                <span class="change-title-badge">Değiştir ▾</span>
-              </button>
-              <!-- MINI CAREER STATS BAR -->
-              <div id="lobby-stats-bar" class="lobby-stats-bar">
-                <span>🏆 Galibiyet: <strong id="stat-wins">0</strong></span> | 
-                <span>🔥 Seri: <strong id="stat-streak">0</strong></span> | 
-                <span>🎮 Toplam: <strong id="stat-total">0</strong></span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Oyun Modu</label>
-              <div class="mode-selector" style="display:flex; gap:10px;">
-                <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
-                <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> 2v2 Takımlı</label>
-              </div>
-            </div>
-
-            <div class="action-buttons">
-              <button id="create-room-btn" class="primary-btn main-action-btn">
-                <span class="btn-icon">✦</span> Yeni Oda Oluştur
-              </button>
-              
-              <div class="divider"><span>veya</span></div>
-
-              <div class="join-group">
-                <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" maxlength="6" autocomplete="one-time-code" data-lpignore="true" spellcheck="false">
-                <button id="join-room-btn" class="secondary-btn">Katıl</button>
-              </div>
-            </div>
-
-            <div id="lobby-error" class="error-message hidden"></div>
+        <div class="lobby-card new-lobby-card" style="margin: 0 auto; position: relative;">
+          <!-- MASCOT PEEKING OVER EDGE -->
+          <img src="images/paimon.png" class="lobby-mascot" alt="Paimon Mascot" onerror="this.src='images/paimon.png'">
+          
+          <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
+          <div class="form-group">
+            <label for="nickname-input">Kullanıcı Adın</label>
+            <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12" autocomplete="new-password" spellcheck="false">
           </div>
 
-          <!-- RIGHT COLUMN: DAILY GENSHIN TRIVIA / BULMACA WIDGET (Side Panel) -->
-          <div id="daily-trivia-widget" class="daily-trivia-card side-trivia-card">
-            <div class="trivia-header">
-              <span class="trivia-icon">📜</span>
-              <span class="trivia-title">Günün Genshin Bulmacası</span>
-              <span id="trivia-date-badge" class="trivia-date-badge">Bugün</span>
-            </div>
-            <div id="trivia-content" class="trivia-body">
-              <!-- Dynamically populated question or solved state -->
+          <div class="form-group">
+            <label>Oyun Modu</label>
+            <div class="mode-selector" style="display:flex; gap:10px;">
+              <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
+              <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> 2v2 Takımlı</label>
             </div>
           </div>
-        </div>
 
+          <div class="action-buttons">
+            <button id="create-room-btn" class="primary-btn main-action-btn">
+              <span class="btn-icon">✦</span> Yeni Oda Oluştur
+            </button>
+            
+            <div class="divider"><span>veya</span></div>
+
+            <div class="join-group">
+              <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" maxlength="6" autocomplete="new-password" spellcheck="false">
+              <button id="join-room-btn" class="secondary-btn">Katıl</button>
+            </div>
+          </div>
+
+          <div id="lobby-error" class="error-message hidden"></div>
+        </div>
+        
         <button id="how-to-play-btn" class="help-btn">
           <span class="help-icon">?</span> Nasıl Oynanır?
         </button>
@@ -321,27 +276,6 @@
         <div class="modal-buttons">
           <button id="submit-guess-btn" class="primary-btn">Tahminimi Gönder</button>
           <button id="cancel-guess-btn" class="secondary-btn">İptal</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAYER TITLES & RANKS MODAL -->
-  <div id="title-modal" class="modal-overlay hidden">
-    <div class="modal-card title-modal-card">
-      <div class="modal-header">
-        <h2 class="text-gold">🏆 Kariyer Rütbeleri & Ünvanlar</h2>
-        <button id="close-title-modal-btn" class="close-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">Oyun kazanarak ve galibiyet serisi yakalayarak efsanevi Genshin rütbelerinin kilidini aç! Seçtiğin ünvan lobide ve oyun ekranında parlar.</p>
-        
-        <div id="titles-grid-list" class="titles-grid-list">
-          <!-- Dynamically generated list of titles -->
-        </div>
-
-        <div class="modal-buttons" style="margin-top:20px;">
-          <button id="save-title-btn" class="primary-btn">Seçimi Kaydet & Kapat</button>
         </div>
       </div>
     </div>
