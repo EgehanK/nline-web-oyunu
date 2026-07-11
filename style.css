@@ -260,73 +260,113 @@ input, textarea {
     display: none !important;
   }
 
-  /* Elevate and enlarge top logo specifically on PC */
+  /* Prevent top clipping! Compact logo specifically on PC so GENSHIN IMPACT title never cuts off */
   .logo-container {
-    margin-top: -10px !important;
-    margin-bottom: 22px !important;
+    margin-top: 6px !important;
+    margin-bottom: 12px !important;
   }
   .logo-accent {
-    font-size: 0.95rem !important;
-    letter-spacing: 5px !important;
-    margin-bottom: 3px !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 4px !important;
+    margin-bottom: 2px !important;
   }
   .logo-title {
-    font-size: 3.2rem !important;
+    font-size: 2.5rem !important;
     letter-spacing: 2px !important;
   }
   .logo-subtitle {
-    font-size: 1.02rem !important;
-    margin-top: 5px !important;
+    font-size: 0.9rem !important;
+    margin-top: 3px !important;
   }
 
-  /* Make PC lobby layout 100% mathematically centered */
+  /* Make PC lobby layout 100% mathematically centered and zero-scroll fit */
   .lobby-centered-layout {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 32px !important;
+    gap: 28px !important;
     width: 100% !important;
-    max-width: 1380px !important;
+    max-width: 1360px !important;
     margin: 0 auto !important;
   }
   
   .lobby-side-spacer {
     display: block !important;
     flex: 1 !important;
-    max-width: 420px !important;
-    min-width: 320px !important;
+    max-width: 410px !important;
+    min-width: 310px !important;
     visibility: hidden !important;
     pointer-events: none !important;
   }
 
   .center-hero-card {
     flex-shrink: 0 !important;
-    width: 460px !important;
+    width: 450px !important;
     margin: 0 !important;
     display: block !important;
+    padding: 20px 24px 16px 24px !important;
   }
 
   .side-trivia-card, .daily-trivia-card.side-trivia-card {
     flex: 1 !important;
     width: auto !important;
-    max-width: 420px !important;
-    min-width: 320px !important;
+    max-width: 410px !important;
+    min-width: 310px !important;
     margin: 0 !important;
     align-self: center !important;
     display: block !important;
   }
 
-  /* Enlarge and highlight 'Nasıl Oynanır?' link on PC */
+  /* Compact spacing inside hero card on PC for 100% screen fit */
+  .center-hero-card .title-form-group {
+    margin-top: 12px !important;
+  }
+  .center-hero-card .title-select-btn {
+    padding: 11px 16px !important;
+    margin-top: 4px !important;
+    margin-bottom: 6px !important;
+    font-size: 0.94rem !important;
+  }
+  .center-hero-card .lobby-stats-bar {
+    margin-top: 8px !important;
+    padding: 7px 12px !important;
+    font-size: 0.8rem !important;
+  }
+  .center-hero-card .mode-form-group {
+    margin-top: 13px !important;
+  }
+  .center-hero-card .mode-btn {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+  }
+  .center-hero-card .action-buttons {
+    margin-top: 14px !important;
+    gap: 10px !important;
+  }
+  .center-hero-card .main-action-btn {
+    padding: 12px 16px !important;
+    font-size: 1rem !important;
+    margin-bottom: 2px !important;
+  }
+  .center-hero-card .divider {
+    margin: 10px 0 !important;
+  }
+  .center-hero-card #room-id-input, .center-hero-card #join-room-btn {
+    padding: 10px 14px !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* Compact and refined 'Nasıl Oynanır?' link on PC so it never gets pushed off screen */
   .help-btn {
-    font-size: 1.15rem !important;
-    padding: 12px 24px !important;
-    margin-top: 16px !important;
+    font-size: 0.95rem !important;
+    padding: 6px 16px !important;
+    margin-top: 12px !important;
   }
   .help-btn .help-icon {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 1.05rem !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 0.9rem !important;
   }
 }
 
