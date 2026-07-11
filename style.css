@@ -2848,73 +2848,73 @@ select:focus {
    ULTRA-COMPACT MOBILE & iPHONE RESPONSIVE (<= 680px)
 ======================================================== */
 @media (max-width: 680px) {
-  /* 1. Prevent top logo from clipping! Use flex-start and safe top/bottom padding */
+  /* 1. Prevent top logo from clipping! Use flex-start and compact top/bottom padding so everything fits on screen 100% */
   .screen.active {
     justify-content: flex-start !important;
-    padding: 16px 14px 40px 14px !important;
+    padding: 8px 12px 14px 12px !important;
   }
 
   .lobby-wrapper {
-    padding: 4px 10px !important;
-    gap: 8px !important;
+    padding: 2px 8px !important;
+    gap: 6px !important;
     margin: 0 auto !important;
   }
 
   /* 2. Compact Top Logo so it never gets cut in half */
   .logo-container {
-    margin-bottom: 4px !important;
+    margin-bottom: 2px !important;
   }
   .logo-accent {
-    font-size: 0.72rem !important;
-    letter-spacing: 3px !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 2.5px !important;
     margin-bottom: 1px !important;
   }
   .logo-title {
-    font-size: 1.85rem !important;
+    font-size: 1.75rem !important;
   }
   .logo-subtitle {
-    font-size: 0.78rem !important;
+    font-size: 0.74rem !important;
     margin-top: 1px !important;
   }
 
   /* 3. Compact Tab Bar so Paimon doesn't collide with it */
   .mobile-lobby-nav {
     max-width: 100% !important;
-    padding: 4px !important;
-    border-radius: 14px !important;
-    margin-bottom: 4px !important;
+    padding: 3px !important;
+    border-radius: 12px !important;
+    margin-bottom: 2px !important;
   }
   .mobile-nav-btn {
-    padding: 8px 10px !important;
-    font-size: 0.82rem !important;
+    padding: 7px 10px !important;
+    font-size: 0.8rem !important;
     border-radius: 10px !important;
   }
   .nav-badge {
-    font-size: 0.65rem !important;
+    font-size: 0.62rem !important;
     padding: 1px 5px !important;
   }
 
-  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone without hitting top buttons or KULLANICI ADIN */
+  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone without hitting tabs above or KULLANICI ADIN below */
   .lobby-mascot {
-    width: 82px !important;
-    left: 24px !important;
+    width: 66px !important;
+    left: 12px !important;
     right: auto !important;
-    bottom: 100% !important;
-    top: auto !important;
-    transform: translateY(16px) !important;
+    top: -18px !important;
+    bottom: auto !important;
+    transform: translateY(0) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Balanced & Extended Lobby Card inside (Give top margin so Paimon has space to peek above card without hitting tabs!) */
+  /* 5. Balanced & Compact Lobby Card inside so EVERYTHING fits 100% on the mobile screen without getting cut off at bottom! */
   .new-lobby-card {
-    margin-top: 36px !important;
-    padding: 24px 20px 22px 20px !important;
-    border-radius: 20px !important;
-    gap: 14px !important;
+    margin-top: 10px !important;
+    padding: 18px 16px 14px 16px !important;
+    border-radius: 18px !important;
+    gap: 10px !important;
   }
 
   .new-lobby-card .form-group {
-    gap: 6px !important;
+    gap: 4px !important;
   }
 
   .new-lobby-card label {
@@ -2924,41 +2924,41 @@ select:focus {
   }
 
   .new-lobby-card input[type="text"] {
-    padding: 12px 14px !important;
-    font-size: 0.92rem !important;
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
     border-radius: 10px !important;
   }
 
   .full-width-title-btn {
-    padding: 10px 14px !important;
-    font-size: 0.88rem !important;
+    padding: 9px 12px !important;
+    font-size: 0.86rem !important;
     border-radius: 10px !important;
   }
 
   /* Make stats bar sleek and well-padded on mobile */
   .lobby-stats-bar {
-    font-size: 0.72rem !important;
-    padding: 5px 8px !important;
-    margin-top: 4px !important;
+    font-size: 0.7rem !important;
+    padding: 4px 6px !important;
+    margin-top: 3px !important;
   }
 
   /* Segmented buttons for mode */
   .new-lobby-card .mode-btn {
-    padding: 9px 12px !important;
-    font-size: 0.82rem !important;
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
     border-radius: 10px !important;
   }
 
   .new-lobby-card .main-action-btn {
-    padding: 13px 16px !important;
-    font-size: 0.98rem !important;
-    margin-top: 3px !important;
-    margin-bottom: 3px !important;
-    border-radius: 12px !important;
+    padding: 11px 14px !important;
+    font-size: 0.94rem !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+    border-radius: 10px !important;
   }
 
   .new-lobby-card .divider {
-    margin: 10px 0 !important;
+    margin: 6px 0 !important;
   }
 
   /* KEY FIX: Put Room ID input and Katıl button on ONE horizontal row on phone! */
@@ -2972,25 +2972,25 @@ select:focus {
 
   .new-lobby-card #room-id-input {
     flex: 1 !important;
-    padding: 12px 14px !important;
-    font-size: 0.9rem !important;
+    padding: 10px 12px !important;
+    font-size: 0.88rem !important;
     margin: 0 !important;
     border-radius: 10px !important;
   }
 
   .new-lobby-card #join-room-btn {
     width: auto !important;
-    padding: 12px 18px !important;
-    font-size: 0.9rem !important;
+    padding: 10px 14px !important;
+    font-size: 0.88rem !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
     border-radius: 10px !important;
   }
 
   .help-btn {
-    font-size: 0.86rem !important;
-    padding: 8px 14px !important;
-    margin-top: 4px !important;
+    font-size: 0.84rem !important;
+    padding: 6px 12px !important;
+    margin-top: 2px !important;
   }
 
   .nickname-title-row {
