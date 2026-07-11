@@ -358,7 +358,6 @@ let playAgainAccepts = new Set();
 let activeTurnTimerInterval = null;
 let currentTurnTime = 60;
 let turnEndTime = 0;
-let globalChatHistory = [];
 
 // Reconnection state
 let reconnectTimer = null;
@@ -442,7 +441,6 @@ if (savedSessionStr) {
         if (mySecretCharacter && opponentSecretCharacter) {
           showScreen(gameScreen);
           launchGameBoard(false);
-          restoreChatFromStorage();
         } else {
           showScreen(waitingScreen);
         }
@@ -456,7 +454,6 @@ if (savedSessionStr) {
 
         if (mySecretCharacter && opponentSecretCharacter) {
           showScreen(gameScreen);
-          restoreChatFromStorage();
         } else {
           showScreen(waitingScreen);
         }
@@ -849,34 +846,10 @@ function saveSession() {
     eliminatedCards: eliminated
   };
   localStorage.setItem('genshin_session', JSON.stringify(session));
-  // Chat kalıcılığı: mesajları oda bazlı kaydet
-  if (globalChatHistory.length > 0) {
-    localStorage.setItem('genshin_chat_' + currentRoomId, JSON.stringify(globalChatHistory));
-  }
-}
-
-// Chat geçmişini localStorage'dan geri yükle
-function restoreChatFromStorage() {
-  if (!currentRoomId || !chatMessages) return;
-  const saved = localStorage.getItem('genshin_chat_' + currentRoomId);
-  if (saved) {
-    try {
-      const list = JSON.parse(saved);
-      if (Array.isArray(list) && list.length > 0) {
-        globalChatHistory = list;
-        chatMessages.innerHTML = '';
-        list.forEach(item => {
-          appendChatMessage(item.sender, item.text, item.sender === myNickname, item.isTeam, item.time, true);
-        });
-      }
-    } catch(e) {}
-  }
 }
 
 function clearSession() {
   localStorage.removeItem('genshin_session');
-  if (currentRoomId) localStorage.removeItem('genshin_chat_' + currentRoomId);
-  globalChatHistory = [];
 }
 
 
@@ -1121,7 +1094,7 @@ function handleHostReceivedData(connection, data) {
           reconnectTimer = null;
         }
 
-        // Send them the current game state + chat history
+        // Send them the current game state
         connection.send({
           type: 'rejoin-ack',
           gameMode,
@@ -1131,8 +1104,7 @@ function handleHostReceivedData(connection, data) {
           isInSelectionPhase: selectionScreen.classList.contains('active'),
           activeTeam: isMyTurn ? 'A' : 'B',
           hostTurn: isMyTurn,
-          turnEndTime: turnEndTime,
-          chatHistory: globalChatHistory
+          turnEndTime: turnEndTime
         });
         // Notify everyone this player is back
         broadcast({ type: 'player-reconnected', nickname: data.nickname });
@@ -1271,19 +1243,6 @@ function handleGuestReceivedData(data) {
             updateTurnUI(false);
           }
         }
-      }
-      // Chat geçmişini host'tan veya localStorage'dan geri yükle
-      if (data.chatHistory && Array.isArray(data.chatHistory) && data.chatHistory.length > 0) {
-        globalChatHistory = data.chatHistory;
-        if (currentRoomId) localStorage.setItem('genshin_chat_' + currentRoomId, JSON.stringify(globalChatHistory));
-        if (chatMessages) {
-          chatMessages.innerHTML = '';
-          globalChatHistory.forEach(item => {
-            appendChatMessage(item.sender, item.text, item.sender === myNickname, item.isTeam, item.time, true);
-          });
-        }
-      } else {
-        restoreChatFromStorage();
       }
       saveSession(); // Save restored session state
       break;
@@ -2064,7 +2023,7 @@ chatForm.addEventListener('submit', (e) => {
 });
 
 // Chat rendering bubble helper
-function appendChatMessage(senderName, text, isSelf, isTeamMsg = false, savedTime = null, skipSave = false) {
+function appendChatMessage(senderName, text, isSelf, isTeamMsg = false) {
   const msgClass = isSelf ? 'self' : 'other';
   const teamClass = isTeamMsg ? ' team-msg' : '';
   
@@ -2073,14 +2032,8 @@ function appendChatMessage(senderName, text, isSelf, isTeamMsg = false, savedTim
   const senderTeam = senderClient ? senderClient.team : null;
   const teamColorClass = senderTeam ? ` team-${senderTeam.toLowerCase()}` : '';
   
-  const timestamp = savedTime || new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  const timestamp = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   
-  // Mesajı kalıcı geçmişe kaydet
-  if (!skipSave && currentRoomId) {
-    globalChatHistory.push({ sender: senderName, text, isTeam: isTeamMsg, time: timestamp });
-    localStorage.setItem('genshin_chat_' + currentRoomId, JSON.stringify(globalChatHistory));
-  }
-
   const msgElement = document.createElement('div');
   msgElement.className = `chat-msg ${msgClass}${teamClass}${teamColorClass}`;
   
