@@ -2,7 +2,7 @@
 // GENSHIN IMPACT GUESS WHO - PEER-TO-PEER CLIENT LOGIC (PEERJS)
 // ==========================================================================
 
-// Complete 48 Playable 5-Star Characters Database
+// Complete 66 Playable 5-Star Characters Database
 const characters = [
  // --- Mondstadt ---
   { id: "albedo",       name: "Albedo",              element: "Geo",     weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", img: "Albedo" },
@@ -78,55 +78,78 @@ const characters = [
   { id: "zibai",        name: "Zibai",               element: "Geo",     weapon: "Kılıç",           region: "Nod-Krai",   gender: "Kadın", img: "Zibai" },
 
   // --- Snezhnaya ---
-  { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Snezhnaya",  gender: "Kadın", img: "Arlecchino" },
-  { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia" },
+  { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Snezhnaya",  gender: "Kadın", img: "Arlecchino", rarity: 5 },
+  { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia", rarity: 5 },
+  { id: "sandrone",     name: "Sandrone",            element: "Geo",     weapon: "Katalizör",       region: "Snezhnaya",  gender: "Kadın", img: "UI_AvatarIcon_Sandrone.webp", rarity: 5 },
 
   // --- Diğer 5 Yıldızlar ---
   { id: "durin",        name: "Durin",               element: "Pyro",   weapon: "Çift Elli Kılıç", region: "Khaenri'ah", gender: "Erkek", img: "Durin", rarity: 5 },
   { id: "nicole",       name: "Nicole",              element: "Pyro",   weapon: "Katalizör",       region: "Hexenzirkel",gender: "Kadın", img: "Nicole", rarity: 5 },
   { id: "skirk",        name: "Skirk",               element: "Cryo",    weapon: "Kılıç",           region: "Hiçlik",     gender: "Kadın", img: "SkirkNew", rarity: 5 },
+  { id: "aloy",         name: "Aloy",                element: "Cryo",    weapon: "Yay",             region: "Diğer",      gender: "Kadın", img: "UI_AvatarIcon_Aloy.webp", rarity: 5 },
 
-  // --- 4 Yıldızlı Karakterler (Rarity 4 - 32 Karakter) ---
-  { id: "amber",       name: "Amber",               element: "Pyro",    weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Ambor.png" },
-  { id: "kaeya",       name: "Kaeya",               element: "Cryo",    weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Kaeya.png" },
-  { id: "lisa",        name: "Lisa",                element: "Electro", weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Lisa.png" },
-  { id: "barbara",     name: "Barbara",             element: "Hydro",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Barbara.png" },
-  { id: "xiangling",   name: "Xiangling",           element: "Pyro",    weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Xiangling.png" },
-  { id: "xingqiu",     name: "Xingqiu",             element: "Hydro",   weapon: "Kılıç",           region: "Liyue",      gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Xingqiu.png" },
-  { id: "ningguang",   name: "Ningguang",           element: "Geo",     weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Ningguang.png" },
-  { id: "beidou",      name: "Beidou",              element: "Electro", weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Beidou.png" },
-  { id: "chongyun",    name: "Chongyun",            element: "Cryo",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Chongyun.png" },
-  { id: "razor",       name: "Razor",               element: "Electro", weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Razor.png" },
-  { id: "bennett",     name: "Bennett",             element: "Pyro",    weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Bennett.png" },
-  { id: "noelle",      name: "Noelle",              element: "Geo",     weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Noel.png" },
-  { id: "fischl",      name: "Fischl",              element: "Electro", weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Fischl.png" },
-  { id: "sucrose",     name: "Sucrose",             element: "Anemo",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Sucrose.png" },
-  { id: "diona",       name: "Diona",               element: "Cryo",    weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Diona.png" },
-  { id: "xinyan",      name: "Xinyan",              element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Xinyan.png" },
-  { id: "rosaria",     name: "Rosaria",             element: "Cryo",    weapon: "Mızrak",          region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Rosaria.png" },
-  { id: "yanfei",      name: "Yanfei",              element: "Pyro",    weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Feiyan.png" },
-  { id: "sayu",        name: "Sayu",                element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Inazuma",    gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Sayu.png" },
-  { id: "thoma",       name: "Thoma",               element: "Pyro",    weapon: "Mızrak",          region: "Inazuma",    gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Tohma.png" },
-  { id: "gorou",       name: "Gorou",               element: "Geo",     weapon: "Yay",             region: "Inazuma",    gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Gorou.png" },
-  { id: "yunjin",      name: "Yun Jin",             element: "Geo",     weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Yunjin.png" },
-  { id: "shinobu",     name: "Kuki Shinobu",        element: "Electro", weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Shinobu.png" },
-  { id: "heizou",      name: "Shikanoin Heizou",    element: "Anemo",   weapon: "Katalizör",       region: "Inazuma",    gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Heizo.png" },
-  { id: "collei",      name: "Collei",              element: "Dendro",  weapon: "Yay",             region: "Sumeru",     gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Collei.png" },
-  { id: "dori",        name: "Dori",                element: "Electro", weapon: "Çift Elli Kılıç", region: "Sumeru",     gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Dori.png" },
-  { id: "candace",     name: "Candace",             element: "Hydro",   weapon: "Mızrak",          region: "Sumeru",     gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Candace.png" },
-  { id: "layla",       name: "Layla",               element: "Cryo",    weapon: "Kılıç",           region: "Sumeru",     gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Layla.png" },
-  { id: "faruzan",     name: "Faruzan",             element: "Anemo",   weapon: "Yay",             region: "Sumeru",     gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Faruzan.png" },
-  { id: "yaoyao",      name: "Yaoyao",              element: "Dendro",  weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Yaoyao.png" },
-  { id: "kirara",      name: "Kirara",              element: "Dendro",  weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Momoka.png" },
-  { id: "gaming",      name: "Gaming",              element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Erkek", rarity: 4, img: "https://api.ambr.top/assets/UI/UI_AvatarIcon_Gaming.png" }
+  // --- 4 Yıldızlı Karakterler (Rarity 4 - 50 Karakter) ---
+  { id: "amber",       name: "Amber",               element: "Pyro",    weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Amber.png" },
+  { id: "kaeya",       name: "Kaeya",               element: "Cryo",    weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "Y4_Kaeya.webp" },
+  { id: "lisa",        name: "Lisa",                element: "Electro", weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Misa.webp" },
+  { id: "barbara",     name: "Barbara",             element: "Hydro",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Barbara.webp" },
+  { id: "xiangling",   name: "Xiangling",           element: "Pyro",    weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Xiangling.webp" },
+  { id: "xingqiu",     name: "Xingqiu",             element: "Hydro",   weapon: "Kılıç",           region: "Liyue",      gender: "Erkek", rarity: 4, img: "Y4_Xinqgui.webp" },
+  { id: "ningguang",   name: "Ningguang",           element: "Geo",     weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Ningguang.webp" },
+  { id: "beidou",      name: "Beidou",              element: "Electro", weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Beidou.webp" },
+  { id: "chongyun",    name: "Chongyun",            element: "Cryo",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Erkek", rarity: 4, img: "Y4_Chongyun.webp" },
+  { id: "razor",       name: "Razor",               element: "Electro", weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "Y4_Razor.webp" },
+  { id: "bennett",     name: "Bennett",             element: "Pyro",    weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "Y4_Bannet.webp" },
+  { id: "noelle",      name: "Noelle",              element: "Geo",     weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Noelle.webp" },
+  { id: "fischl",      name: "Fischl",              element: "Electro", weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Fİschl.webp" },
+  { id: "sucrose",     name: "Sucrose",             element: "Anemo",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Sucrose.webp" },
+  { id: "diona",       name: "Diona",               element: "Cryo",    weapon: "Yay",             region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Diona.webp" },
+  { id: "xinyan",      name: "Xinyan",              element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Xinyan.webp" },
+  { id: "rosaria",     name: "Rosaria",             element: "Cryo",    weapon: "Mızrak",          region: "Mondstadt",  gender: "Kadın", rarity: 4, img: "Y4_Rosaria.webp" },
+  { id: "yanfei",      name: "Yanfei",              element: "Pyro",    weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Yanfei.webp" },
+  { id: "sayu",        name: "Sayu",                element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Inazuma",    gender: "Kadın", rarity: 4, img: "Y4_Sayu.webp" },
+  { id: "sara",        name: "Kujou Sara",          element: "Electro", weapon: "Yay",             region: "Inazuma",    gender: "Kadın", rarity: 4, img: "Y4_Kajousara.webp" },
+  { id: "thoma",       name: "Thoma",               element: "Pyro",    weapon: "Mızrak",          region: "Inazuma",    gender: "Erkek", rarity: 4, img: "Y4_Thoma.webp" },
+  { id: "gorou",       name: "Gorou",               element: "Geo",     weapon: "Yay",             region: "Inazuma",    gender: "Erkek", rarity: 4, img: "Y4_Gorou.webp" },
+  { id: "yunjin",      name: "Yun Jin",             element: "Geo",     weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Yunjin.webp" },
+  { id: "shinobu",     name: "Kuki Shinobu",        element: "Electro", weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", rarity: 4, img: "Y4_Kuki.webp" },
+  { id: "heizou",      name: "Shikanoin Heizou",    element: "Anemo",   weapon: "Katalizör",       region: "Inazuma",    gender: "Erkek", rarity: 4, img: "Y4_Heizou.webp" },
+  { id: "collei",      name: "Collei",              element: "Dendro",  weapon: "Yay",             region: "Sumeru",     gender: "Kadın", rarity: 4, img: "Y4_Collei.webp" },
+  { id: "dori",        name: "Dori",                element: "Electro", weapon: "Çift Elli Kılıç", region: "Sumeru",     gender: "Kadın", rarity: 4, img: "Y4_Dori.webp" },
+  { id: "candace",     name: "Candace",             element: "Hydro",   weapon: "Mızrak",          region: "Sumeru",     gender: "Kadın", rarity: 4, img: "Y4_Candace.webp" },
+  { id: "layla",       name: "Layla",               element: "Cryo",    weapon: "Kılıç",           region: "Sumeru",     gender: "Kadın", rarity: 4, img: "Y4_Layla.webp" },
+  { id: "faruzan",     name: "Faruzan",             element: "Anemo",   weapon: "Yay",             region: "Sumeru",     gender: "Kadın", rarity: 4, img: "Y4_Faruzan.webp" },
+  { id: "yaoyao",      name: "Yaoyao",              element: "Dendro",  weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_Yaoyao.webp" },
+  { id: "kirara",      name: "Kirara",              element: "Dendro",  weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", rarity: 4, img: "Y4_Kirara.webp" },
+  { id: "gaming",      name: "Gaming",              element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Liyue",      gender: "Erkek", rarity: 4, img: "Y4_Gaming.webp" },
+  { id: "charlotte",   name: "Charlotte",           element: "Cryo",    weapon: "Katalizör",       region: "Fontaine",   gender: "Kadın", rarity: 4, img: "Y4_Charlotte.webp" },
+  { id: "chevreuse",   name: "Chevreuse",           element: "Pyro",    weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", rarity: 4, img: "Y4_Chevreuse.webp" },
+  { id: "freminet",    name: "Freminet",            element: "Cryo",    weapon: "Çift Elli Kılıç", region: "Fontaine",   gender: "Erkek", rarity: 4, img: "Y4_Freminet.webp" },
+  { id: "lynette",     name: "Lynette",             element: "Anemo",   weapon: "Kılıç",           region: "Fontaine",   gender: "Kadın", rarity: 4, img: "Y4_Lynette.webp" },
+  { id: "mika",        name: "Mika",                element: "Cryo",    weapon: "Mızrak",          region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "Y4_Mika.webp" },
+  { id: "kaveh",       name: "Kaveh",               element: "Dendro",  weapon: "Çift Elli Kılıç", region: "Sumeru",     gender: "Erkek", rarity: 4, img: "Y4_Kahev.webp" },
+  { id: "sethos",      name: "Sethos",              element: "Electro", weapon: "Yay",             region: "Sumeru",     gender: "Erkek", rarity: 4, img: "Y4_Sethos.webp" },
+  { id: "lanyan",      name: "Lan Yan",             element: "Anemo",   weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", rarity: 4, img: "Y4_YanLan.webp" },
+  { id: "kachina",     name: "Kachina",             element: "Geo",     weapon: "Mızrak",          region: "Natlan",     gender: "Kadın", rarity: 4, img: "Y4_Kachina.webp" },
+  { id: "ororon",      name: "Ororon",              element: "Electro", weapon: "Yay",             region: "Natlan",     gender: "Erkek", rarity: 4, img: "Y4_Oronon.webp" },
+  { id: "aino",        name: "Aino",                element: "Hydro",   weapon: "Yay",             region: "Natlan",     gender: "Kadın", rarity: 4, img: "Y4_Aino.webp" },
+  { id: "dahlia",      name: "Dahlia",              element: "Hydro",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Erkek", rarity: 4, img: "Y4_Dahlia.webp" },
+  { id: "iansan",      name: "Iansan",              element: "Electro", weapon: "Mızrak",          region: "Natlan",     gender: "Kadın", rarity: 4, img: "Y4_Lansan.webp" },
+  { id: "ifa",         name: "Ifa",                 element: "Anemo",   weapon: "Katalizör",       region: "Natlan",     gender: "Erkek", rarity: 4, img: "Y4_Ifa.webp" },
+  { id: "illuga",      name: "Illuga",              element: "Geo",     weapon: "Mızrak",          region: "Natlan",     gender: "Erkek", rarity: 4, img: "Y4_Illuga.webp" },
+  { id: "jahoda",      name: "Jahoda",              element: "Dendro",  weapon: "Yay",             region: "Snezhnaya",  gender: "Kadın", rarity: 4, img: "Y4_Jahoda.webp" },
+  { id: "prune",       name: "Prune",               element: "Anemo",   weapon: "Katalizör",       region: "Fontaine",   gender: "Kadın", rarity: 4, img: "Y4_Prune.webp" }
 ];
 
 // Ensure all 5-stars explicitly have rarity: 5
 characters.forEach(c => { if (!c.rarity) c.rarity = 5; });
 
-// Helper: build image path using UI_AvatarIcon format (supports remote Hoyoverse/Ambr URLs)
+// Helper: build image path supporting local webp/png or Hoyoverse/Ambr format
 function imgSrc(char) {
   if (char.img && char.img.startsWith('http')) return char.img;
+  if (char.img && char.img.startsWith('images/')) return char.img;
+  if (char.img && char.img.startsWith('Y4_')) return `images/${char.img}`;
+  if (char.img && (char.img.endsWith('.png') || char.img.endsWith('.webp') || char.img.endsWith('.jpg'))) return `images/${char.img}`;
   return `images/UI_AvatarIcon_${char.img}.png`;
 }
 
@@ -405,9 +428,13 @@ function updateRoomRarityDisplay() {
 
   const labelEl = document.getElementById('room-rarity-label');
   if (labelEl) {
-    if (currentRarityMode === '5star') labelEl.innerHTML = '⭐ Sadece 5 Yıldızlar (48 Karakter)';
-    else if (currentRarityMode === '4star') labelEl.innerHTML = '💜 Sadece 4 Yıldızlar (32 Karakter)';
-    else labelEl.innerHTML = '🌟 Tümü (5★ + 4★ Karakterler - 80 Karakter)';
+    const totalCount = characters.length;
+    const s5 = characters.filter(c => c.rarity === 5).length;
+    const s4 = characters.filter(c => c.rarity === 4).length;
+
+    if (currentRarityMode === '5star') labelEl.innerHTML = `⭐ Sadece 5 Yıldızlar (${s5} Karakter)`;
+    else if (currentRarityMode === '4star') labelEl.innerHTML = `💜 Sadece 4 Yıldızlar (${s4} Karakter)`;
+    else labelEl.innerHTML = `🌟 Tümü (${s5} 5★ + ${s4} 4★ - Toplam ${totalCount} Karakter)`;
   }
 
   document.querySelectorAll('input[name="waiting-char-rarity"]').forEach(radio => {
