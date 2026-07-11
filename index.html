@@ -79,6 +79,15 @@
               </div>
             </div>
 
+            <div class="form-group mode-form-group" style="margin-top: 12px;">
+              <label>Karakter Havuzu</label>
+              <div class="mode-selector rarity-selector" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+                <label class="mode-btn active"><input type="radio" name="char-rarity-mode" value="all" checked> 🌟 Tümü (80)</label>
+                <label class="mode-btn"><input type="radio" name="char-rarity-mode" value="5star"> ⭐ 5 Yıldızlar (48)</label>
+                <label class="mode-btn"><input type="radio" name="char-rarity-mode" value="4star"> 💜 4 Yıldızlar (32)</label>
+              </div>
+            </div>
+
             <div class="action-buttons">
               <button id="create-room-btn" class="primary-btn main-action-btn">
                 <span class="btn-icon">✦</span> Yeni Oda Oluştur
@@ -138,6 +147,10 @@
           <span class="code-label">ODA KODU:</span>
           <span id="display-room-id" class="code-value">-----</span>
           <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala">📋</button>
+        </div>
+        
+        <div id="room-rarity-display" style="margin: 12px auto 16px auto; padding: 7px 16px; background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.4); border-radius: 8px; font-size: 0.92rem; color: #fef08a; font-weight: 600; display: inline-block;">
+          ✨ Karakter Havuzu: <strong id="room-rarity-label">🌟 Tümü (5★ + 4★ Karakterler)</strong>
         </div>
         
         <!-- TEAMS DISPLAY -->
