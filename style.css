@@ -361,7 +361,12 @@ input, textarea {
   .help-btn {
     font-size: 0.95rem !important;
     padding: 6px 16px !important;
-    margin-top: 12px !important;
+    margin: 12px auto 0 auto !important;
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    align-self: center !important;
+    cursor: pointer !important;
   }
   .help-btn .help-icon {
     width: 22px !important;
@@ -3146,22 +3151,24 @@ select:focus {
     border-radius: 10px !important;
   }
 
-  /* Pull Nasıl Oynanır down & center purely as clean large text (`etrafına kutu/çerçeve yapmadan sadece yazı, eskisi gibi ama büyük ve ortalı`) */
+  /* Pull Nasıl Oynanır down & center purely as clean large text (`sadece yazının üstüne basınca açılsın, yan boşluklara basılınca açılmasın`) */
   .help-btn {
     font-size: 0.96rem !important;
     font-weight: 600 !important;
-    padding: 6px 0 !important;
-    margin-top: 6px !important;
-    margin-bottom: 8px !important;
+    padding: 6px 14px !important;
+    margin: 6px auto 8px auto !important;
     color: var(--color-gold-bright, #ffd700) !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    align-self: center !important;
     letter-spacing: 0.5px !important;
+    cursor: pointer !important;
   }
 
   .nickname-title-row {
