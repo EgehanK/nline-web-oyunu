@@ -2894,27 +2894,27 @@ select:focus {
     padding: 1px 5px !important;
   }
 
-  /* 4. Reposition Paimon Mascot right on TOP of the card peeking over the top-left edge cleanly without covering KULLANICI ADIN or hitting tabs */
+  /* 4. Reposition Paimon Mascot right on TOP of the card inside the 54px wide gap so her hair is NEVER covered by tabs above or text below */
   .lobby-mascot {
-    width: 74px !important;
-    left: 18px !important;
+    width: 80px !important;
+    left: 24px !important;
     right: auto !important;
     bottom: 100% !important;
     top: auto !important;
-    transform: translateY(15px) !important;
+    transform: translateY(16px) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Balanced & Compact Lobby Card inside (Pulled down slightly to fill bottom empty space!) */
+  /* 5. Balanced & Expanded Lobby Card inside (Pulled down by 54px to fill bottom space and expanded slightly downward!) */
   .new-lobby-card {
-    margin-top: 30px !important;
-    padding: 18px 16px 14px 16px !important;
-    border-radius: 18px !important;
-    gap: 10px !important;
+    margin-top: 54px !important;
+    padding: 24px 18px 20px 18px !important;
+    border-radius: 20px !important;
+    gap: 13px !important;
   }
 
   .new-lobby-card .form-group {
-    gap: 4px !important;
+    gap: 5px !important;
   }
 
   .new-lobby-card label {
@@ -2924,37 +2924,37 @@ select:focus {
   }
 
   .new-lobby-card input[type="text"] {
-    padding: 10px 12px !important;
-    font-size: 0.9rem !important;
+    padding: 12px 14px !important;
+    font-size: 0.92rem !important;
     border-radius: 10px !important;
   }
 
   .full-width-title-btn {
-    padding: 9px 12px !important;
-    font-size: 0.86rem !important;
+    padding: 10px 14px !important;
+    font-size: 0.88rem !important;
     border-radius: 10px !important;
   }
 
   /* Make stats bar sleek and well-padded on mobile */
   .lobby-stats-bar {
-    font-size: 0.7rem !important;
-    padding: 4px 6px !important;
-    margin-top: 3px !important;
+    font-size: 0.72rem !important;
+    padding: 5px 8px !important;
+    margin-top: 4px !important;
   }
 
   /* Segmented buttons for mode */
   .new-lobby-card .mode-btn {
-    padding: 8px 10px !important;
-    font-size: 0.8rem !important;
+    padding: 9px 12px !important;
+    font-size: 0.82rem !important;
     border-radius: 10px !important;
   }
 
   .new-lobby-card .main-action-btn {
-    padding: 11px 14px !important;
-    font-size: 0.94rem !important;
-    margin-top: 2px !important;
-    margin-bottom: 2px !important;
-    border-radius: 10px !important;
+    padding: 13px 16px !important;
+    font-size: 0.98rem !important;
+    margin-top: 3px !important;
+    margin-bottom: 3px !important;
+    border-radius: 12px !important;
   }
 
   .new-lobby-card .divider {
