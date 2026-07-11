@@ -355,24 +355,35 @@ input, textarea {
   padding: 10px 14px !important;
 }
 
+.mode-form-group {
+  margin-top: 18px !important;
+}
+
 .new-lobby-card .mode-btn {
-  padding: 8px 12px !important;
-  font-size: 0.85rem !important;
+  padding: 10px 14px !important;
+  font-size: 0.88rem !important;
+}
+
+.action-buttons {
+  margin-top: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
 }
 
 .new-lobby-card .main-action-btn {
-  padding: 12px 16px !important;
-  font-size: 1rem !important;
-  margin-bottom: 6px !important;
+  padding: 14px 18px !important;
+  font-size: 1.05rem !important;
+  margin-bottom: 2px !important;
 }
 
 .new-lobby-card .divider {
-  margin: 10px 0 !important;
+  margin: 14px 0 !important;
 }
 
 .new-lobby-card #room-id-input, .new-lobby-card #join-room-btn {
-  padding: 10px 14px !important;
-  font-size: 0.9rem !important;
+  padding: 12px 16px !important;
+  font-size: 0.92rem !important;
 }
 
 .lobby-box-title {
@@ -2995,11 +3006,20 @@ select:focus {
     margin-top: 6px !important;
   }
 
+  .mode-form-group {
+    margin-top: 14px !important;
+  }
+
   /* Segmented buttons for mode */
   .new-lobby-card .mode-btn {
     padding: 9px 12px !important;
     font-size: 0.82rem !important;
     border-radius: 10px !important;
+  }
+
+  .action-buttons {
+    margin-top: 14px !important;
+    gap: 10px !important;
   }
 
   .new-lobby-card .main-action-btn {
@@ -3011,7 +3031,7 @@ select:focus {
   }
 
   .new-lobby-card .divider {
-    margin: 6px 0 !important;
+    margin: 8px 0 !important;
   }
 
   /* KEY FIX: Put Room ID input and Katıl button on ONE horizontal row on phone! */
