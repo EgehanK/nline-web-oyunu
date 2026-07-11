@@ -130,54 +130,54 @@
 
     <!-- WAITING SCREEN (WAITING FOR OPPONENT) -->
     <div id="waiting-screen" class="screen">
-      <div class="lobby-card text-center" style="max-width: 600px;">
-        <h2 class="section-title text-gold">Oda Kuruldu!</h2>
-        <p class="lobby-desc">Diğer oyuncuların katılması bekleniyor...</p>
+      <div class="lobby-card text-center" style="max-width: 560px; padding: 22px 24px;">
+        <h2 class="section-title text-gold" style="font-size: 1.55rem; margin-bottom: 4px;">Oda Kuruldu!</h2>
+        <p class="lobby-desc" style="margin-bottom: 12px; font-size: 0.86rem;">Diğer oyuncuların katılması bekleniyor...</p>
         
-        <div class="room-code-display">
-          <span class="code-label">ODA KODU:</span>
-          <span id="display-room-id" class="code-value">-----</span>
-          <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala">📋</button>
+        <div class="room-code-display" style="padding: 8px 16px; margin-bottom: 10px; gap: 12px; border-radius: 10px;">
+          <span class="code-label" style="font-size: 0.78rem;">ODA KODU:</span>
+          <span id="display-room-id" class="code-value" style="font-size: 1.35rem; letter-spacing: 1px;">-----</span>
+          <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala" style="padding: 5px 8px; font-size: 0.95rem;">📋</button>
         </div>
         
-        <div id="room-rarity-selector-container" style="margin: 14px auto 18px auto; width: 100%; max-width: 520px; background: rgba(15,23,42,0.65); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,215,0,0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
-          <div style="color: var(--color-gold-bright); font-size: 0.88rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase;">✨ Karakter Havuzu Seçimi (Kurucu)</div>
-          <div class="mode-selector rarity-selector" id="room-waiting-rarity-selector" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-            <label class="mode-btn active"><input type="radio" name="waiting-char-rarity" value="all" checked> 🌟 Tümü (80)</label>
-            <label class="mode-btn"><input type="radio" name="waiting-char-rarity" value="5star"> ⭐ 5 Yıldızlar (48)</label>
-            <label class="mode-btn"><input type="radio" name="waiting-char-rarity" value="4star"> 💜 4 Yıldızlar (32)</label>
+        <div id="room-rarity-selector-container" style="margin: 8px auto 12px auto; width: 100%; max-width: 480px; background: rgba(15,23,42,0.65); padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.35);">
+          <div style="color: var(--color-gold-bright); font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.4px; text-transform: uppercase;">✨ Karakter Havuzu Seçimi (Kurucu)</div>
+          <div class="mode-selector rarity-selector" id="room-waiting-rarity-selector" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+            <label class="mode-btn active" style="padding: 5px 10px; font-size: 0.78rem;"><input type="radio" name="waiting-char-rarity" value="all" checked> 🌟 Tümü (80)</label>
+            <label class="mode-btn" style="padding: 5px 10px; font-size: 0.78rem;"><input type="radio" name="waiting-char-rarity" value="5star"> ⭐ 5 Yıldızlar (48)</label>
+            <label class="mode-btn" style="padding: 5px 10px; font-size: 0.78rem;"><input type="radio" name="waiting-char-rarity" value="4star"> 💜 4 Yıldızlar (32)</label>
           </div>
         </div>
 
-        <div id="room-rarity-display" style="margin: 12px auto 16px auto; padding: 7px 16px; background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.4); border-radius: 8px; font-size: 0.92rem; color: #fef08a; font-weight: 600; display: none;">
+        <div id="room-rarity-display" style="margin: 6px auto 10px auto; padding: 6px 14px; background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.4); border-radius: 8px; font-size: 0.85rem; color: #fef08a; font-weight: 600; display: none;">
           ✨ Karakter Havuzu: <strong id="room-rarity-label">🌟 Tümü (5★ + 4★ Karakterler)</strong>
         </div>
         
         <!-- TEAMS DISPLAY -->
-        <div class="teams-container">
+        <div class="teams-container" style="gap: 10px; margin-bottom: 12px;">
           <!-- Team A -->
-          <div class="team-panel team-a" style="flex:1; background:rgba(30,58,138,0.3); padding:15px; border-radius:8px; border:1px solid #1e3a8a;">
-            <h3 style="color:#60a5fa; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım A (Mavi)</h3>
-            <ul id="team-a-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
-              <li class="player-slot empty">Bekleniyor...</li>
-              <li class="player-slot empty hidden" id="slot-a2">Bekleniyor...</li>
+          <div class="team-panel team-a" style="flex:1; background:rgba(30,58,138,0.3); padding:10px; border-radius:8px; border:1px solid #1e3a8a;">
+            <h3 style="color:#60a5fa; margin-bottom:6px; font-size:0.95rem; text-align:center;">Takım A (Mavi)</h3>
+            <ul id="team-a-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:6px; font-size:0.86rem;">
+              <li class="player-slot empty" style="padding: 6px;">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-a2" style="padding: 6px;">Bekleniyor...</li>
             </ul>
           </div>
           <!-- Team B -->
-          <div class="team-panel team-b" style="flex:1; background:rgba(153,27,27,0.3); padding:15px; border-radius:8px; border:1px solid #991b1b;">
-            <h3 style="color:#f87171; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım B (Kırmızı)</h3>
-            <ul id="team-b-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
-              <li class="player-slot empty">Bekleniyor...</li>
-              <li class="player-slot empty hidden" id="slot-b2">Bekleniyor...</li>
+          <div class="team-panel team-b" style="flex:1; background:rgba(153,27,27,0.3); padding:10px; border-radius:8px; border:1px solid #991b1b;">
+            <h3 style="color:#f87171; margin-bottom:6px; font-size:0.95rem; text-align:center;">Takım B (Kırmızı)</h3>
+            <ul id="team-b-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:6px; font-size:0.86rem;">
+              <li class="player-slot empty" style="padding: 6px;">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-b2" style="padding: 6px;">Bekleniyor...</li>
             </ul>
           </div>
         </div>
 
-        <div id="peer-status" class="status-msg text-muted">Sunucuya bağlanılıyor...</div>
+        <div id="peer-status" class="status-msg text-muted" style="margin-bottom: 10px; font-size: 0.82rem;">Sunucuya bağlanılıyor...</div>
         
-        <div class="waiting-actions" style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-          <button id="start-game-btn" class="primary-btn hidden" style="width:100%;">Oyunu Başlat!</button>
-          <button id="leave-room-btn" class="secondary-btn" style="width:100%;">Odayı Kapat</button>
+        <div class="waiting-actions" style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
+          <button id="start-game-btn" class="primary-btn hidden" style="width:100%; padding: 10px;">Oyunu Başlat!</button>
+          <button id="leave-room-btn" class="secondary-btn" style="width:100%; padding: 10px;">Odayı Kapat</button>
         </div>
       </div>
     </div>
