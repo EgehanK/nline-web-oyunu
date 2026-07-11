@@ -1,3181 +1,2351 @@
-/* ==========================================================================
-   GENSHIN IMPACT GUESS WHO - STYLESHEET (UPDATED)
-   ========================================================================== */
+// ==========================================================================
+// GENSHIN IMPACT GUESS WHO - PEER-TO-PEER CLIENT LOGIC (PEERJS)
+// ==========================================================================
 
-/* Design Tokens & Theme Setup */
-:root {
-  --color-bg-dark: #0b0f1a;
-  --color-card-bg: rgba(10, 20, 35, 0.55);
-  --color-card-border: rgba(235, 194, 114, 0.25);
-  --color-gold: #ece5d8;
-  --color-gold-bright: #ebd197;
-  --color-text-light: #f4f4f6;
-  --color-text-muted: #a3a3c2;
+// Complete 48 Playable 5-Star Characters Database
+const characters = [
+ // --- Mondstadt ---
+  { id: "albedo",       name: "Albedo",              element: "Geo",     weapon: "Kılıç",           region: "Mondstadt",  gender: "Erkek", img: "Albedo" },
+  { id: "diluc",        name: "Diluc",               element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", img: "Diluc" },
+  { id: "eula",         name: "Eula",                element: "Cryo",    weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Kadın", img: "Eula" },
+  { id: "jean",         name: "Jean",                element: "Anemo",   weapon: "Kılıç",           region: "Mondstadt",  gender: "Kadın", img: "Qin" },
+  { id: "klee",         name: "Klee",                element: "Pyro",    weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", img: "Klee" },
+  { id: "mona",         name: "Mona",                element: "Hydro",   weapon: "Katalizör",       region: "Mondstadt",  gender: "Kadın", img: "Mona" },
+  { id: "varka",        name: "Varka",               element: "Anemo",   weapon: "Çift Elli Kılıç", region: "Mondstadt",  gender: "Erkek", img: "Varka" },
+  { id: "venti",        name: "Venti",               element: "Anemo",   weapon: "Yay",             region: "Mondstadt",  gender: "Erkek", img: "Venti" },
+
+  // --- Liyue ---
+  { id: "baizhu",       name: "Baizhu",              element: "Dendro",  weapon: "Katalizör",       region: "Liyue",      gender: "Erkek", img: "Baizhuer" },
+  { id: "ganyu",        name: "Ganyu",               element: "Cryo",    weapon: "Yay",             region: "Liyue",      gender: "Kadın", img: "Ganyu" },
+  { id: "hutao",        name: "Hu Tao",              element: "Pyro",    weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", img: "Hutao" },
+  { id: "keqing",       name: "Keqing",              element: "Electro", weapon: "Kılıç",           region: "Liyue",      gender: "Kadın", img: "Keqing" },
+  { id: "qiqi",         name: "Qiqi",                element: "Cryo",    weapon: "Kılıç",           region: "Liyue",      gender: "Kadın", img: "Qiqi" },
+  { id: "shenhe",       name: "Shenhe",              element: "Cryo",    weapon: "Mızrak",          region: "Liyue",      gender: "Kadın", img: "Shenhe" },
+  { id: "xianyun",      name: "Xianyun",             element: "Anemo",   weapon: "Katalizör",       region: "Liyue",      gender: "Kadın", img: "Liuyun" },
+  { id: "xiao",         name: "Xiao",                element: "Anemo",   weapon: "Mızrak",          region: "Liyue",      gender: "Erkek", img: "Xiao" },
+  { id: "yelan",        name: "Yelan",               element: "Hydro",   weapon: "Yay",             region: "Liyue",      gender: "Kadın", img: "Yelan" },
+  { id: "zhongli",      name: "Zhongli",             element: "Geo",     weapon: "Mızrak",          region: "Liyue",      gender: "Erkek", img: "Zhongli" },
+
+  // --- Inazuma ---
+  { id: "ayaka",        name: "Kamisato Ayaka",      element: "Cryo",    weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", img: "Ayaka" },
+  { id: "ayato",        name: "Kamisato Ayato",      element: "Hydro",   weapon: "Kılıç",           region: "Inazuma",    gender: "Erkek", img: "Ayato" },
+  { id: "chiori",       name: "Chiori",              element: "Geo",     weapon: "Kılıç",           region: "Inazuma",    gender: "Kadın", img: "Chiori" },
+  { id: "itto",         name: "Arataki Itto",        element: "Geo",     weapon: "Çift Elli Kılıç", region: "Inazuma",    gender: "Erkek", img: "Itto" },
+  { id: "kazuha",       name: "Kaedehara Kazuha",    element: "Anemo",   weapon: "Kılıç",           region: "Inazuma",    gender: "Erkek", img: "Kazuha" },
+  { id: "kokomi",       name: "Sangonomiya Kokomi",  element: "Hydro",   weapon: "Katalizör",       region: "Inazuma",    gender: "Kadın", img: "Kokomi" },
+  { id: "raiden",       name: "Raiden Shogun",       element: "Electro", weapon: "Mızrak",          region: "Inazuma",    gender: "Kadın", img: "Shougun" },
+  { id: "yae",          name: "Yae Miko",            element: "Electro", weapon: "Katalizör",       region: "Inazuma",    gender: "Kadın", img: "Yae" },
+  { id: "yoimiya",      name: "Yoimiya",             element: "Pyro",    weapon: "Yay",             region: "Inazuma",    gender: "Kadın", img: "Yoimiya" },
+
+  // --- Sumeru ---
+  { id: "alhaitham",    name: "Alhaitham",           element: "Dendro",  weapon: "Kılıç",           region: "Sumeru",     gender: "Erkek", img: "Alhatham" },
+  { id: "cyno",         name: "Cyno",                element: "Electro", weapon: "Mızrak",          region: "Sumeru",     gender: "Erkek", img: "Cyno" },
+  { id: "dehya",        name: "Dehya",               element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Sumeru",     gender: "Kadın", img: "Dehya" },
+  { id: "nahida",       name: "Nahida",              element: "Dendro",  weapon: "Katalizör",       region: "Sumeru",     gender: "Kadın", img: "Nahida" },
+  { id: "nilou",        name: "Nilou",               element: "Hydro",   weapon: "Kılıç",           region: "Sumeru",     gender: "Kadın", img: "Nilou" },
+  { id: "tighnari",     name: "Tighnari",            element: "Dendro",  weapon: "Yay",             region: "Sumeru",     gender: "Erkek", img: "Tighnari" },
+  { id: "wanderer",     name: "Wanderer",            element: "Anemo",   weapon: "Katalizör",       region: "Sumeru",     gender: "Erkek", img: "Wanderer" },
+
+  // --- Fontaine ---
+  { id: "clorinde",     name: "Clorinde",            element: "Electro", weapon: "Kılıç",           region: "Fontaine",   gender: "Kadın", img: "Clorinde" },
+  { id: "emilie",       name: "Emilie",              element: "Dendro",  weapon: "Mızrak",          region: "Fontaine",   gender: "Kadın", img: "Emilie" },
+  { id: "furina",       name: "Furina",              element: "Hydro",   weapon: "Kılıç",           region: "Fontaine",   gender: "Kadın", img: "Furina" },
+  { id: "lyney",        name: "Lyney",               element: "Pyro",    weapon: "Yay",             region: "Fontaine",   gender: "Erkek", img: "Liney" },
+  { id: "navia",        name: "Navia",               element: "Geo",     weapon: "Çift Elli Kılıç", region: "Fontaine",   gender: "Kadın", img: "Navia" },
+  { id: "neuvillette",  name: "Neuvillette",         element: "Hydro",   weapon: "Katalizör",       region: "Fontaine",   gender: "Erkek", img: "Neuvillette" },
+  { id: "sigewinne",    name: "Sigewinne",           element: "Hydro",   weapon: "Yay",             region: "Fontaine",   gender: "Kadın", img: "Sigewinne" },
+  { id: "wriothesley",  name: "Wriothesley",         element: "Cryo",    weapon: "Katalizör",       region: "Fontaine",   gender: "Erkek", img: "Wriothesley" },
+
+  // --- Natlan ---
+  { id: "chasca",       name: "Chasca",              element: "Anemo",   weapon: "Yay",             region: "Natlan",     gender: "Kadın", img: "Chasca" },
+  { id: "citlali",      name: "Citlali",             element: "Cryo",    weapon: "Katalizör",       region: "Natlan",     gender: "Kadın", img: "Citlali" },
+  { id: "kinich",       name: "Kinich",              element: "Dendro",  weapon: "Çift Elli Kılıç", region: "Natlan",     gender: "Erkek", img: "Kinich" },
+  { id: "mavuika",      name: "Mavuika",             element: "Pyro",    weapon: "Çift Elli Kılıç", region: "Natlan",     gender: "Kadın", img: "Mavuika" },
+  { id: "mualani",      name: "Mualani",             element: "Hydro",   weapon: "Katalizör",       region: "Natlan",     gender: "Kadın", img: "Mualani" },
+  { id: "xilonen",      name: "Xilonen",             element: "Geo",     weapon: "Kılıç",           region: "Natlan",     gender: "Kadın", img: "Xilonen" },
+
+  // --- Nod-Krai ---
+  { id: "columbina",    name: "Columbina",           element: "Hydro",   weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Columbina" },
+  { id: "escoffier",    name: "Escoffier",           element: "Cryo",    weapon: "Mızrak",          region: "Nod-Krai",   gender: "Kadın", img: "Escoffier" },
+  { id: "flins",        name: "Flins",               element: "Electro", weapon: "Mızrak",          region: "Nod-Krai",   gender: "Erkek", img: "Flins" },
+  { id: "ineffa",       name: "Ineffa",              element: "Electro", weapon: "Mızrak",          region: "Nod-Krai",   gender: "Kadın", img: "Ineffa" },
+  { id: "lauma",        name: "Lauma",               element: "Dendro",  weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Lauma" },
+  { id: "linnea",       name: "Linnea",              element: "Geo",     weapon: "Yay",             region: "Nod-Krai",   gender: "Kadın", img: "Linnea" },
+  { id: "lohen",        name: "Lohen",               element: "Cryo",    weapon: "Mızrak",          region: "Nod-Krai",   gender: "Erkek", img: "Lohen" },
+  { id: "mizuki",       name: "Mizuki",              element: "Anemo",   weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Mizuki" },
+  { id: "nefer",        name: "Nefer",               element: "Dendro",  weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Nefer" },
+  { id: "varesa",       name: "Varesa",              element: "Electro", weapon: "Katalizör",       region: "Nod-Krai",   gender: "Kadın", img: "Varesa" },
+  { id: "zibai",        name: "Zibai",               element: "Geo",     weapon: "Kılıç",           region: "Nod-Krai",   gender: "Kadın", img: "Zibai" },
+
+  // --- Snezhnaya ---
+  { id: "arlecchino",   name: "Arlecchino",          element: "Pyro",    weapon: "Mızrak",          region: "Snezhnaya",  gender: "Kadın", img: "Arlecchino" },
+  { id: "tartaglia",    name: "Tartaglia",           element: "Hydro",   weapon: "Yay",             region: "Snezhnaya",  gender: "Erkek", img: "Tartaglia" },
+
+  // --- Diğer ---
+  { id: "durin",        name: "Durin",               element: "Pyro",   weapon: "Çift Elli Kılıç", region: "Khaenri'ah", gender: "Erkek", img: "Durin" },
+  { id: "nicole",       name: "Nicole",              element: "Pyro",   weapon: "Katalizör",       region: "Hexenzirkel",gender: "Kadın", img: "Nicole" },
+  { id: "skirk",        name: "Skirk",               element: "Cryo",    weapon: "Kılıç",           region: "Hiçlik",     gender: "Kadın", img: "SkirkNew" }
+];
+
+// Helper: build image path using UI_AvatarIcon format
+function imgSrc(char) {
+  return `images/UI_AvatarIcon_${char.img}.png`;
+}
+
+// Helper: build element webp image path
+function elementIconSrc(element) {
+  return `images/${element}.webp`;
+}
+
+const elementTranslations = {
+  Pyro: "Ateş",
+  Hydro: "Su",
+  Anemo: "Rüzgar",
+  Electro: "Elektrik",
+  Dendro: "Doğa",
+  Cryo: "Buz",
+  Geo: "Toprak"
+};
+
+// ==========================================================================
+// PLAYER TITLES & CAREER STATS LOGIC
+// ==========================================================================
+const titleDefinitions = [
+  { id: "rookie", name: "🌱 Maceracı Çaylağı", desc: "Maceracılar Loncası'na yeni katılan hevesli gezgin.", reqText: "Başlangıç (Herkese Açık)", checkUnlocked: (s) => true },
+  { id: "explorer", name: "🧭 Lonca Keşifçisi", desc: "Teyvat'ın gizemli yollarını adımlamaya başlayan meraklı yolcu.", reqText: "2 Maç Kazan veya 3 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 2 || (s.totalMatches || 0) >= 3 },
+  { id: "favonius", name: "⚔️ Favonius Şövalyesi", desc: "Mondstadt rüzgarının onurunu ve özgürlüğünü savunan savaşçı.", reqText: "5 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 5 },
+  { id: "adeptus", name: "🪨 Liyue Adeptusu", desc: "Jueyun Karst tepelerindeki kadim bilgeliğe sahip strateji ustası.", reqText: "8 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 8 },
+  { id: "streak3", name: "🔥 Yenilmez Serüvenci", desc: "Art arda galibiyetler alarak rakiplerine korku salan arena ustası.", reqText: "3 Maç Üst Üste Kazan (Seri)", checkUnlocked: (s) => (s.bestStreak || 0) >= 3 || (s.winStreak || 0) >= 3 },
+  { id: "veteran", name: "🔎 Teyvat Dedektifi", desc: "Karakterlerin tüm gizemli ipuçlarını ve sırlarını şıp diye çözen zeka.", reqText: "Toplam 12 Maç Oyna", checkUnlocked: (s) => (s.totalMatches || 0) >= 12 },
+  { id: "shogun", name: "⚡ Shogun Muhafızı", desc: "Inazuma'nın ebediyet kuralına sadık, yıldırım keskinliğinde taktikçi.", reqText: "15 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 15 },
+  { id: "streak5", name: "☄️ Yıldırım İlahı", desc: "Raiden Shogun gibi rakiplerini ardı ardına dize getiren yenilmez güç.", reqText: "5 Maç Üst Üste Kazan (Seri)", checkUnlocked: (s) => (s.bestStreak || 0) >= 5 || (s.winStreak || 0) >= 5 },
+  { id: "scholar", name: "🌿 Akademiya Bilgesi", desc: "Sumeru'nun Irminsul ağacındaki tüm gizli bilgilere erişmiş baş bilgin.", reqText: "20 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 20 },
+  { id: "duelist", name: "⚖️ Fontaine Yargıcı", desc: "Epik düellolarda ve mahkeme salonunda mutlak adalet dağıtan yüce üstad.", reqText: "26 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 26 },
+  { id: "natlan", name: "🐉 Natlan Savaşçı Başı", desc: "Kutsal ateşin ve savaşın diyarında yenilgisiz, efsanevi kahraman.", reqText: "32 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 32 },
+  { id: "harbinger", name: "❄️ Fatui Öncüsü", desc: "Snezhnaya buzullarının ardındaki en gizemli ve tehlikeli stratejist.", reqText: "38 Maç Kazan veya 45 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 38 || (s.totalMatches || 0) >= 45 },
+  { id: "legend", name: "👑 Teyvat Efsanesi", desc: "Yedi ulusun tamamında nam salmış nihai tahmin üstadı!", reqText: "46 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 46 },
+  { id: "celestia", name: "✨ Celestia Hükümdarı", desc: "Gökyüzü tahtına oturmuş, Teyvat'taki her karakterin zihnini okuyan tanrısal güç!", reqText: "60 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 60 }
+];
+
+function getPlayerStats() {
+  const saved = localStorage.getItem('genshin_career_stats');
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  return { wins: 0, winStreak: 0, bestStreak: 0, totalMatches: 0, selectedTitleId: "rookie" };
+}
+
+function savePlayerStats(stats) {
+  localStorage.setItem('genshin_career_stats', JSON.stringify(stats));
+}
+
+function getActiveTitleLabel() {
+  const stats = getPlayerStats();
+  const t = titleDefinitions.find(x => x.id === stats.selectedTitleId) || titleDefinitions[0];
+  return t.name;
+}
+
+function updateCareerStatsUI() {
+  const stats = getPlayerStats();
+  const activeLabelEl = document.getElementById('active-title-label');
+  if (activeLabelEl) activeLabelEl.textContent = getActiveTitleLabel();
+
+  const winEl = document.getElementById('stat-wins');
+  const streakEl = document.getElementById('stat-streak');
+  const totalEl = document.getElementById('stat-total');
+  if (winEl) winEl.textContent = stats.wins || 0;
+  if (streakEl) streakEl.textContent = stats.winStreak || 0;
+  if (totalEl) totalEl.textContent = stats.totalMatches || 0;
+}
+
+// ==========================================================================
+// DAILY GENSHIN TRIVIA (GÜNÜN BULMACASI) LOGIC
+// ==========================================================================
+const dailyTriviaQuestions = [
+  {
+    q: "Hu Tao'nun Wangsheng Cenaze Evi'nde çalışan gizemli danışmanı kimdir?",
+    options: ["Xiao", "Zhongli", "Ganyu"],
+    answer: 1,
+    note: "Doğru! Zhongli, Wangsheng Cenaze Evi'nde saygın ve bilgili bir danışman olarak görev yapar."
+  },
+  {
+    q: "Mondstadt'ın 'Favonius Şövalyeleri'nde Dandelion Şövalyesi unvanını taşıyan kimdir?",
+    options: ["Eula", "Jean", "Klee"],
+    answer: 1,
+    note: "Doğru! Jean hem Büyük Üstat Vekili hem de Dandelion (Karahindiba) Şövalyesi unvanını taşır."
+  },
+  {
+    q: "Inazuma'da 'Ebediyet'i arayan ve Yıldırım Tanrısı olan Raiden Shogun'un asıl adı nedir?",
+    options: ["Ei (Beelzebul)", "Yae Miko", "Kujou Sara"],
+    answer: 0,
+    note: "Doğru! Raiden Shogun'un asıl adı Ei'dir ve Hükümdar unvanı Beelzebul'dur."
+  },
+  {
+    q: "Fontaine'in Yüce Yargıcı Neuvillette'in gerçek ve gizli kimliği nedir?",
+    options: ["Yüce Sular Ejderi (Hydro Dragon)", "Eski Bir Archon", "Fatui Öncüsü"],
+    answer: 0,
+    note: "Doğru! Neuvillette, Fontaine'in adaleti sağlayan Yüce Sular Ejderi'dir."
+  },
+  {
+    q: "Ateş Archon'u Mavuika hangi ulusun lideridir?",
+    options: ["Sumeru", "Natlan", "Snezhnaya"],
+    answer: 1,
+    note: "Doğru! Mavuika, savaş ve ateşin ulusu Natlan'ın Archon'udur."
+  },
+  {
+    q: "Liyue'deki Wangshu Hanı'nın çatısında yalnız başına iblis avlayan Yaksha kimdir?",
+    options: ["Xiao", "Chongyun", "Shenhe"],
+    answer: 0,
+    note: "Doğru! Xiao, binlerce yıldır Liyue'yi gölgelerden koruyan son Vigilant Yaksha'dır."
+  },
+  {
+    q: "Sumeru'nun Bilgelik Archon'u olan Küçük Kusanali Lordu kimdir?",
+    options: ["Nilou", "Nahida", "Collei"],
+    answer: 1,
+    note: "Doğru! Nahida, Sumeru halkına bilgelik ve rüyalarda rehberlik eden Dendro Archon'dur."
+  },
+  {
+    q: "Fatui Öncüleri'nden 'Çocuk' (Childe) unvanına sahip Tartaglia, savaşta özellikle hangi silahı sevdiğini söyler?",
+    options: ["Katalizör", "Yay (Çünkü en az usta olduğu silah)", "Çift Elli Kılıç"],
+    answer: 1,
+    note: "Doğru! Tartaglia, kendini zorlamak için en zayıf olduğu silah olan yayı kullanır."
+  },
+  {
+    q: "Maceracılar Loncası'nın her ulusta bulunan ve 'Ad astra abyssosque' diyen resepsiyonisti kimdir?",
+    options: ["Katheryne", "Ella Musk", "Ying'er"],
+    answer: 0,
+    note: "Doğru! Katheryne tüm Teyvat'ta maceracılara günlük görevlerini verir."
+  },
+  {
+    q: "Klee'nin en sevdiği ve Balık Gümletme'de kullandığı patlayıcısının adı nedir?",
+    options: ["Dodoco", "Jumpty Dumpty", "Baron Tavşan"],
+    answer: 1,
+    note: "Doğru! Jumpty Dumpty, Klee'nin sevimli ama süper patlayıcı bombasıdır."
+  },
+  {
+    q: "Kamisato Ayaka'nın ağabeyi ve Yashiro Komisyonu'nun başındaki kişi kimdir?",
+    options: ["Thoma", "Kamisato Ayato", "Kaedehara Kazuha"],
+    answer: 1,
+    note: "Doğru! Kamisato Ayato hem klanın lideri hem de Ayaka'nın ağabeyidir."
+  },
+  {
+    q: "Shenhe, çocukluğunda hangi Liyue Adeptus'u tarafından dağlarda büyütülmüştür?",
+    options: ["Madame Ping", "Xianyun (Bulutların Hâkimi)", "Zhongli"],
+    answer: 1,
+    note: "Doğru! Xianyun (Bulutların Hâkimi / Cloud Retainer), Shenhe ve Ganyu'nun ustasıdır."
+  }
+];
+
+let triviaCountdownInterval = null;
+
+function initDailyTriviaWidget() {
+  const contentEl = document.getElementById('trivia-content');
+  if (!contentEl) return;
+
+  if (triviaCountdownInterval) clearInterval(triviaCountdownInterval);
+
+  const todayStr = new Date().toDateString();
+  const solvedDate = localStorage.getItem('genshin_trivia_solved_date');
+
+  if (solvedDate === todayStr) {
+    renderTriviaSolvedState(contentEl);
+  } else {
+    // Pick today's question based on day index
+    const now = new Date();
+    const daySeed = now.getFullYear() * 365 + (now.getMonth() + 1) * 31 + now.getDate();
+    const qIndex = daySeed % dailyTriviaQuestions.length;
+    const qData = dailyTriviaQuestions[qIndex];
+
+    contentEl.innerHTML = `
+      <div class="trivia-question-text">${qData.q}</div>
+      <div class="trivia-options-grid" id="trivia-options-list"></div>
+      <div id="trivia-feedback" style="margin-top:10px; font-size:0.85rem; font-weight:600;"></div>
+    `;
+
+    const optionsList = document.getElementById('trivia-options-list');
+    const feedbackEl = document.getElementById('trivia-feedback');
+    const letters = ['A', 'B', 'C'];
+
+    qData.options.forEach((optText, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'trivia-opt-btn';
+      btn.innerHTML = `<span class="trivia-opt-letter">${letters[idx]}</span> <span style="flex:1;">${optText}</span>`;
+      
+      btn.addEventListener('click', () => {
+        if (idx === qData.answer) {
+          btn.style.borderColor = '#10b981';
+          btn.style.background = 'rgba(16, 185, 129, 0.25)';
+          if (typeof synth !== 'undefined' && synth.playTick) synth.playTick();
+
+          feedbackEl.style.color = '#34d399';
+          feedbackEl.innerHTML = `✨ <strong>Tebrikler!</strong> ${qData.note}`;
+
+          // Mark solved
+          localStorage.setItem('genshin_trivia_solved_date', todayStr);
+
+          setTimeout(() => {
+            renderTriviaSolvedState(contentEl);
+          }, 3500);
+        } else {
+          btn.style.borderColor = '#ef4444';
+          btn.style.background = 'rgba(239, 68, 68, 0.25)';
+          if (typeof synth !== 'undefined' && synth.playError) synth.playError();
+
+          feedbackEl.style.color = '#f87171';
+          feedbackEl.textContent = '❌ Yanlış şık, tekrar denemeye ne dersin Gezgin?';
+          setTimeout(() => {
+            btn.style.borderColor = '';
+            btn.style.background = '';
+          }, 1200);
+        }
+      });
+
+      optionsList.appendChild(btn);
+    });
+  }
+}
+
+function renderTriviaSolvedState(containerEl) {
+  if (!containerEl) return;
+  containerEl.innerHTML = `
+    <div class="trivia-solved-box">
+      <div class="trivia-solved-title">🎉 Günün Bulmacası Çözüldü!</div>
+      <p style="font-size:0.85rem; color:#d1fae5; margin-top:4px;">Genshin evrenine dair harika bilgilere sahipsin!</p>
+      <div class="trivia-countdown" id="trivia-timer-clock">⏳ Yeni bulmaca: --:--:--</div>
+    </div>
+  `;
+
+  const updateClock = () => {
+    const clockEl = document.getElementById('trivia-timer-clock');
+    if (!clockEl) return;
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0);
+    const diffMs = midnight - now;
+    if (diffMs <= 0) {
+      initDailyTriviaWidget();
+      return;
+    }
+    const hrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+    clockEl.textContent = `⏳ Yeni bulmaca: ${String(hrs).padStart(2, '0')} saat ${String(mins).padStart(2, '0')} dk ${String(secs).padStart(2, '0')} sn`;
+  };
+
+  updateClock();
+  triviaCountdownInterval = setInterval(updateClock, 1000);
+}
+
+
+// PeerJS Connection State
+let peer = null;
+let conn = null; // Used by Guest to talk to Host
+let clients = []; // Array of { conn, peerId, nickname, team, isHost }
+let isHost = false;
+let gameMode = '1v1'; // '1v1' or '2v2'
+let myPlayerInfo = null; // { nickname, team, isHost }
+
+let myNickname = '';
+let currentRoomId = '';
+let isMyTurn = false;
+let mySecretCharacter = null; // For 2v2, this will be the Team's character
+let opponentSecretCharacter = null; 
+let opponentName = ''; // Usually the opposing team name in 2v2
+
+// Match State
+let selectedCharacterLocally = null;
+let isMySelectionLocked = false;
+let isOpponentSelectionLocked = false;
+let selectionTimerVal = 30;
+let selectionTimerInterval = null;
+let playAgainAccepts = new Set();
+let activeTurnTimerInterval = null;
+let currentTurnTime = 60;
+let turnEndTime = 0;
+
+// Reconnection state
+let reconnectTimer = null;
+let pingInterval = null;
+let isReconnecting = false;
+
+// PeerJS ID Prefix to isolate namespace
+const PEER_PREFIX = 'genshinguesswho-';
+
+
+// Web Audio Synthesizer (Silenced per user request)
+const synth = {
+  ctx: null,
+  init() {},
+  playTick() {},
+  playSuccess() {},
+  playError() {},
+  playVictory() {}
+};
+
+// UI Elements
+const lobbyScreen = document.getElementById('lobby-screen');
+const waitingScreen = document.getElementById('waiting-screen');
+const selectionScreen = document.getElementById('selection-screen');
+const gameScreen = document.getElementById('game-screen');
+
+const nicknameInput = document.getElementById('nickname-input');
+const roomIdInput = document.getElementById('room-id-input');
+const createRoomBtn = document.getElementById('create-room-btn');
+const joinRoomBtn = document.getElementById('join-room-btn');
+const displayRoomId = document.getElementById('display-room-id');
+const copyCodeBtn = document.getElementById('copy-code-btn');
+const leaveRoomBtn = document.getElementById('leave-room-btn');
+const lobbyError = document.getElementById('lobby-error');
+const peerStatus = document.getElementById('peer-status');
+const startGameBtn = document.getElementById('start-game-btn');
+
+// Auto-fill nickname from localStorage
+const savedNick = localStorage.getItem('genshin_nickname');
+if (savedNick) nicknameInput.value = savedNick;
+
+// Auto-restore session from localStorage
+let isRestoringSession = false;
+const savedSessionStr = localStorage.getItem('genshin_session');
+if (savedSessionStr) {
+  try {
+    const sess = JSON.parse(savedSessionStr);
+    if (sess.nickname && sess.roomId) {
+      myNickname = sess.nickname;
+      currentRoomId = sess.roomId;
+      isHost = sess.isHost;
+      gameMode = sess.gameMode || '1v1';
+      isRestoringSession = true;
+
+      // Restore basic UI displays
+      displayRoomId.textContent = currentRoomId;
+      nicknameInput.value = myNickname;
+
+      if (isHost) {
+        myPlayerInfo = sess.myPlayerInfo || { peerId: 'host', nickname: myNickname, team: 'A', isHost: true };
+        
+        if (sess.clients && sess.clients.length > 0) {
+          clients = sess.clients.map(c => ({
+            conn: null,
+            peerId: c.peerId,
+            nickname: c.nickname,
+            team: c.team,
+            isHost: c.isHost,
+            lockedCharacterId: c.lockedCharacterId || null
+          }));
+        } else {
+          clients = [ { conn: null, ...myPlayerInfo } ];
+        }
+        
+        mySecretCharacter = sess.mySecretChar;
+        opponentSecretCharacter = sess.oppSecretChar;
+        isMyTurn = sess.isMyTurn;
+        if (sess.turnEndTime && sess.turnEndTime > Date.now()) turnEndTime = sess.turnEndTime;
+        opponentName = sess.opponentName || 'Rakip';
+
+        if (mySecretCharacter && opponentSecretCharacter) {
+          showScreen(gameScreen);
+          launchGameBoard(false);
+        } else {
+          showScreen(waitingScreen);
+        }
+        initPeer(currentRoomId);
+      } else {
+        mySecretCharacter = sess.mySecretChar;
+        opponentSecretCharacter = sess.oppSecretChar;
+        isMyTurn = sess.isMyTurn;
+        if (sess.turnEndTime && sess.turnEndTime > Date.now()) turnEndTime = sess.turnEndTime;
+        opponentName = sess.opponentName || 'Rakip';
+
+        if (mySecretCharacter && opponentSecretCharacter) {
+          showScreen(gameScreen);
+        } else {
+          showScreen(waitingScreen);
+        }
+        initPeer();
+      }
+    }
+  } catch (e) {
+    console.error("Error restoring session:", e);
+    clearSession();
+  }
+}
+
+// How to Play Modal Elements
+const howToPlayBtn = document.getElementById('how-to-play-btn');
+const howToPlayModal = document.getElementById('how-to-play-modal');
+const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
+
+howToPlayBtn?.addEventListener('click', () => {
+  howToPlayModal.classList.remove('hidden');
+});
+
+closeHowToPlayBtn?.addEventListener('click', () => {
+  howToPlayModal.classList.add('hidden');
+});
+
+// Player Titles Modal Elements & Logic
+const titleModal = document.getElementById('title-modal');
+const openTitleModalBtn = document.getElementById('open-title-modal-btn');
+const closeTitleModalBtn = document.getElementById('close-title-modal-btn');
+const saveTitleBtn = document.getElementById('save-title-btn');
+const titlesGridList = document.getElementById('titles-grid-list');
+
+function renderTitleModal() {
+  if (!titlesGridList) return;
+  const stats = getPlayerStats();
+  titlesGridList.innerHTML = '';
+
+  titleDefinitions.forEach(t => {
+    const isUnlocked = t.checkUnlocked(stats);
+    const isSelected = stats.selectedTitleId === t.id;
+
+    const card = document.createElement('div');
+    card.className = `title-item-card ${isUnlocked ? 'unlocked' : 'locked'} ${isSelected ? 'active-selected' : ''}`;
+    card.innerHTML = `
+      <div class="title-item-header">
+        <span class="title-item-name">${t.name}</span>
+        <span class="title-status-icon">${isSelected ? '✅' : (isUnlocked ? '🔓' : '🔒')}</span>
+      </div>
+      <div class="title-item-desc">${t.desc}</div>
+      <div class="title-item-req">${isUnlocked ? '✦ KİLİT AÇILDI ✦' : '🔒 Şart: ' + t.reqText}</div>
+    `;
+
+    if (isUnlocked) {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.title-item-card').forEach(c => c.classList.remove('active-selected'));
+        card.classList.add('active-selected');
+        stats.selectedTitleId = t.id;
+        savePlayerStats(stats);
+      });
+    }
+
+    titlesGridList.appendChild(card);
+  });
+}
+
+openTitleModalBtn?.addEventListener('click', () => {
+  renderTitleModal();
+  titleModal?.classList.remove('hidden');
+});
+
+closeTitleModalBtn?.addEventListener('click', () => {
+  titleModal?.classList.add('hidden');
+});
+
+saveTitleBtn?.addEventListener('click', () => {
+  titleModal?.classList.add('hidden');
+  updateCareerStatsUI();
+});
+
+// Initialize Career Stats and Daily Trivia on page load
+updateCareerStatsUI();
+initDailyTriviaWidget();
+
+// Character Selection Elements
+const selectionGrid = document.getElementById('selection-grid');
+const detailCardPreview = document.getElementById('detail-card-preview');
+const detailCharName = document.getElementById('detail-char-name');
+const detailCharElement = document.getElementById('detail-char-element');
+const detailCharWeapon = document.getElementById('detail-char-weapon');
+const detailCharRegion = document.getElementById('detail-char-region');
+const detailCharGender = document.getElementById('detail-char-gender');
+const lockCharacterBtn = document.getElementById('lock-character-btn');
+const selectionTimerText = document.getElementById('selection-timer-text');
+const myReadyStatus = document.getElementById('my-ready-status');
+const opponentReadyStatus = document.getElementById('opponent-ready-status');
+
+// Game Playing Elements
+const turnBadge = document.getElementById('turn-badge');
+const turnStatusText = document.getElementById('turn-status-text');
+const gameRoomId = document.getElementById('game-room-id');
+const opponentNameLabel = document.getElementById('opponent-name');
+const charactersGrid = document.getElementById('characters-grid');
+const mySecretCardContainer = document.getElementById('my-secret-character-card');
+const passTurnBtn = document.getElementById('pass-turn-btn');
+
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+
+// Guess Modal
+const guessModal = document.getElementById('guess-modal');
+const openGuessModalBtn = document.getElementById('open-guess-modal-btn');
+const closeGuessModalBtn = document.getElementById('close-guess-modal-btn');
+const cancelGuessBtn = document.getElementById('cancel-guess-btn');
+const submitGuessBtn = document.getElementById('submit-guess-btn');
+const guessSelect = document.getElementById('guess-select');
+
+// Play Again Modal
+const playAgainModal = document.getElementById('play-again-modal');
+const acceptPlayAgainBtn = document.getElementById('accept-play-again-btn');
+const rejectPlayAgainBtn = document.getElementById('reject-play-again-btn');
+
+// Game Over Screen
+const gameOverScreen = document.getElementById('game-over-screen');
+const gameOverTitle = document.getElementById('game-over-title');
+const gameOverMessage = document.getElementById('game-over-message');
+const opponentSecretCardDisplay = document.getElementById('opponent-secret-card-display');
+const playAgainBtn = document.getElementById('play-again-btn');
+const exitLobbyBtn = document.getElementById('exit-lobby-btn');
+
+// View Transition Helper
+function showScreen(screen) {
+  lobbyScreen.classList.remove('active');
+  waitingScreen.classList.remove('active');
+  selectionScreen.classList.remove('active');
+  gameScreen.classList.remove('active');
   
-  /* Element Colors */
-  --color-anemo: #00ffd2;
-  --color-pyro: #ff5959;
-  --color-cryo: #a5f3fc;
-  --color-geo: #f59e0b;
-  --color-electro: #c084fc;
-  --color-dendro: #4ade80;
-  --color-hydro: #38bdf8;
-  
-  --font-family: 'Outfit', sans-serif;
-  --box-shadow-glow: 0 0 15px rgba(235, 194, 114, 0.2);
-  --transition-speed: 0.3s;
-}
+  screen.classList.add('active');
 
-/* Reset and Base Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Prevent all scroll/rubber-banding */
-  position: fixed; /* Lock body on iOS */
-  touch-action: none; /* Disable touch gestures on body */
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-light);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  -webkit-user-select: none;
-  overscroll-behavior: none; 
-}
-
-input, textarea {
-  user-select: text;
-  -webkit-user-select: text;
-}
-
-/* Background Animations */
-.stars-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
-  background-size: 550px 550px, 350px 350px, 250px 250px;
-  background-position: 0 0, 40px 60px, 130px 270px;
-  z-index: -2;
-  opacity: 0.15;
-  animation: starTwinkle 120s linear infinite;
-  pointer-events: none;
-}
-
-.global-wallpaper-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('images/wallpaper.webp') no-repeat center center/cover;
-  filter: brightness(0.6) saturate(1.1);
-  z-index: -3;
-  animation: bgZoom 30s infinite alternate;
-}
-
-@keyframes starTwinkle {
-  from { background-position: 0 0, 40px 60px, 130px 270px; }
-  to { background-position: 550px 1100px, 390px 760px, 630px 1070px; }
-}
-
-/* Utilities */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
-.text-gold { color: var(--color-gold-bright) !important; text-shadow: 0 0 8px rgba(235, 194, 114, 0.4); }
-.text-blue { color: var(--color-hydro) !important; }
-.text-green { color: var(--color-dendro) !important; }
-.text-red { color: var(--color-pyro) !important; }
-.text-muted { color: var(--color-text-muted) !important; }
-.font-bold { font-weight: 800; }
-
-/* Main App Wrapper */
-.app-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* Screens */
-.screen {
-  display: none;
-  width: 100%;
-  height: 100%;
-  padding: 15px 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.screen.active {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Lobby Redesign */
-@keyframes bgZoom {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.05); }
-}
-
-.lobby-wrapper {
-  width: 100%;
-  max-width: 1350px;
-  padding: 8px 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  z-index: 10;
-  margin: auto 0;
-}
-
-/* ========================================================
-   CENTERED HERO LOBBY + RIGHT SIDE TRIVIA LAYOUT
-======================================================== */
-.lobby-centered-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  width: 100%;
-  position: relative;
-}
-
-.lobby-side-spacer {
-  display: none;
-}
-
-.center-hero-card {
-  width: 100%;
-  max-width: 460px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 20;
-}
-
-.side-trivia-card {
-  width: 100%;
-  max-width: 460px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 15;
-}
-
-/* ========================================================
-   MOBILE & TABLET INTERACTIVE TAB SWITCHER (<= 1099px)
-======================================================== */
-.mobile-lobby-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  width: 100%;
-  max-width: 440px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(235, 194, 114, 0.35);
-  border-radius: 16px;
-  padding: 6px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  z-index: 25;
-}
-
-.mobile-nav-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #94a3b8;
-  font-family: var(--font-family);
-  font-weight: 700;
-  font-size: 0.88rem;
-  padding: 10px 12px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-}
-
-.mobile-nav-btn:hover {
-  color: #f1f5f9;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.mobile-nav-btn.active {
-  background: linear-gradient(135deg, rgba(235, 194, 114, 0.22) 0%, rgba(245, 158, 11, 0.35) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.6);
-  color: #ffffff;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-  transform: scale(1.02);
-}
-
-.nav-badge {
-  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 12px;
-  border: 1px solid #a78bfa;
-  margin-left: 2px;
-  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
-}
-
-/* On Mobile/Tablet (<= 1099px): Only show the active tab card, hide the inactive one */
-@media (max-width: 1099px) {
-  .mobile-hidden {
-    display: none !important;
+  // Clear reconnection states if returning to lobby
+  if (screen === lobbyScreen) {
+    isReconnecting = false;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
   }
 }
 
-/* On Desktop PC (>= 1100px): Exact mathematically centered Hero Card, right panel and left spacer symmetrical */
-@media (min-width: 1100px) {
-  .mobile-lobby-nav {
-    display: none !important;
+// Generate Room ID (4 characters)
+function generateRoomId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return code;
+}
 
-  /* Prevent top clipping! Compact logo specifically on PC so GENSHIN IMPACT title never cuts off */
-  .logo-container {
-    margin-top: 6px !important;
-    margin-bottom: 12px !important;
+// Show error messages in Lobby
+function showLobbyError(msg) {
+  lobbyError.textContent = msg;
+  lobbyError.classList.remove('hidden');
+  synth.playError();
+}
+
+// Event Listeners for Audio Context activation
+document.addEventListener('click', () => {
+  if (synth.ctx && synth.ctx.state === 'suspended') {
+    synth.ctx.resume();
   }
-  .logo-accent {
-    font-size: 0.85rem !important;
-    letter-spacing: 4px !important;
-    margin-bottom: 2px !important;
-  }
-  .logo-title {
-    font-size: 2.5rem !important;
-    letter-spacing: 2px !important;
-  }
-  .logo-subtitle {
-    font-size: 0.9rem !important;
-    margin-top: 3px !important;
-  }
-
-  /* Make PC lobby layout 100% mathematically centered and zero-scroll fit */
-  .lobby-centered-layout {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 28px !important;
-    width: 100% !important;
-    max-width: 1360px !important;
-    margin: 0 auto !important;
-  }
-  
-  .lobby-side-spacer {
-    display: block !important;
-    flex: 1 !important;
-    max-width: 410px !important;
-    min-width: 310px !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  .center-hero-card {
-    flex-shrink: 0 !important;
-    width: 450px !important;
-    margin: 0 !important;
-    display: block !important;
-    padding: 20px 24px 16px 24px !important;
-  }
-
-  .side-trivia-card, .daily-trivia-card.side-trivia-card {
-    flex: 1 !important;
-    width: auto !important;
-    max-width: 410px !important;
-    min-width: 310px !important;
-    margin: 0 !important;
-    align-self: center !important;
-    display: block !important;
-  }
-
-  /* Compact spacing inside hero card on PC for 100% screen fit */
-  .center-hero-card .title-form-group {
-    margin-top: 12px !important;
-  }
-  .center-hero-card .title-select-btn {
-    padding: 11px 16px !important;
-    margin-top: 4px !important;
-    margin-bottom: 6px !important;
-    font-size: 0.94rem !important;
-  }
-  .center-hero-card .lobby-stats-bar {
-    margin-top: 8px !important;
-    padding: 7px 12px !important;
-    font-size: 0.8rem !important;
-  }
-  .center-hero-card .mode-form-group {
-    margin-top: 13px !important;
-  }
-  .center-hero-card .mode-btn {
-    padding: 8px 12px !important;
-    font-size: 0.85rem !important;
-  }
-  .center-hero-card .action-buttons {
-    margin-top: 14px !important;
-    gap: 10px !important;
-  }
-  .center-hero-card .main-action-btn {
-    padding: 12px 16px !important;
-    font-size: 1rem !important;
-    margin-bottom: 2px !important;
-  }
-  .center-hero-card .divider {
-    margin: 10px 0 !important;
-  }
-  .center-hero-card #room-id-input, .center-hero-card #join-room-btn {
-    padding: 10px 14px !important;
-    font-size: 0.88rem !important;
-  }
-
-  /* Compact and refined 'Nasıl Oynanır?' link on PC so it never gets pushed off screen */
-  .help-btn {
-    font-size: 0.95rem !important;
-    padding: 6px 16px !important;
-    margin-top: 12px !important;
-  }
-  .help-btn .help-icon {
-    width: 22px !important;
-    height: 22px !important;
-    font-size: 0.9rem !important;
-  }
-}
-
-.new-lobby-card {
-  background: linear-gradient(180deg, rgba(18, 26, 43, 0.94) 0%, rgba(13, 19, 33, 0.97) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.38);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(235, 194, 114, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 20px;
-  padding: 24px 28px 18px 28px;
-  width: 100%;
-  animation: cardFadeIn 0.5s ease-out;
-}
-
-.new-lobby-card .form-group {
-  gap: 5px !important;
-}
-
-.new-lobby-card label {
-  font-size: 0.76rem !important;
-  margin-bottom: 2px !important;
-}
-
-.new-lobby-card input[type="text"] {
-  padding: 10px 14px !important;
-}
-
-.mode-form-group {
-  margin-top: 18px !important;
-}
-
-.new-lobby-card .mode-btn {
-  padding: 10px 14px !important;
-  font-size: 0.88rem !important;
-}
-
-.action-buttons {
-  margin-top: 20px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
-}
-
-.new-lobby-card .main-action-btn {
-  padding: 14px 18px !important;
-  font-size: 1.05rem !important;
-  margin-bottom: 2px !important;
-}
-
-.new-lobby-card .divider {
-  margin: 14px 0 !important;
-}
-
-.new-lobby-card #room-id-input, .new-lobby-card #join-room-btn {
-  padding: 12px 16px !important;
-  font-size: 0.92rem !important;
-}
-
-.lobby-box-title {
-  color: var(--color-gold-bright);
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(235, 194, 114, 0.2);
-  padding-bottom: 10px;
-}
-
-.main-action-btn {
-  width: 100%;
-  font-size: 1.1rem;
-  padding: 16px;
-  margin-bottom: 10px;
-}
-
-.guide-steps {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.guide-steps li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #ddd;
-}
-
-.step-num {
-  background: var(--color-gold-bright);
-  color: #111;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-/* Help Button & Modal */
-.help-btn {
-  background: none;
-  border: none;
-  color: var(--color-gold-bright);
-  font-family: var(--font-family);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  transition: opacity 0.2s;
-  text-shadow: 0 0 10px rgba(0,0,0,0.8);
-  margin-top: 0;
-}
-
-.help-btn:hover {
-  opacity: 0.8;
-}
-
-.help-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--color-gold-bright);
-  font-weight: bold;
-  font-size: 0.85rem;
-}
-
-.guide-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: cardFadeIn 0.3s ease-out;
-}
-
-.guide-modal-overlay.hidden {
-  display: none !important;
-}
-
-.guide-modal-content {
-  background: rgba(10, 20, 35, 0.95);
-  border: 1px solid var(--color-gold-bright);
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 0 30px rgba(235, 194, 114, 0.2);
-}
-
-.main-action-btn {
-  width: 100%;
-  font-size: 1.1rem;
-  padding: 16px;
-  margin-bottom: 10px;
-}
-
-.guide-steps {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.guide-steps li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #ddd;
-}
-
-.step-num {
-  background: var(--color-gold-bright);
-  color: #111;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-/* Base Lobby Card fallback */
-.lobby-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-card-border);
-  box-shadow: var(--box-shadow-glow);
-  backdrop-filter: blur(15px);
-  border-radius: 16px;
-  padding: 40px;
-  width: 100%;
-  max-width: 480px;
-  animation: cardFadeIn 0.5s ease-out;
-}
-
-@keyframes cardFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Logo Design */
-.logo-container {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.logo-accent {
-  font-size: 0.78rem;
-  letter-spacing: 4px;
-  color: var(--color-gold-bright);
-  font-weight: 600;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.logo-title {
-  font-size: 2.3rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, #fff 30%, var(--color-gold-bright) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 4px 20px rgba(235, 194, 114, 0.35);
-  margin: 0;
-  line-height: 1.1;
-}
-
-.logo-subtitle {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  margin-top: 3px;
-}
-
-/* Inputs & Forms */
-.form-group {
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-label {
-  font-size: 0.85rem;
-  color: var(--color-gold);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-input[type="text"] {
-  background: rgba(10, 10, 16, 0.8);
-  border: 1px solid rgba(235, 194, 114, 0.3);
-  border-radius: 8px;
-  padding: 14px 18px;
-  color: #fff;
-  font-family: var(--font-family);
-  font-size: 1rem;
-  outline: none;
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-}
-
-input[type="text"]:focus {
-  border-color: var(--color-gold-bright);
-  box-shadow: 0 0 10px rgba(235, 194, 114, 0.25);
-}
-
-/* Buttons */
-.primary-btn, .secondary-btn, .copy-btn {
-  font-family: var(--font-family);
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
-  outline: none;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #f9e5a3 0%, #c4a054 100%);
-  color: #1c1917;
-  border: none;
-  padding: 14px 28px;
-  box-shadow: 0 4px 15px rgba(196, 160, 84, 0.35);
-}
-
-.primary-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(196, 160, 84, 0.5);
-}
-
-.primary-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.primary-btn:disabled, .secondary-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.secondary-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-gold);
-  border: 1px solid rgba(235, 194, 114, 0.4);
-  padding: 14px 28px;
-}
-
-.secondary-btn:hover:not(:disabled) {
-  background: rgba(235, 194, 114, 0.1);
-  color: #fff;
-}
-
-.divider {
-  text-align: center;
-  position: relative;
-  margin: 20px 0;
-}
-
-.divider::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background: rgba(235, 194, 114, 0.15);
-  z-index: 1;
-}
-
-.divider span {
-  background: #141420;
-  padding: 0 15px;
-  position: relative;
-  z-index: 2;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-
-.join-group {
-  display: flex;
-  gap: 10px;
-}
-
-.join-group input {
-  flex: 1;
-}
-
-.error-message {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 20px;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.text-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-family: var(--font-family);
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-top: 20px;
-  text-decoration: underline;
-  transition: color var(--transition-speed);
-}
-
-.text-btn:hover {
-  color: #fff;
-}
-
-/* Waiting Room */
-.lobby-desc {
-  color: var(--color-text-muted);
-  margin-bottom: 25px;
-}
-
-.room-code-display {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px 25px;
-  border-radius: 12px;
-  border: 1px dashed var(--color-card-border);
-  margin-bottom: 20px;
-}
-
-.code-label {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.code-value {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--color-gold-bright);
-}
-
-.copy-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1.1rem;
-  padding: 8px;
-  line-height: 1;
-}
-
-.copy-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.status-msg {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
-
-.loading-spinner-container {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.genshin-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid rgba(235, 194, 114, 0.1);
-  border-radius: 50%;
-  border-top-color: var(--color-gold-bright);
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   COMMON HEADER STYLES
-   ========================================================================== */
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(235, 194, 114, 0.15);
-  margin-bottom: 15px;
-}
-
-.game-logo {
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.game-logo span {
-  font-size: 0.75rem;
-  background: var(--color-gold-bright);
-  color: #111;
-  padding: 2px 6px;
-  border-radius: 4px;
-  vertical-align: middle;
-  margin-left: 8px;
-  font-weight: bold;
-}
-
-.turn-status-badge, .timer-badge {
-  background: rgba(235, 194, 114, 0.05);
-  border: 1px solid rgba(235, 194, 114, 0.3);
-  padding: 8px 24px;
-  border-radius: 30px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  box-shadow: 0 0 10px rgba(235, 194, 114, 0.05);
-  transition: all var(--transition-speed);
-}
-
-.turn-status-badge.active-turn, .timer-badge.active-turn {
-  background: rgba(235, 194, 114, 0.2);
-  border-color: var(--color-gold-bright);
-  color: var(--color-gold-bright);
-  box-shadow: 0 0 15px rgba(235, 194, 114, 0.35);
-  animation: pulseGlow 2s infinite ease-in-out;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 10px rgba(235, 194, 114, 0.2); }
-  50% { box-shadow: 0 0 20px rgba(235, 194, 114, 0.45); }
-}
-
-.room-info {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
-/* ==========================================================================
-   CHARACTER SELECTION SCREEN
-   ========================================================================== */
-/* ==========================================================================
-   CHARACTER SELECTION SCREEN (LOCKED 100VH TO PREVENT WINDOW SCROLLBAR ON PC)
-   ========================================================================== */
-#selection-screen {
-  flex-direction: column;
-  padding: 15px 30px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.selection-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-}
-
-/* Strictly desktop viewport locking to eliminate right-edge window scrollbar on PC */
-@media (min-width: 993px) {
-  #selection-screen {
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
-  }
-  .selection-layout {
-    height: 100% !important;
-    overflow: hidden !important;
-  }
-}
-
-.selection-grid-container {
-  overflow-y: auto;
-  padding: 8px 12px 8px 8px;
-  flex: 1;
-  min-height: 0;
-}
-
-.selection-grid-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.selection-grid-container::-webkit-scrollbar-thumb {
-  background: rgba(235, 194, 114, 0.2);
-  border-radius: 4px;
-}
-
-.selection-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 14px;
-  padding: 6px 6px 24px 6px;
-}
-
-/* Selection Cards (Genshin party setup styled) */
-.select-card {
-  aspect-ratio: 1 / 1.15;
-  background: rgba(20, 20, 32, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.2s ease;
-}
-
-.select-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(235, 194, 114, 0.6);
-  box-shadow: 0 0 12px rgba(235, 194, 114, 0.3);
-}
-
-.select-card.active {
-  border-color: var(--color-gold-bright);
-  box-shadow: 0 0 15px rgba(235, 194, 114, 0.4);
-  background: rgba(235, 194, 114, 0.08);
-}
-
-.select-card.locked {
-  opacity: 0.8;
-  cursor: default;
-}
-
-/* Teammate selection preview/highlight in 2v2 */
-@keyframes pulseTeammateCard {
-  0%, 100% {
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.85), inset 0 0 10px rgba(56, 189, 248, 0.35);
-    border-color: #38bdf8;
-    transform: translateY(-2px);
-  }
-  50% {
-    box-shadow: 0 0 22px rgba(56, 189, 248, 1), inset 0 0 16px rgba(56, 189, 248, 0.55);
-    border-color: #7dd3fc;
-    transform: translateY(-2px);
-  }
-}
-
-.select-card.teammate-hover {
-  animation: pulseTeammateCard 1.6s infinite ease-in-out;
-  z-index: 6;
-  background: rgba(56, 189, 248, 0.15) !important;
-  border-width: 2px !important;
-}
-
-.select-card.teammate-locked {
-  border: 2px solid #22c55e !important;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.85), inset 0 0 14px rgba(34, 197, 94, 0.4) !important;
-  background: rgba(34, 197, 94, 0.18) !important;
-  animation: none !important;
-  transform: translateY(-2px) !important;
-  z-index: 6;
-}
-
-.teammate-hover-badge {
-  position: absolute;
-  bottom: 20px;
-  left: 4px;
-  right: 4px;
-  height: 20px;
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.95), rgba(56, 189, 248, 0.95));
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(186, 230, 253, 0.65);
-  color: #ffffff;
-  font-size: 0.58rem;
-  font-weight: 700;
-  padding: 0 4px;
-  border-radius: 6px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 8px rgba(56, 189, 248, 0.5);
-  z-index: 10;
-  pointer-events: none;
-  letter-spacing: 0.2px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.85);
-  animation: badgePulseAlpha 1.6s infinite ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.teammate-hover-badge.locked-badge {
-  background: linear-gradient(135deg, rgba(22, 163, 74, 0.95), rgba(74, 222, 128, 0.95));
-  border-color: rgba(187, 247, 208, 0.75);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 10px rgba(74, 222, 128, 0.6);
-  animation: none;
-}
-
-@keyframes badgePulseAlpha {
-  0%, 100% { opacity: 0.95; }
-  50% { opacity: 1; }
-}
-
-.select-card-img-container {
-  flex: 1;
-  width: 100%;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.select-card .char-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.select-card .char-gfx {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-}
-
-/* Element color tags for selection cards */
-.select-card.el-anemo .char-gfx { background: radial-gradient(circle, rgba(0,255,210,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-pyro .char-gfx { background: radial-gradient(circle, rgba(255,89,89,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-cryo .char-gfx { background: radial-gradient(circle, rgba(165,243,252,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-geo .char-gfx { background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-electro .char-gfx { background: radial-gradient(circle, rgba(192,132,252,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-dendro .char-gfx { background: radial-gradient(circle, rgba(74,222,128,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-.select-card.el-hydro .char-gfx { background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(0, 0, 0, 0.5) 100%); }
-
-.select-card-name {
-  background: rgba(10, 10, 15, 0.9);
-  width: 100%;
-  text-align: center;
-  padding: 4px 2px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  z-index: 2;
-}
-
-.select-card-el-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  background: rgba(0,0,0,0.5);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  z-index: 3;
-}
-
-/* Detail Panel (Right Column Selection) */
-.selection-detail-panel {
-  background: rgba(15, 15, 25, 0.75);
-  border: 1px solid var(--color-card-border);
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.genshin-detail-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
-@media (min-width: 993px) {
-  .selection-detail-panel {
-    height: 100% !important;
-    max-height: 100% !important;
-    overflow: hidden !important;
-  }
-  .genshin-detail-card {
-    height: 100% !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-}
-
-.detail-section-title {
-  font-size: 0.88rem;
-  color: var(--color-gold-bright);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 10px;
-  flex-shrink: 0;
-  text-shadow: 0 0 5px rgba(235, 194, 114, 0.3);
-}
-
-.detail-card-preview {
-  width: 100%;
-  max-width: 180px;
-  aspect-ratio: 1 / 1.18;
-  border: 1.5px solid var(--color-card-border);
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  background: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 1;
-  min-height: 0;
-}
-
-.detail-card-preview .preview-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.detail-card-preview .preview-gfx {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 4rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-}
-
-.detail-card-preview.el-anemo .preview-gfx { background: radial-gradient(circle, rgba(0,255,210,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-pyro .preview-gfx { background: radial-gradient(circle, rgba(255,89,89,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-cryo .preview-gfx { background: radial-gradient(circle, rgba(165,243,252,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-geo .preview-gfx { background: radial-gradient(circle, rgba(245,158,11,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-electro .preview-gfx { background: radial-gradient(circle, rgba(192,132,252,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-dendro .preview-gfx { background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.detail-card-preview.el-hydro .preview-gfx { background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-
-.detail-info-group {
-  margin: 8px 0;
-  width: 100%;
-  text-align: center;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* Hide scrollbar inside detail info box if it ever needs to scroll internally */
-.detail-info-group::-webkit-scrollbar {
-  display: none;
-}
-
-.detail-char-name {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
-
-.detail-badge-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  width: 100%;
-}
-
-.detail-badge {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 5px 12px;
-  border-radius: 14px;
-  font-size: 0.78rem;
-  color: var(--color-gold);
-  width: 92%;
-  text-align: center;
-  line-height: 1.3;
-}
-
-.lock-btn {
-  width: 100%;
-  padding: 16px !important;
-  font-size: 1.1rem !important;
-  margin-top: auto;
-}
-
-/* ==========================================================================
-   GAME PLAYING SCREEN STYLES
-   ========================================================================== */
-#game-screen {
-  flex-direction: column;
-  padding: 15px 30px;
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
-/* Layout Grid */
-.game-layout {
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 20px;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-}
-
-/* Board Container */
-.board-container {
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.board-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.board-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 4px;
-}
-
-.board-container::-webkit-scrollbar-thumb {
-  background: rgba(235, 194, 114, 0.2);
-  border-radius: 4px;
-}
-
-.board-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(235, 194, 114, 0.4);
-}
-
-.grid-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 12px;
-  padding-bottom: 20px;
-}
-
-/* Card Flipping Mechanism */
-.card {
-  aspect-ratio: 1 / 1.35;
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
-  cursor: pointer;
-}
-
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-}
-
-.card.eliminated .card-inner {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-}
-
-.card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 12px;
-  border: 1px solid var(--color-card-border);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-}
-
-/* Card Front */
-.card-front {
-  background: var(--color-card-bg);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed), opacity 0s 0.15s, visibility 0s 0.15s;
-  opacity: 1;
-  visibility: visible;
-}
-
-.card.eliminated .card-front {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.card:hover .card-front {
-  border-color: rgba(235, 194, 114, 0.6);
-  box-shadow: 0 8px 25px rgba(235, 194, 114, 0.2);
-}
-
-.card-front-img-container {
-  flex: 1;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card-front .char-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-/* Avatar Graphic fallback monogram */
-.character-avatar-gfx {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
-  overflow: hidden;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
-  z-index: 0;
-}
-
-/* Element gradients */
-.card-front.el-anemo .character-avatar-gfx { background: radial-gradient(circle, rgba(0,255,210,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-pyro .character-avatar-gfx { background: radial-gradient(circle, rgba(255,89,89,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-cryo .character-avatar-gfx { background: radial-gradient(circle, rgba(165,243,252,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-geo .character-avatar-gfx { background: radial-gradient(circle, rgba(245,158,11,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-electro .character-avatar-gfx { background: radial-gradient(circle, rgba(192,132,252,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-dendro .character-avatar-gfx { background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-.card-front.el-hydro .character-avatar-gfx { background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0, 0, 0, 0.6) 100%); }
-
-.element-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-  z-index: 3;
-}
-
-.element-icon-img {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
-}
-
-.weapon-badge {
-  position: absolute;
-  bottom: 48px;
-  left: 6px;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.6rem;
-  letter-spacing: 0.3px;
-  color: var(--color-gold);
-  border: 1px solid rgba(235, 194, 114, 0.3);
-  z-index: 3;
-}
-
-.gender-badge {
-  position: absolute;
-  bottom: 48px;
-  right: 6px;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.6rem;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  z-index: 3;
-}
-
-.card-info {
-  padding: 8px 6px;
-  background: rgba(10, 10, 15, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  z-index: 2;
-}
-
-.char-name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #fff;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.char-region {
-  font-size: 0.6rem;
-  color: var(--color-text-muted);
-  margin-top: 1px;
-}
-
-/* Card Back (TCG Back Style) */
-.card-back {
-  background: linear-gradient(135deg, #14121d 0%, #1e1b2e 100%);
-  transform: rotateY(180deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0s 0.15s, visibility 0s 0.15s;
-}
-
-.card.eliminated .card-back {
-  opacity: 1;
-  visibility: visible;
-}
-
-.card-back-img-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.card-back-img-wrapper .char-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(100%) blur(1px);
-  opacity: 0.5;
-}
-
-.eliminated-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(160,20,20,0.2) 0%, rgba(0,0,0,0.7) 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.eliminated-overlay::after {
-  content: '❌';
-  font-size: 3.5rem;
-  opacity: 0.6;
-  filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
-}
-
-.card-back-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 8px 6px;
-  background: rgba(10, 10, 15, 0.95);
-  border-top: 1px solid rgba(235, 194, 114, 0.15);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 44px;
-  z-index: 5;
-}
-
-.char-name-back {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-gold-bright);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.card.eliminated {
-  cursor: default;
-}
-
-/* Control Panel (Right Column) */
-.control-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Secret Character Display Panel */
-.secret-card-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.panel-section-title {
-  font-size: 0.95rem;
-  color: var(--color-gold-bright);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.panel-desc {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  margin-bottom: 10px;
-}
-
-.secret-avatar-container {
-  width: 100%;
-  max-width: 140px;
-}
-
-/* Mini Character Card for Secret Display */
-.mini-char-card {
-  width: 100%;
-  aspect-ratio: 1 / 1.35;
-  border-radius: 10px;
-  border: 1.5px solid var(--color-gold-bright);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background: var(--color-card-bg);
-  box-shadow: 0 0 15px rgba(235, 194, 114, 0.3);
-}
-
-.mini-char-card .character-avatar-gfx {
-  font-size: 2.8rem;
-}
-
-/* Action Buttons */
-.game-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.action-btn {
-  flex: 1;
-  padding: 12px !important;
-  font-size: 0.9rem !important;
-}
-
-/* Chat System */
-.chat-container {
-  flex: 1;
-  background: rgba(10, 10, 16, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat-header {
-  padding: 12px 15px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.chat-header h3 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-gold);
-}
-
-.chat-messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.chat-messages-area::-webkit-scrollbar {
-  width: 4px;
-}
-
-.chat-messages-area::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
-
-/* Message Bubbles */
-.chat-msg {
-  display: flex;
-  flex-direction: column;
-  max-width: 85%;
-  animation: msgSlide 0.25s ease-out;
-}
-
-@keyframes msgSlide {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.chat-msg.self {
-  align-self: flex-end;
-}
-
-.chat-msg.other {
-  align-self: flex-start;
-}
-
-.msg-sender {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  margin-bottom: 2px;
-  padding: 0 4px;
-}
-
-.chat-msg.self .msg-sender {
-  text-align: right;
-}
-
-.msg-bubble {
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.chat-msg.self .msg-bubble {
-  background: linear-gradient(135deg, #0284c7 0%, #3b82f6 100%);
-  color: #ffffff;
-  border-bottom-right-radius: 2px;
-  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
-}
-
-.chat-msg.other .msg-bubble {
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--color-text-light);
-  border-bottom-left-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.msg-time {
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.3);
-  align-self: flex-end;
-  margin-top: 4px;
-  margin-left: 8px;
-  float: right;
-}
-
-.system-message {
-  align-self: center;
-  background: rgba(235, 194, 114, 0.08);
-  border: 1px dashed rgba(235, 194, 114, 0.2);
-  color: var(--color-gold-bright);
-  font-size: 0.75rem;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-align: center;
-  max-width: 95%;
-  margin: 5px 0;
-}
-
-.system-message.error {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
-/* Chat Tabs & Team Msg */
-.chat-tabs {
-  background: rgba(0,0,0,0.3);
-  border-radius: 6px;
-  padding: 2px;
-}
-.chat-tab {
-  background: transparent;
-  color: var(--color-text-muted);
-  border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.chat-tab.active {
-  background: rgba(255,255,255,0.1);
-  color: var(--color-gold-bright);
-}
-.chat-msg.team-msg .msg-bubble {
-  border: 1px solid #10b981;
-}
-
-/* Mode Selector & Team Slots */
-.mode-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 10px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  flex: 1;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #ccc;
-  transition: all 0.2s;
-}
-.mode-btn:has(input:checked) {
-  background: rgba(235, 194, 114, 0.15);
-  border-color: var(--color-gold-bright);
-  color: #fff;
-  font-weight: 600;
-}
-.mode-btn input { display: none; }
-
-.player-slot {
-  background: rgba(0,0,0,0.3);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.player-slot.empty {
-  color: rgba(255,255,255,0.3);
-  font-style: italic;
-  border: 1px dashed rgba(255,255,255,0.1);
-}
-.player-slot.filled {
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.player-slot.host::after {
-  content: "👑";
-  font-size: 0.8rem;
-}
-
-/* Teams Container for Waiting Screen */
-.teams-container {
-  display: flex;
-  gap: 20px;
-  margin: 20px 0;
-  text-align: left;
-}
-
-@media (max-width: 600px) {
-  .teams-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-}
-
-/* Chat Input Form */
-.chat-input-form {
-  display: flex;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.chat-input-form input {
-  flex: 1;
-  min-width: 0;
-  background: rgba(10, 10, 15, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 14px;
-  border-radius: 6px;
-  color: #fff;
-  font-family: var(--font-family);
-  font-size: 16px; /* Must be exactly 16px to prevent iOS auto-zoom */
-  outline: none;
-}
-
-.chat-input-form input:focus {
-  border-color: var(--color-gold-bright);
-}
-
-.chat-input-form button {
-  background: var(--color-gold-bright);
-  color: #111;
-  border: none;
-  font-family: var(--font-family);
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0 18px;
-  margin-left: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.chat-input-form button:hover {
-  opacity: 0.9;
-}
-
-/* ==========================================================================
-   MODALS AND OVERLAYS
-   ========================================================================== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(5, 5, 8, 0.85);
-  backdrop-filter: blur(10px);
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 1;
-  transition: opacity var(--transition-speed);
-}
-
-.modal-overlay.hidden {
-  display: none !important;
-}
-
-.modal-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-card-border);
-  box-shadow: var(--box-shadow-glow), 0 10px 30px rgba(0, 0, 0, 0.6);
-  border-radius: 16px;
-  padding: 30px;
-  width: 90%;
-  max-width: 440px;
-  animation: modalScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-}
-
-@keyframes modalScale {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-header h2 {
-  font-size: 1.4rem;
-  font-weight: 800;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  color: #fff;
-}
-
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal-desc {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-}
-
-.guess-select-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-select {
-  background: rgba(10, 10, 16, 0.9);
-  border: 1px solid rgba(235, 194, 114, 0.3);
-  padding: 12px;
-  border-radius: 6px;
-  color: #fff;
-  font-family: var(--font-family);
-  font-size: 1rem;
-  outline: none;
-  cursor: pointer;
-}
-
-select:focus {
-  border-color: var(--color-gold-bright);
-}
-
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.modal-buttons button {
-  flex: 1;
-}
-
-/* ==========================================================================
-   GAME OVER SCREEN STYLING
-   ========================================================================== */
-.lobby-card {
-  background: rgba(20, 25, 45, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 30px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.02);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Mascot Peeking over Lobby Card */
-.lobby-mascot {
-  position: absolute;
-  bottom: 100%;
-  left: 20px;
-  right: auto;
-  width: 96px; 
-  height: auto;
-  z-index: 10;
-  pointer-events: none; 
-  
-  /* Paimon'un minik ellerini kartın sol üst kenarına tam olarak sarılması için aşağı çekiyoruz */
-  transform: translateY(24px);
-  
-  /* Parlaklık, netlik ve gölge ayarı */
-  opacity: 0.98;
-  filter: drop-shadow(0 -4px 15px rgba(255, 255, 255, 0.15)) drop-shadow(0 -8px 25px rgba(0, 0, 0, 0.7));
-}
-
-@media (max-width: 768px) {
-  .lobby-mascot {
-    width: 86px;
-    left: 15px;
-    right: auto;
-    transform: translateY(21px);
-  }
-}
-
-@media (max-width: 480px) {
-  .lobby-mascot {
-    width: 76px;
-    left: 12px;
-    right: auto;
-    transform: translateY(18px);
-  }
-}
-
-.game-over-card {
-  background: rgba(15, 12, 25, 0.85);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(235, 194, 114, 0.25);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(235, 194, 114, 0.05);
-  border-radius: 24px;
-  padding: 35px 25px;
-  width: 90%;
-  max-width: 420px;
-  position: relative;
-  overflow: hidden;
-  animation: gameOverPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.25);
-}
-
-@keyframes gameOverPop {
-  0% { transform: scale(0.7); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.game-over-title {
-  font-size: clamp(1.6rem, 8vw, 2.5rem);
-  font-weight: 900;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.game-over-title.win {
-  background: linear-gradient(to bottom, #fff, var(--color-gold-bright));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(235, 194, 114, 0.4);
-}
-
-.game-over-title.lose {
-  background: linear-gradient(to bottom, #fff, #ef4444);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-}
-
-.game-over-message {
-  font-size: 0.95rem;
-  color: #ddd;
-  margin-bottom: 25px;
-  line-height: 1.4;
-}
-
-.result-details {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 15px;
-  margin-bottom: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.result-desc {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.opponent-secret-card-display {
-  width: 120px;
-}
-
-.game-over-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-/* Responsive Scaling */
-@media (max-width: 992px) {
-  .game-layout, .selection-layout {
-    grid-template-columns: 1fr;
+});
+
+// CREATE ROOM ACTION (Host)
+createRoomBtn.addEventListener('click', () => {
+  const nickname = nicknameInput.value.trim();
+  if (!nickname) {
+    showLobbyError('Lütfen bir kullanıcı adı girin!');
+    return;
   }
   
-  .game-layout {
-    grid-template-rows: 1fr 320px;
+  myNickname = nickname;
+  isHost = true;
+  gameMode = document.querySelector('input[name="game-mode"]:checked').value;
+  currentRoomId = generateRoomId();
+  
+  // Save nickname for next visit
+  localStorage.setItem('genshin_nickname', myNickname);
+  
+  myPlayerInfo = { peerId: 'host', nickname: myNickname, title: getActiveTitleLabel(), team: 'A', isHost: true };
+  clients = [ { conn: null, ...myPlayerInfo } ];
+  
+  saveSession(); // Save host session
+  
+  peerStatus.textContent = 'Oyun sunucusuna bağlanılıyor...';
+  displayRoomId.textContent = currentRoomId;
+  showScreen(waitingScreen);
+  updateLobbyUI();
+  
+  initPeer(currentRoomId);
+});
+
+// JOIN ROOM ACTION (Guest)
+joinRoomBtn.addEventListener('click', () => {
+  const nickname = nicknameInput.value.trim();
+  const roomId = roomIdInput.value.trim().toUpperCase();
+  
+  if (!nickname) {
+    showLobbyError('Lütfen bir kullanıcı adı girin!');
+    return;
+  }
+  if (!roomId || roomId.length !== 4) {
+    showLobbyError('Lütfen 4 haneli geçerli bir oda kodu girin!');
+    return;
   }
   
-  #game-screen, #selection-screen {
-    padding: 10px;
+  myNickname = nickname;
+  isHost = false;
+  currentRoomId = roomId;
+  
+  // Save nickname for next visit
+  localStorage.setItem('genshin_nickname', myNickname);
+  
+  initPeer(); // random ID for Guest
+});
+
+function updateLobbyUI() {
+  const is2v2 = gameMode === '2v2';
+  document.getElementById('slot-a2').classList.toggle('hidden', !is2v2);
+  document.getElementById('slot-b2').classList.toggle('hidden', !is2v2);
+  
+  const teamA = clients.filter(c => c.team === 'A');
+  const teamB = clients.filter(c => c.team === 'B');
+  
+  // Fill A slots
+  const aList = document.getElementById('team-a-list').querySelectorAll('.player-slot');
+  aList.forEach((slot, i) => {
+    if (i === 1 && !is2v2) return;
+    if (teamA[i]) {
+      slot.innerHTML = `${teamA[i].nickname} <span class="player-title-badge">${teamA[i].title || '🌱 Maceracı Çaylağı'}</span>`;
+      slot.className = 'player-slot filled' + (teamA[i].isHost ? ' host' : '');
+    } else {
+      slot.textContent = 'Bekleniyor...';
+      slot.className = 'player-slot empty' + (i===1 && !is2v2 ? ' hidden' : '');
+    }
+  });
+
+  // Fill B slots
+  const bList = document.getElementById('team-b-list').querySelectorAll('.player-slot');
+  bList.forEach((slot, i) => {
+    if (i === 1 && !is2v2) return;
+    if (teamB[i]) {
+      slot.innerHTML = `${teamB[i].nickname} <span class="player-title-badge">${teamB[i].title || '🌱 Maceracı Çaylağı'}</span>`;
+      slot.className = 'player-slot filled' + (teamB[i].isHost ? ' host' : '');
+    } else {
+      slot.textContent = 'Bekleniyor...';
+      slot.className = 'player-slot empty' + (i===1 && !is2v2 ? ' hidden' : '');
+    }
+  });
+
+  // Host starts game logic
+  if (isHost) {
+    const maxPlayers = is2v2 ? 4 : 2;
+    if (clients.length === maxPlayers) {
+      startGameBtn.classList.remove('hidden');
+      peerStatus.textContent = "Oda dolu! Oyunu başlatabilirsin.";
+    } else {
+      startGameBtn.classList.add('hidden');
+      peerStatus.textContent = `${clients.length}/${maxPlayers} oyuncu katıldı. Bekleniyor...`;
+    }
+  } else {
+    startGameBtn.classList.add('hidden');
+  }
+}
+
+// Leave Room
+leaveRoomBtn.addEventListener('click', () => {
+  clearSession();
+  window.location.reload();
+});
+
+// Copy Code Clipboard
+copyCodeBtn.addEventListener('click', () => {
+  const codeText = displayRoomId.textContent;
+  navigator.clipboard.writeText(codeText).then(() => {
+    const originalText = copyCodeBtn.textContent;
+    copyCodeBtn.textContent = 'Kopyalandı!';
+    setTimeout(() => {
+      copyCodeBtn.textContent = '📋';
+    }, 1500);
+  });
+});
+
+// Start Game Action (Host only)
+startGameBtn.addEventListener('click', () => {
+  if (!isHost) return;
+  broadcast({ type: 'start-game' });
+  startSelectionPhase();
+});
+
+// Broadcast to all connected guests
+function broadcast(data) {
+  clients.forEach(c => {
+    if (c.conn && c.conn.open) c.conn.send(data);
+  });
+}
+
+// Send to specific connection
+function sendData(connection, data) {
+  if (connection && connection.open) connection.send(data);
+}
+
+// Initialize PeerJS
+function initPeer(targetRoomId = null) {
+  const peerId = targetRoomId ? (PEER_PREFIX + targetRoomId) : null;
+  
+  peer = new Peer(peerId, { debug: 1 });
+  
+  peer.on('open', (id) => {
+    console.log('Peer connected. ID:', id);
+    if (isHost) {
+      setupHostConnectionListener();
+    } else {
+      peerStatus.textContent = `Odaya (${currentRoomId}) bağlanılıyor...`;
+      displayRoomId.textContent = currentRoomId;
+      showScreen(waitingScreen);
+      const hostPeerId = PEER_PREFIX + currentRoomId;
+      const connection = peer.connect(hostPeerId);
+      setupGuestConnection(connection);
+    }
+  });
+  
+  peer.on('error', (err) => {
+    console.error('Peer error:', err);
+    if (isHost && err.type === 'unavailable-id') {
+      currentRoomId = generateRoomId();
+      displayRoomId.textContent = currentRoomId;
+      initPeer(currentRoomId);
+      return;
+    }
+    
+    // Check if error is related to network drop or temporary disconnect
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'disconnected' || (err.message && err.message.includes('Lost connection'))) {
+      console.log('Network error detected. Reloading to auto-restore...');
+      setTimeout(() => window.location.reload(), 1500);
+      return;
+    }
+    
+    // For peer-unavailable (wrong code or host dropped)
+    if (err.type === 'peer-unavailable') {
+      const isGameActive = selectionScreen.classList.contains('active') || gameScreen.classList.contains('active');
+      if (isGameActive || isRestoringSession) {
+        console.log('Host temporarily unavailable. Retrying...');
+        setTimeout(() => window.location.reload(), 3000);
+        return;
+      }
+    }
+
+    // Fatal unrecoverable error for fresh joins
+    clearSession();
+    showScreen(lobbyScreen);
+    showLobbyError(`Bağlantı hatası: ${err.message || err.type}`);
+  });
+}
+
+function getBroadcastLobbyState() {
+  return clients.map(c => ({ peerId: c.peerId, nickname: c.nickname, title: c.title || getActiveTitleLabel(), team: c.team, isHost: c.isHost, lockedCharacterId: c.lockedCharacterId }));
+}
+
+// --- Session Save/Restore ---
+function saveSession() {
+  if (!myNickname || !currentRoomId) return;
+  
+  const eliminated = [];
+  document.querySelectorAll('.card.eliminated').forEach(c => eliminated.push(c.dataset.id));
+  
+  const session = {
+    nickname: myNickname,
+    roomId: currentRoomId,
+    isHost,
+    gameMode,
+    team: myPlayerInfo?.team || null,
+    myPlayerInfo: myPlayerInfo,
+    clients: getBroadcastLobbyState(),
+    mySecretChar: mySecretCharacter,
+    oppSecretChar: opponentSecretCharacter,
+    isMyTurn,
+    turnEndTime,
+    opponentName,
+    eliminatedCards: eliminated
+  };
+  localStorage.setItem('genshin_session', JSON.stringify(session));
+}
+
+function clearSession() {
+  localStorage.removeItem('genshin_session');
+}
+
+
+
+// --- Ping/Pong Keep-Alive ---
+function startPing() {
+  if (pingInterval) clearInterval(pingInterval);
+  pingInterval = setInterval(() => {
+    if (isHost) {
+      broadcast({ type: 'ping' });
+    } else if (conn && conn.open) {
+      conn.send({ type: 'ping' });
+    }
+  }, 18000); // every 18 seconds
+}
+
+// Host connection listener
+function setupHostConnectionListener() {
+  peer.on('connection', (connection) => {
+// early return removed. We accept the connection and wait for join/rejoin request to validate
+
+    connection.on('open', () => {
+      console.log('Guest connected/reconnected');
+    });
+
+    connection.on('data', (data) => {
+      handleHostReceivedData(connection, data);
+    });
+
+    const handleConnectionLoss = () => {
+      const disconnected = clients.find(c => c.conn === connection);
+      if (!disconnected) return;
+      
+      const gameIsOver = !gameOverScreen.classList.contains('hidden');
+      const inLobby = !waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active');
+      
+      if (inLobby) {
+        // In lobby — remove immediately
+        clients = clients.filter(c => c.conn !== connection);
+        updateLobbyUI();
+        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+      } else if (gameIsOver) {
+        // Game already finished — silently remove, no alert needed
+        clients = clients.filter(c => c.conn !== connection);
+      } else {
+        if (disconnected.isReconnecting) return;
+        disconnected.isReconnecting = true;
+
+        // During active game/selection
+        const disconnectedNickname = disconnected.nickname || '?';
+        
+        broadcast({ type: 'player-reconnecting', nickname: disconnectedNickname });
+        processGameEvent({ type: 'player-reconnecting', nickname: disconnectedNickname });
+      }
+    };
+
+    connection.on('close', handleConnectionLoss);
+    connection.on('error', handleConnectionLoss);
+  });
+}
+
+// Guest connection setup (first join)
+function setupGuestConnection(connection) {
+  conn = connection;
+  setupGuestDataHandlers(conn, false);
+}
+
+// Shared data handler setup for guest (used on first join AND reconnect)
+function setupGuestDataHandlers(connection, isRejoining) {
+  connection.on('open', () => {
+    setTimeout(() => {
+      if (isRestoringSession || isRejoining) {
+        peerStatus.textContent = 'Yeniden bağlanılıyor...';
+        connection.send({ type: 'rejoin-request', nickname: myNickname, title: getActiveTitleLabel() });
+      } else {
+        peerStatus.textContent = 'Bağlantı kuruldu, odanın durumu bekleniyor...';
+        connection.send({ type: 'join-request', nickname: myNickname, title: getActiveTitleLabel() });
+      }
+      startPing();
+    }, 250);
+  });
+
+  connection.on('data', (data) => {
+    handleGuestReceivedData(data);
+  });
+
+  connection.on('close', () => {
+    // If game over screen is visible, the game is done - just silently ignore disconnect
+    const gameIsOver = !gameOverScreen.classList.contains('hidden');
+    if (gameIsOver) return;
+
+    const inLobby = !waitingScreen.classList.contains('hidden');
+    if (inLobby) {
+      const msg = `Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.`;
+      const modal = document.getElementById('game-cancelled-modal');
+      const msgEl = document.getElementById('game-cancelled-message');
+      if (modal && msgEl) {
+        msgEl.textContent = msg;
+        modal.classList.remove('hidden');
+      }
+      return;
+    }
+
+    console.log('Connection lost, reloading to auto-restore...');
+    window.location.reload();
+  });
+
+  connection.on('error', () => {
+    const gameIsOver = !gameOverScreen.classList.contains('hidden');
+    if (gameIsOver) return;
+
+    console.log('Connection error, reloading to auto-restore...');
+    window.location.reload();
+  });
+}
+
+// Page Visibility API — reconnect when phone comes back to foreground or goes to background
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (!isHost && conn && conn.open) {
+      conn.send({ type: 'tab-minimized', nickname: myNickname });
+    } else if (isHost) {
+      broadcast({ type: 'tab-minimized', nickname: myNickname });
+      processGameEvent({ type: 'tab-minimized', nickname: myNickname });
+    }
+  } else {
+    if (!isHost && currentRoomId) {
+      if (!conn || !conn.open) {
+        console.log('Page visible again, connection is dead — reloading to auto-restore...');
+        window.location.reload();
+      } else {
+        conn.send({ type: 'tab-restored', nickname: myNickname });
+        if (gameScreen.classList.contains('active')) updateTurnUI(false);
+      }
+    } else if (isHost) {
+      broadcast({ type: 'tab-restored', nickname: myNickname });
+      processGameEvent({ type: 'tab-restored', nickname: myNickname });
+      if (gameScreen.classList.contains('active')) {
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime });
+        updateTurnUI(false);
+      }
+    }
+  }
+});
+
+// Host Data Handler
+function handleHostReceivedData(connection, data) {
+  switch (data.type) {
+    case 'join-request': {
+      // Check if nickname already exists in clients (e.g. they refreshed)
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient) {
+        existingClient.conn = connection;
+        existingClient.peerId = connection.peer;
+        existingClient.isReconnecting = false;
+        
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        
+        updateLobbyUI();
+        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+        
+        // If the game has already started (selection phase or active game), send rejoin sync
+        const isInSelection = selectionScreen.classList.contains('active');
+        const isInGame = gameScreen.classList.contains('active');
+        
+        if (isInSelection || isInGame) {
+          connection.send({
+            type: 'rejoin-ack',
+            gameMode,
+            team: existingClient.team,
+            mySecretCharId: existingClient.lockedCharacterId || null,
+            clients: getBroadcastLobbyState(),
+            isInSelectionPhase: isInSelection,
+            activeTeam: isMyTurn ? 'A' : 'B',
+            hostTurn: isMyTurn,
+            turnEndTime: turnEndTime
+          });
+        }
+        break;
+      }
+
+      // If it's a completely new player, check if room is full
+      const maxPlayers = gameMode === '2v2' ? 4 : 2;
+      if (clients.length >= maxPlayers) {
+        connection.send({ type: 'game-cancelled', reason: 'room-full', nickname: data.nickname });
+        setTimeout(() => connection.close(), 500);
+        break;
+      }
+
+      // Assign team based on current counts
+      let teamA_count = clients.filter(c => c.team === 'A').length;
+      let teamB_count = clients.filter(c => c.team === 'B').length;
+      let assignedTeam = 'A';
+      if (gameMode === '2v2') {
+        assignedTeam = (teamA_count <= teamB_count) ? 'A' : 'B';
+      } else {
+        assignedTeam = 'B'; // In 1v1, guest is always B
+      }
+      
+      clients.push({
+        conn: connection,
+        peerId: connection.peer,
+        nickname: data.nickname,
+        title: data.title || '🌱 Maceracı Çaylağı',
+        team: assignedTeam,
+        isHost: false
+      });
+      
+      updateLobbyUI();
+      broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+      break;
+    }
+
+    case 'chat':
+      // Relay chat to everyone if global, or only team if team
+      if (data.target === 'team') {
+        const sender = clients.find(c => c.conn === connection);
+        if (sender) {
+          clients.filter(c => c.team === sender.team && c.conn).forEach(c => sendData(c.conn, data));
+          // Host shows it if host is same team
+          if (myPlayerInfo.team === sender.team) appendChatMessage(data.nickname, data.text, false, true);
+        }
+      } else {
+        broadcast(data);
+        appendChatMessage(data.nickname, data.text, false, false);
+      }
+      break;
+      
+    case 'rejoin-request': {
+      // Player reconnecting - find their existing slot by nickname
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient) {
+        existingClient.conn = connection;
+        existingClient.peerId = connection.peer;
+        existingClient.isReconnecting = false;
+        
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+
+        // Send them the current game state
+        connection.send({
+          type: 'rejoin-ack',
+          gameMode,
+          team: existingClient.team,
+          mySecretCharId: existingClient.lockedCharacterId || null,
+          clients: getBroadcastLobbyState(),
+          isInSelectionPhase: selectionScreen.classList.contains('active'),
+          activeTeam: isMyTurn ? 'A' : 'B',
+          hostTurn: isMyTurn,
+          turnEndTime: turnEndTime
+        });
+        // Notify everyone this player is back
+        broadcast({ type: 'player-reconnected', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      } else {
+        // Unknown player - treat as fresh join
+        handleHostReceivedData(connection, { ...data, type: 'join-request' });
+      }
+      break;
+    }
+
+    case 'tab-minimized': {
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient && !existingClient.isReconnecting) {
+        existingClient.isReconnecting = true;
+        broadcast({ type: 'player-reconnecting', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
+      }
+      break;
+    }
+
+    case 'tab-restored': {
+      const existingClient = clients.find(c => c.nickname === data.nickname);
+      if (existingClient && existingClient.isReconnecting) {
+        existingClient.isReconnecting = false;
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        broadcast({ type: 'player-reconnected', nickname: data.nickname });
+        processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      }
+      if (gameScreen.classList.contains('active')) {
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+        updateTurnUI(false);
+      }
+      break;
+    }
+
+    case 'ping':
+      // Guest pinged host - respond
+      if (connection && connection.open) connection.send({ type: 'pong' });
+      break;
+
+    case 'pong':
+      // Guest ponged host - keep-alive response, do nothing
+      break;
+
+    // Relay all other game logic to all clients for now
+    default:
+      broadcast(data);
+      processGameEvent(data);
+      break;
+  }
+}
+
+// Guest Data Handler
+function handleGuestReceivedData(data) {
+  switch (data.type) {
+    case 'lobby-update':
+      gameMode = data.gameMode;
+      // Re-assign myPlayerInfo based on what host says
+      myPlayerInfo = data.clients.find(c => c.nickname === myNickname);
+      // Sync clients array locally (without conn objects)
+      clients = data.clients;
+      updateLobbyUI();
+      if (gameMode === '1v1') {
+        opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || 'Rakip';
+      } else {
+        opponentName = 'Rakip Takım';
+      }
+      break;
+      
+    case 'start-game':
+      startSelectionPhase();
+      break;
+    
+    case 'ready-count':
+      if (gameMode === '2v2') {
+        myReadyStatus.textContent = `${data.readyCount}/${data.maxPlayers}`;
+        myReadyStatus.className = data.readyCount === data.maxPlayers ? 'text-green' : 'text-muted';
+      } else {
+        if (data.lastReadyPlayer !== myNickname) {
+          opponentReadyStatus.textContent = 'Hazır!';
+          opponentReadyStatus.className = 'text-green';
+        }
+      }
+      break;
+      
+    case 'rejoin-ack':
+      // Restore state from host confirmation
+      gameMode = data.gameMode;
+      myPlayerInfo = data.clients.find(c => c.nickname === myNickname);
+      clients = data.clients;
+      {
+        const overlay = document.getElementById('reconnect-overlay');
+        if (overlay) overlay.classList.add('hidden');
+      }
+      isRestoringSession = false; // Reset the restoring flag
+      
+      if (data.isInSelectionPhase) {
+        startSelectionPhase();
+        const myClientState = data.clients.find(c => c.nickname === myNickname);
+        if (myClientState && myClientState.lockedCharacterId) {
+          selectedCharacterLocally = characters.find(c => c.id === myClientState.lockedCharacterId);
+          isMySelectionLocked = true;
+          mySecretCharacter = selectedCharacterLocally;
+          lockCharacterBtn.disabled = true;
+          lockCharacterBtn.textContent = 'Seçildi ve Kilitlendi';
+          showPreviewDetails(selectedCharacterLocally);
+          // Highlight selected character card in grid visually after rendering
+          setTimeout(() => {
+            document.querySelectorAll('.select-card').forEach(c => {
+              c.classList.add('locked');
+              if (c.dataset.id === selectedCharacterLocally.id) {
+                c.classList.add('active');
+              } else {
+                c.style.opacity = '0.5';
+              }
+            });
+          }, 100);
+        }
+      } else {
+        // Restore game UI from local session
+        const saved = localStorage.getItem('genshin_session');
+        if (saved) {
+          const sess = JSON.parse(saved);
+          mySecretCharacter = sess.mySecretChar;
+          opponentSecretCharacter = sess.oppSecretChar;
+          const activeTeam = data.activeTeam !== undefined ? data.activeTeam : (data.hostTurn !== undefined ? (data.hostTurn ? 'A' : 'B') : null);
+          isMyTurn = activeTeam ? (myPlayerInfo.team === activeTeam) : sess.isMyTurn;
+          opponentName = sess.opponentName || 'Rakip';
+          if (mySecretCharacter && opponentSecretCharacter) {
+            launchGameBoard(false);
+            if (data.turnEndTime) turnEndTime = data.turnEndTime;
+            updateTurnUI(false);
+          }
+        }
+      }
+      saveSession(); // Save restored session state
+      break;
+
+    case 'game-cancelled':
+      // Handled in processGameEvent now
+      processGameEvent(data);
+      break;
+
+    case 'player-reconnecting':
+    case 'tab-minimized':
+      processGameEvent({ type: 'player-reconnecting', nickname: data.nickname });
+      break;
+
+    case 'player-reconnected':
+    case 'tab-restored':
+      processGameEvent({ type: 'player-reconnected', nickname: data.nickname });
+      break;
+
+    case 'sync-turn':
+      {
+        const activeTeam = data.activeTeam !== undefined ? data.activeTeam : (data.hostTurn !== undefined ? (data.hostTurn ? 'A' : 'B') : null);
+        if (activeTeam) {
+          isMyTurn = (myPlayerInfo.team === activeTeam);
+          if (data.turnEndTime && data.turnEndTime > Date.now()) turnEndTime = data.turnEndTime;
+          updateTurnUI(false);
+          saveSession();
+        }
+      }
+      break;
+
+    case 'ping':
+      // Host pinged - respond with pong
+      if (conn && conn.open) conn.send({ type: 'pong' });
+      break;
+
+    case 'pong':
+      // Keep-alive confirmed
+      break;
+
+    case 'chat':
+      const isSelf = data.nickname === myNickname;
+      if (!isSelf) {
+        appendChatMessage(data.nickname, data.text, false, data.target === 'team');
+      }
+      break;
+      
+    default:
+      processGameEvent(data);
+      break;
+  }
+}
+
+// Common logic (Used by both Host and Guest)
+function processGameEvent(data) {
+  switch (data.type) {
+    case 'game-cancelled':
+      const msg = `${data.nickname || 'Bir oyuncu'} odadan ayrıldı. Oyun sonlandırıldı.`;
+      const modal = document.getElementById('game-cancelled-modal');
+      const msgEl = document.getElementById('game-cancelled-message');
+      if (modal && msgEl) {
+        msgEl.textContent = msg;
+        modal.classList.remove('hidden');
+      } else {
+        alert(msg);
+        clearSession();
+        window.location.reload();
+      }
+      break;
+
+    case 'team-hover-char':
+      if (gameMode === '2v2' && myPlayerInfo && data.team === myPlayerInfo.team && data.nickname !== myNickname) {
+        document.querySelectorAll('.select-card').forEach(card => {
+          if (card.dataset.id === data.characterId) {
+            card.classList.add('teammate-hover');
+            let badge = card.querySelector('.teammate-hover-badge');
+            if (!badge) {
+              badge = document.createElement('div');
+              badge.className = 'teammate-hover-badge';
+              card.appendChild(badge);
+            }
+            badge.textContent = `👀 ${data.nickname}`;
+            badge.classList.remove('locked-badge');
+          } else {
+            card.classList.remove('teammate-hover');
+            const badge = card.querySelector('.teammate-hover-badge');
+            if (badge) badge.remove();
+          }
+        });
+      }
+      break;
+
+    case 'ready-state':
+      if (gameMode === '2v2' && myPlayerInfo && data.team === myPlayerInfo.team && data.nickname !== myNickname) {
+        document.querySelectorAll('.select-card').forEach(card => {
+          if (card.dataset.id === data.characterId) {
+            card.classList.add('teammate-hover');
+            card.classList.add('teammate-locked');
+            let badge = card.querySelector('.teammate-hover-badge');
+            if (!badge) {
+              badge = document.createElement('div');
+              badge.className = 'teammate-hover-badge';
+              card.appendChild(badge);
+            }
+            badge.textContent = `🔒 ${data.nickname}`;
+            badge.classList.add('locked-badge');
+          } else {
+            card.classList.remove('teammate-hover');
+            card.classList.remove('teammate-locked');
+            const badge = card.querySelector('.teammate-hover-badge');
+            if (badge) badge.remove();
+          }
+        });
+      }
+      if (isHost) {
+        const client = clients.find(c => c.nickname === data.nickname);
+        if (client) client.lockedCharacterId = data.characterId;
+        
+        const maxPlayers = gameMode === '2v2' ? 4 : 2;
+        const readyCount = clients.filter(c => c.lockedCharacterId).length;
+        
+        // Broadcast ready count to all guests for live display
+        broadcast({ type: 'ready-count', readyCount, maxPlayers, lastReadyPlayer: data.nickname });
+        
+        // Update host's own UI
+        if (gameMode === '2v2') {
+          myReadyStatus.textContent = `${readyCount}/${maxPlayers}`;
+          myReadyStatus.className = readyCount === maxPlayers ? 'text-green' : 'text-muted';
+        } else {
+          if (data.nickname !== myNickname) {
+            opponentReadyStatus.textContent = 'Hazır!';
+            opponentReadyStatus.className = 'text-green';
+          }
+        }
+        
+        const allReady = clients.length === maxPlayers && readyCount === maxPlayers;
+        
+        if (allReady) {
+          if (selectionTimerInterval) clearInterval(selectionTimerInterval);
+          
+          let teamACharId, teamBCharId;
+          
+          if (gameMode === '2v2') {
+             const teamA = clients.filter(c => c.team === 'A');
+             const teamB = clients.filter(c => c.team === 'B');
+             
+             if (teamA.length < 2 || teamB.length < 2) {
+               console.error('2v2: Takim dagitimi hatali!', clients);
+               break;
+             }
+             
+             teamACharId = teamA[0].lockedCharacterId === teamA[1].lockedCharacterId 
+               ? teamA[0].lockedCharacterId 
+               : (Math.random() < 0.5 ? teamA[0].lockedCharacterId : teamA[1].lockedCharacterId);
+             teamBCharId = teamB[0].lockedCharacterId === teamB[1].lockedCharacterId 
+               ? teamB[0].lockedCharacterId 
+               : (Math.random() < 0.5 ? teamB[0].lockedCharacterId : teamB[1].lockedCharacterId);
+          } else {
+             teamACharId = clients.find(c => c.team === 'A').lockedCharacterId;
+             teamBCharId = clients.find(c => c.team === 'B').lockedCharacterId;
+          }
+          
+          const teamAChar = characters.find(c => c.id === teamACharId);
+          const teamBChar = characters.find(c => c.id === teamBCharId);
+          
+          if (!teamAChar || !teamBChar) {
+            console.error('2v2: Karakter bulunamadi!', teamACharId, teamBCharId);
+            break;
+          }
+          
+          const teamAStarts = Math.random() < 0.5;
+          
+          const exchangeData = {
+            type: 'lock-exchange',
+            teamAChar,
+            teamBChar,
+            teamAStarts
+          };
+          
+          broadcast(exchangeData);
+          processGameEvent(exchangeData); // process for host locally
+        }
+      }
+      break;
+      
+    case 'player-reconnecting': {
+      const chatMsg = document.createElement('div');
+      chatMsg.className = 'system-message error reconnect-countdown-msg';
+      chatMsg.dataset.nickname = data.nickname;
+      
+      let timeLeft = 60;
+      chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+      
+      if (chatMessages) {
+        chatMessages.appendChild(chatMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      
+      const interval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          if (isHost) {
+            broadcast({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+          } else if (conn && conn.open) {
+            conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+          }
+          processGameEvent({ type: 'game-cancelled', reason: 'player-left', nickname: data.nickname });
+        } else {
+          chatMsg.textContent = `⏳ ${data.nickname} bağlantısı koptu, yeniden bağlanması bekleniyor (${timeLeft}sn)...`;
+        }
+      }, 1000);
+      
+      if (!window.reconnectIntervals) window.reconnectIntervals = {};
+      window.reconnectIntervals[data.nickname] = interval;
+      break;
+    }
+
+    case 'player-reconnected': {
+      if (window.reconnectIntervals && window.reconnectIntervals[data.nickname]) {
+        clearInterval(window.reconnectIntervals[data.nickname]);
+        delete window.reconnectIntervals[data.nickname];
+      }
+      
+      if (chatMessages) {
+         const msgs = chatMessages.querySelectorAll('.reconnect-countdown-msg');
+         msgs.forEach(msg => {
+            if (msg.dataset.nickname === data.nickname) {
+               msg.textContent = `⏳ ${data.nickname} dönüş yapıyor...`;
+               msg.classList.remove('reconnect-countdown-msg');
+            }
+         });
+      }
+
+      const chatMsg2 = document.createElement('div');
+      chatMsg2.className = 'system-message';
+      chatMsg2.textContent = `✅ ${data.nickname} yeniden bağlandı!`;
+      if (chatMessages) {
+        chatMessages.appendChild(chatMsg2);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      break;
+    }
+      
+    case 'lock-exchange':
+      if (myPlayerInfo.team === 'A') {
+        mySecretCharacter = data.teamAChar;
+        opponentSecretCharacter = data.teamBChar;
+        isMyTurn = data.teamAStarts;
+      } else {
+        mySecretCharacter = data.teamBChar;
+        opponentSecretCharacter = data.teamAChar;
+        isMyTurn = !data.teamAStarts;
+      }
+      saveSession(); // Save state for potential reconnect
+      launchGameBoard();
+      if (isHost) {
+        broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+      }
+      break;
+      
+    case 'pass-turn':
+      {
+        const activeTeam = data.team === 'A' ? 'B' : 'A';
+        isMyTurn = (myPlayerInfo.team === activeTeam);
+        if (isHost) {
+          turnEndTime = Date.now() + 60000;
+          broadcast({ type: 'sync-turn', activeTeam: isMyTurn ? 'A' : 'B', hostTurn: isMyTurn, turnEndTime: turnEndTime });
+        }
+        updateTurnUI(isHost);
+        saveSession();
+      }
+      break;
+      
+    case 'guess':
+      if (isHost) {
+        const charToCheck = (data.team === myPlayerInfo.team) ? opponentSecretCharacter : mySecretCharacter;
+        const isCorrect = (data.characterId === charToCheck.id);
+        
+        const resultData = { type: 'guess-result', characterId: data.characterId, isCorrect, nickname: data.nickname, team: data.team };
+        broadcast(resultData);
+        processGameEvent(resultData); // process locally for host
+      }
+      break;
+      
+    case 'guess-result':
+      handleGuessResolution(data.isCorrect, data.nickname, data.characterId, data.team);
+      break;
+      
+    case 'play-again-request':
+      // Show modal to everyone EXCEPT the requester
+      if (data.requester !== myNickname) {
+        playAgainModal.classList.remove('hidden');
+      }
+      // Host: add requester to accepts and broadcast the count
+      if (isHost) {
+        playAgainAccepts.add(data.requester);
+        const maxPlayers = gameMode === '2v2' ? 4 : 2;
+        broadcast({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        // Process locally for host's own screen
+        processGameEvent({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+      }
+      break;
+      
+    case 'play-again-accept':
+      if (isHost) {
+        playAgainAccepts.add(data.nickname);
+        const maxPlayers = gameMode === '2v2' ? 4 : 2;
+        // Broadcast updated count to everyone
+        broadcast({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        processGameEvent({ type: 'play-again-count', count: playAgainAccepts.size, maxPlayers });
+        
+        if (playAgainAccepts.size >= maxPlayers) {
+          const startMsg = { type: 'play-again-start' };
+          broadcast(startMsg);
+          processGameEvent(startMsg); // process locally
+        }
+      }
+      break;
+
+    case 'play-again-count': {
+      const waiting = document.getElementById('play-again-waiting');
+      const countText = document.getElementById('play-again-count-text');
+      if (waiting) waiting.classList.remove('hidden');
+      if (countText) countText.textContent = `${data.count}/${data.maxPlayers} hazır`;
+      break;
+    }
+
+    case 'play-again-start':
+      playAgainAccepts.clear();
+      resetSelectionAndRestart();
+      break;
+
+    case 'play-again-reject':
+      playAgainAccepts.clear();
+      alert("Bir oyuncu tekrar oynama teklifini reddetti. Lobiye dönülüyor.");
+      clearSession();
+      window.location.reload();
+      break;
+  }
+}
+
+// Start Character Selection Phase
+function startSelectionPhase() {
+  selectedCharacterLocally = null;
+  isMySelectionLocked = false;
+  isOpponentSelectionLocked = false;
+  selectionTimerVal = 30;
+  // Always clear secret characters to prevent stale data from previous rounds
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
+  
+  saveSession();
+  
+  const is2v2 = gameMode === '2v2';
+  const maxPlayers = is2v2 ? 4 : 2;
+  
+  if (isHost) {
+    if (is2v2) {
+      opponentName = 'Rakip Takım';
+    } else {
+      opponentName = clients.find(c => c.nickname !== myNickname)?.nickname || 'Rakip';
+    }
+  }
+
+  // Update selection screen header labels - use existing DOM refs (don't replace innerHTML!)
+  const myReadyLabelEl = document.getElementById('my-ready-label');
+  const readySeparatorEl = document.getElementById('ready-separator');
+  const opponentReadyLabelEl = document.getElementById('opponent-ready-label');
+  
+  if (is2v2) {
+    // Unified ready counter mode
+    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Hazır:';
+    myReadyStatus.textContent = `0/${maxPlayers}`;
+    myReadyStatus.className = 'text-red';
+    if (readySeparatorEl) readySeparatorEl.style.display = 'none';
+    if (opponentReadyLabelEl) opponentReadyLabelEl.style.display = 'none';
+    opponentReadyStatus.style.display = 'none';
+  } else {
+    // Individual status mode
+    if (myReadyLabelEl) myReadyLabelEl.textContent = 'Sen:';
+    myReadyStatus.textContent = 'Seçim Yapmadı';
+    myReadyStatus.className = 'text-red';
+    if (readySeparatorEl) readySeparatorEl.style.display = '';
+    if (opponentReadyLabelEl) { opponentReadyLabelEl.style.display = ''; opponentReadyLabelEl.textContent = 'Rakip:'; }
+    opponentReadyStatus.style.display = '';
+    opponentReadyStatus.textContent = 'Seçim Yapıyor...';
+    opponentReadyStatus.className = 'text-muted';
   }
   
-  .control-panel {
-    flex-direction: row;
-    height: 320px;
+  lockCharacterBtn.disabled = true;
+  lockCharacterBtn.textContent = 'Karakteri Kilitle';
+  
+  renderSelectionGrid(characters);
+  
+  // Set default preview card detail
+  showPreviewDetails(null);
+  
+  showScreen(selectionScreen);
+  synth.playSuccess();
+  
+  // Start countdown timer
+  if (selectionTimerInterval) clearInterval(selectionTimerInterval);
+  selectionTimerText.textContent = selectionTimerVal;
+  
+  selectionTimerInterval = setInterval(() => {
+    selectionTimerVal--;
+    selectionTimerText.textContent = selectionTimerVal;
+    
+    if (selectionTimerVal <= 5) {
+      synth.playTick();
+    }
+    
+    if (selectionTimerVal <= 0) {
+      clearInterval(selectionTimerInterval);
+      autoLockRandomCharacter();
+    }
+  }, 1000);
+}
+
+// Render 48 Characters Selection Grid
+function renderSelectionGrid(chars) {
+  selectionGrid.innerHTML = '';
+  // Sort alphabetically
+  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+  
+  sorted.forEach(char => {
+    const card = document.createElement('div');
+    card.className = `select-card el-${char.element.toLowerCase()}`;
+    card.dataset.id = char.id;
+    
+    const firstLetter = char.name.charAt(0);
+    card.innerHTML = `
+      <div class="select-card-el-badge" title="${char.element}"><img src="${elementIconSrc(char.element)}" class="element-icon-img" alt="${char.element}"></div>
+      <div class="select-card-img-container">
+        <img src="${imgSrc(char)}" onerror="this.style.display='none';" class="char-img">
+        <div class="char-gfx">${firstLetter}</div>
+      </div>
+      <div class="select-card-name">${char.name}</div>
+    `;
+    
+    // Select Action
+    card.addEventListener('click', () => {
+      if (isMySelectionLocked) return;
+      
+      // Remove active from others
+      document.querySelectorAll('.select-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      
+      selectedCharacterLocally = char;
+      showPreviewDetails(char);
+      lockCharacterBtn.disabled = false;
+      synth.playTick();
+      if (gameMode === '2v2' && myPlayerInfo && myPlayerInfo.team) {
+        sendMessage({
+          type: 'team-hover-char',
+          characterId: char.id,
+          nickname: myNickname,
+          team: myPlayerInfo.team
+        });
+      }
+    });
+    
+    selectionGrid.appendChild(card);
+  });
+}
+
+// Show selection details on right preview card
+function showPreviewDetails(char) {
+  if (!char) {
+    detailCharName.textContent = 'Karakter Seçin';
+    detailCharElement.textContent = 'Element: -';
+    detailCharWeapon.textContent = 'Silah: -';
+    detailCharRegion.textContent = 'Bölge: -';
+    detailCharGender.textContent = 'Cinsiyet: -';
+    detailCardPreview.className = 'detail-card-preview';
+    detailCardPreview.innerHTML = `<div class="preview-gfx">?</div>`;
+    return;
   }
   
-  .secret-card-panel {
-    width: 200px;
-    flex-shrink: 0;
+  const elClass = `el-${char.element.toLowerCase()}`;
+  detailCardPreview.className = `detail-card-preview ${elClass}`;
+  
+  const firstLetter = char.name.charAt(0);
+  detailCardPreview.innerHTML = `
+    <img src="${imgSrc(char)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="preview-img">
+    <div class="preview-gfx">${firstLetter}</div>
+  `;
+  
+  const trElement = elementTranslations[char.element] || char.element;
+  
+  detailCharName.textContent = char.name;
+  detailCharElement.textContent = `Bu karakter ${trElement} elementini kullanıyor.`;
+  detailCharWeapon.textContent = `Silah olarak ${char.weapon} tercih ediyor.`;
+  detailCharRegion.textContent = `Kökeni ${char.region} topraklarına dayanıyor.`;
+  detailCharGender.textContent = `Kendisi ${char.gender} bir kahramandır.`;
+}
+
+// Lock Local Choice
+lockCharacterBtn.addEventListener('click', () => {
+  if (!selectedCharacterLocally || isMySelectionLocked) return;
+  lockMySelection(selectedCharacterLocally);
+});
+
+function sendMessage(data) {
+  if (isHost) {
+    if (data.type === 'chat' && data.target === 'team') {
+      // Host team chat - only send to guests on the same team
+      clients.filter(c => c.team === myPlayerInfo.team && c.conn).forEach(c => sendData(c.conn, data));
+    } else {
+      broadcast(data);
+    }
+    processGameEvent(data);
+  } else {
+    if (conn && conn.open) conn.send(data);
+  }
+}
+
+function lockMySelection(char) {
+  mySecretCharacter = char; // Temporary local state, overridden by host
+  isMySelectionLocked = true;
+  
+  lockCharacterBtn.disabled = true;
+  lockCharacterBtn.textContent = 'Seçildi ve Kilitlendi';
+  
+  // Disable selection clicks visually
+  document.querySelectorAll('.select-card').forEach(c => {
+    c.classList.add('locked');
+    if (c.dataset.id !== char.id) {
+      c.style.opacity = '0.5';
+    }
+  });
+  
+  // In 1v1: show personal ready status. In 2v2: host's ready-count broadcast handles the counter
+  if (gameMode !== '2v2') {
+    myReadyStatus.textContent = 'Hazır!';
+    myReadyStatus.className = 'text-green';
   }
   
-  .game-actions {
-    flex-direction: column;
-    justify-content: center;
-    width: 120px;
-    flex-shrink: 0;
+  sendMessage({
+    type: 'ready-state',
+    isReady: true,
+    characterId: char.id,
+    nickname: myNickname,
+    team: myPlayerInfo ? myPlayerInfo.team : null
+  });
+}
+
+// Coerced lock when timer hits 0
+function autoLockRandomCharacter() {
+  if (isMySelectionLocked) return;
+  
+  // If player hasn't selected any, pick random
+  if (!selectedCharacterLocally) {
+    selectedCharacterLocally = characters[Math.floor(Math.random() * characters.length)];
   }
   
-  .chat-container {
-    flex: 1;
+  lockMySelection(selectedCharacterLocally);
+}
+
+// Wait for Host to calculate team characters and trigger lock-exchange
+
+// Trigger active game board
+function launchGameBoard(resetTimer = true) {
+  // Update header info
+  gameRoomId.textContent = currentRoomId;
+  opponentNameLabel.textContent = gameMode === '2v2' ? 'Rakip Takım' : opponentName;
+  
+  // Render Guess Board
+  renderBoard(characters);
+  
+  // Render My Secret Badge
+  if (mySecretCharacter) {
+    renderSecretCharacter(mySecretCharacter);
   }
   
-  .selection-detail-panel {
-    flex-direction: row;
-    align-items: center;
-    gap: 20px;
+  // Populate Guess List
+  populateGuessSelect(characters);
+  
+  // Manage team tab visibility
+  const teamTab = document.getElementById('chat-tab-team');
+  if (teamTab) {
+    if (gameMode === '2v2') {
+      teamTab.classList.remove('hidden');
+    } else {
+      teamTab.classList.add('hidden');
+      const globalTab = document.getElementById('chat-tab-global');
+      if (globalTab) {
+        globalTab.classList.add('active');
+        teamTab.classList.remove('active');
+      }
+    }
+  }
+
+  chatMessages.innerHTML = `<div class="system-message">Oyun başladı! ${gameMode === '2v2' ? 'Takımlı Mod' : 'Rakibin: ' + opponentName}. Sıra: ${isMyTurn ? 'Sen' : opponentName}.</div>`;
+  updateTurnUI(resetTimer);
+  
+  showScreen(gameScreen);
+  synth.playVictory();
+}
+
+// Render Character Card Grid
+function renderBoard(chars) {
+  charactersGrid.innerHTML = '';
+  const sorted = [...chars].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  
+  let eliminatedState = [];
+  const saved = localStorage.getItem('genshin_session');
+  if (saved) {
+    try { eliminatedState = JSON.parse(saved).eliminatedCards || []; } catch(e){}
+  }
+
+  sorted.forEach(char => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    if (eliminatedState.includes(char.id)) {
+      card.classList.add('eliminated');
+    }
+    card.dataset.id = char.id;
+    
+    const elClass = `el-${char.element.toLowerCase()}`;
+    const firstLetter = char.name.charAt(0);
+    
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front ${elClass}">
+          <div class="element-badge" title="${char.element}"><img src="${elementIconSrc(char.element)}" class="element-icon-img" alt="${char.element}"></div>
+          <div class="card-front-img-container">
+            <img src="${imgSrc(char)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
+            <div class="character-avatar-gfx">${firstLetter}</div>
+          </div>
+          <div class="weapon-badge">${char.weapon}</div>
+          <div class="gender-badge">${char.gender}</div>
+          <div class="card-info">
+            <span class="char-name">${char.name}</span>
+            <span class="char-region">${char.region}</span>
+          </div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-img-wrapper">
+            <img src="${imgSrc(char)}" onerror="this.style.display='none';" class="char-img">
+            <div class="eliminated-overlay"></div>
+          </div>
+          <div class="card-back-info">
+            <span class="char-name-back">${char.name}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    card.addEventListener('click', () => {
+      if (card.classList.contains('eliminated')) {
+        card.classList.remove('eliminated');
+      } else {
+        card.classList.add('eliminated');
+      }
+      synth.playTick();
+      saveSession(); // Save eliminated state immediately
+    });
+    
+    charactersGrid.appendChild(card);
+  });
+}
+
+// Render Secret Character Panel
+function renderSecretCharacter(char) {
+  const elClass = `el-${char.element.toLowerCase()}`;
+  mySecretCardContainer.innerHTML = `
+    <div class="mini-char-card">
+      <div class="card-front ${elClass}" style="position:relative">
+        <div class="element-badge" title="${char.element}"><img src="${elementIconSrc(char.element)}" class="element-icon-img" alt="${char.element}"></div>
+        <div class="card-front-img-container">
+          <img src="${imgSrc(char)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
+          <div class="character-avatar-gfx">${char.name.charAt(0)}</div>
+        </div>
+        <div class="weapon-badge">${char.weapon}</div>
+        <div class="gender-badge">${char.gender}</div>
+        <div class="card-info">
+          <span class="char-name">${char.name}</span>
+          <span class="char-region">${char.region}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Populate Guess Dropdown
+function populateGuessSelect(chars) {
+  guessSelect.innerHTML = '<option value="" disabled selected>Karakter seç...</option>';
+  const sorted = [...chars].sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+  sorted.forEach(char => {
+    const opt = document.createElement('option');
+    opt.value = char.id;
+    opt.textContent = char.name;
+    guessSelect.appendChild(opt);
+  });
+}
+
+// Send Turn Pass
+passTurnBtn.addEventListener('click', () => {
+  if (!isMyTurn) return;
+  isMyTurn = false;
+  updateTurnUI();
+  sendMessage({ type: 'pass-turn', team: myPlayerInfo.team });
+});
+
+// Turn UI update helper
+function updateTurnUI(resetTimer = true) {
+  if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
+  if (resetTimer || !turnEndTime || turnEndTime < Date.now()) {
+    turnEndTime = Date.now() + 60000;
+  }
+  currentTurnTime = Math.max(0, Math.ceil((turnEndTime - Date.now()) / 1000));
+  
+  const timerTextEl = document.getElementById('turn-timer-text');
+
+  if (isMyTurn) {
+    turnBadge.classList.add('active-turn');
+    turnStatusText.textContent = 'SENİN SIRAN';
+    passTurnBtn.disabled = false;
+    openGuessModalBtn.disabled = false;
+    if (timerTextEl) {
+      timerTextEl.classList.remove('hidden', 'timer-warning');
+      timerTextEl.textContent = `(${currentTurnTime}s)`;
+    }
+  } else {
+    turnBadge.classList.remove('active-turn');
+    turnStatusText.textContent = `${opponentName.toUpperCase()} SIRASINDA`;
+    passTurnBtn.disabled = true;
+    openGuessModalBtn.disabled = true;
+    if (timerTextEl) {
+      timerTextEl.classList.add('hidden');
+    }
+  }
+
+  activeTurnTimerInterval = setInterval(() => {
+    currentTurnTime = Math.max(0, Math.ceil((turnEndTime - Date.now()) / 1000));
+    if (timerTextEl && isMyTurn) {
+      timerTextEl.textContent = `(${currentTurnTime}s)`;
+      if (currentTurnTime <= 10) {
+        timerTextEl.classList.add('timer-warning');
+      } else {
+        timerTextEl.classList.remove('timer-warning');
+      }
+    }
+
+    if (currentTurnTime <= 0) {
+      clearInterval(activeTurnTimerInterval);
+      if (isMyTurn) {
+        isMyTurn = false;
+        updateTurnUI(true);
+        sendMessage({ type: 'pass-turn', team: myPlayerInfo.team });
+      }
+    }
+  }, 250);
+}
+
+// Chat submit
+chatForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if (!text) return;
+  
+  // Determine target from active tab
+  const activeTab = document.querySelector('.chat-tab.active');
+  const target = activeTab && activeTab.id === 'chat-tab-team' ? 'team' : 'global';
+  
+  appendChatMessage(myNickname, text, true, target === 'team');
+  
+  sendMessage({
+    type: 'chat',
+    text: text,
+    target: target,
+    nickname: myNickname
+  });
+  
+  chatInput.value = '';
+});
+
+// Chat rendering bubble helper
+function appendChatMessage(senderName, text, isSelf, isTeamMsg = false) {
+  const msgClass = isSelf ? 'self' : 'other';
+  const teamClass = isTeamMsg ? ' team-msg' : '';
+  
+  // Find sender's team from clients list
+  const senderClient = clients.find(c => c.nickname === senderName);
+  const senderTeam = senderClient ? senderClient.team : null;
+  const teamColorClass = senderTeam ? ` team-${senderTeam.toLowerCase()}` : '';
+  
+  const timestamp = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  
+  const msgElement = document.createElement('div');
+  msgElement.className = `chat-msg ${msgClass}${teamClass}${teamColorClass}`;
+  
+  const teamLabel = isTeamMsg ? ' <span class="team-chat-badge">🔒 Takım</span>' : '';
+  msgElement.innerHTML = `
+    <span class="msg-sender">${senderName}${teamLabel}</span>
+    <div class="msg-bubble">
+      <span>${text}</span>
+      <span class="msg-time">${timestamp}</span>
+    </div>
+  `;
+  
+  chatMessages.appendChild(msgElement);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Modal open/close controls
+openGuessModalBtn.addEventListener('click', () => {
+  if (!isMyTurn) return;
+  guessSelect.value = "";
+  guessModal.classList.remove('hidden');
+  synth.playTick();
+});
+
+closeGuessModalBtn.addEventListener('click', () => {
+  guessModal.classList.add('hidden');
+  synth.playTick();
+});
+
+cancelGuessBtn.addEventListener('click', () => {
+  guessModal.classList.add('hidden');
+  synth.playTick();
+});
+
+submitGuessBtn.addEventListener('click', () => {
+  const selectedCharId = guessSelect.value;
+  if (!selectedCharId) return;
+  
+  sendMessage({
+    type: 'guess',
+    characterId: selectedCharId,
+    nickname: myNickname,
+    team: myPlayerInfo.team
+  });
+  
+  guessModal.classList.add('hidden');
+});
+
+// Handle Guess Result (Both Sides)
+function handleGuessResolution(isCorrect, guesserName, guessedCharId, team) {
+  const guessedChar = characters.find(c => c.id === guessedCharId);
+  const guessedName = guessedChar ? guessedChar.name : 'Bilinmeyen';
+  const isMyTeam = (team === myPlayerInfo.team);
+  
+  if (isCorrect) {
+    if (activeTurnTimerInterval) clearInterval(activeTurnTimerInterval);
+    const timerTextEl = document.getElementById('turn-timer-text');
+    if (timerTextEl) timerTextEl.classList.add('hidden');
+
+    const stats = getPlayerStats();
+    stats.totalMatches = (stats.totalMatches || 0) + 1;
+
+    if (isMyTeam) {
+      stats.wins = (stats.wins || 0) + 1;
+      stats.winStreak = (stats.winStreak || 0) + 1;
+      if (stats.winStreak > (stats.bestStreak || 0)) stats.bestStreak = stats.winStreak;
+
+      gameOverTitle.textContent = 'TEBRİKLER!';
+      gameOverTitle.className = 'game-over-title win';
+      gameOverMessage.textContent = `Takımınızdan ${guesserName}, rakibin gizli karakterini doğru tahmin etti!`;
+    } else {
+      stats.winStreak = 0;
+
+      gameOverTitle.textContent = 'KAYBETTİN...';
+      gameOverTitle.className = 'game-over-title lose';
+      gameOverMessage.textContent = `${guesserName} sizin karakterinizi doğru tahmin etti!`;
+    }
+    savePlayerStats(stats);
+    updateCareerStatsUI();
+    
+    const secretCharShow = isMyTeam ? opponentSecretCharacter : mySecretCharacter;
+    const elClass = `el-${secretCharShow.element.toLowerCase()}`;
+    opponentSecretCardDisplay.innerHTML = `
+      <div class="mini-char-card" style="margin: 0 auto;">
+        <div class="card-front ${elClass}" style="position:relative">
+          <div class="element-badge" title="${secretCharShow.element}"><img src="${elementIconSrc(secretCharShow.element)}" class="element-icon-img" alt="${secretCharShow.element}"></div>
+          <div class="card-front-img-container">
+            <img src="${imgSrc(secretCharShow)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="char-img">
+            <div class="character-avatar-gfx">${secretCharShow.name.charAt(0)}</div>
+          </div>
+          <div class="weapon-badge">${secretCharShow.weapon}</div>
+          <div class="gender-badge">${secretCharShow.gender}</div>
+          <div class="card-info">
+            <span class="char-name">${secretCharShow.name}</span>
+            <span class="char-region">${secretCharShow.region}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    gameOverScreen.classList.remove('hidden');
+  } else {
+    const logDiv = document.createElement('div');
+    logDiv.className = 'system-message error';
+    logDiv.innerHTML = `❌ <strong>${guesserName}</strong> yanlış tahminde bulundu (${guessedName})! Sıra devredildi.`;
+    chatMessages.appendChild(logDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Auto swap turns
+    isMyTurn = !isMyTeam;
+    updateTurnUI();
+  }
+}
+
+// Restart game round
+playAgainBtn.addEventListener('click', () => {
+  // Show waiting state immediately for the requester
+  playAgainBtn.textContent = 'Talep Gönderildi...';
+  playAgainBtn.disabled = true;
+  const waiting = document.getElementById('play-again-waiting');
+  const countText = document.getElementById('play-again-count-text');
+  const maxPlayers = gameMode === '2v2' ? 4 : 2;
+  if (waiting) waiting.classList.remove('hidden');
+  if (countText) countText.textContent = `1/${maxPlayers} hazır`;
+  
+  sendMessage({ type: 'play-again-request', requester: myNickname });
+});
+
+acceptPlayAgainBtn.addEventListener('click', () => {
+  playAgainModal.classList.add('hidden');
+  // Disable Tekrar Oyna so player can't double-click
+  playAgainBtn.disabled = true;
+  playAgainBtn.textContent = 'Kabul Edildi...';
+  // Show waiting state for the accepter too
+  const waiting = document.getElementById('play-again-waiting');
+  if (waiting) waiting.classList.remove('hidden');
+  sendMessage({ type: 'play-again-accept', nickname: myNickname });
+});
+
+rejectPlayAgainBtn.addEventListener('click', () => {
+  playAgainModal.classList.add('hidden');
+  clearSession();
+  sendMessage({ type: 'play-again-reject' });
+});
+
+function resetSelectionAndRestart() {
+  gameOverScreen.classList.add('hidden');
+  playAgainBtn.textContent = 'Tekrar Oyna';
+  playAgainBtn.disabled = false;
+  
+  // Clear the board completely so saveSession doesn't see old eliminated cards
+  charactersGrid.innerHTML = '';
+  
+  // Hide waiting indicator
+  const waiting = document.getElementById('play-again-waiting');
+  if (waiting) waiting.classList.add('hidden');
+  
+  // Reset modal text for next time
+  playAgainModal.classList.add('hidden');
+  
+  // Clear old game state from memory
+  mySecretCharacter = null;
+  opponentSecretCharacter = null;
+  selectedCharacterLocally = null;
+  isMySelectionLocked = false;
+  isOpponentSelectionLocked = false;
+  
+  // Clear old eliminated cards and characters from localStorage
+  const saved = localStorage.getItem('genshin_session');
+  if (saved) {
+    try {
+      const sess = JSON.parse(saved);
+      sess.eliminatedCards = [];
+      sess.mySecretChar = null;
+      sess.oppSecretChar = null;
+      localStorage.setItem('genshin_session', JSON.stringify(sess));
+    } catch(e) {}
   }
   
-  .detail-card-preview {
-    width: 140px;
+  if (isHost) {
+    clients.forEach(c => c.lockedCharacterId = null);
   }
   
-  .detail-info-group {
-    flex: 1;
-    text-align: left;
-    margin: 0;
+  startSelectionPhase();
+}
+
+// Exit Lobby
+exitLobbyBtn.addEventListener('click', () => {
+  if (isHost) {
+    broadcast({ type: 'game-cancelled', reason: 'host-left', nickname: myNickname });
+  } else if (conn && conn.open) {
+    conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: myNickname });
   }
+  clearSession();
+  window.location.reload();
+});
+
+// Leave / Close Room
+leaveRoomBtn.addEventListener('click', () => {
+  if (isHost) {
+    broadcast({ type: 'game-cancelled', reason: 'host-left', nickname: myNickname });
+  } else if (conn && conn.open) {
+    conn.send({ type: 'game-cancelled', reason: 'player-left', nickname: myNickname });
+  }
+  clearSession();
+  window.location.reload();
+});
+
+// Disconnection Handling
+function handleOpponentDisconnect() {
+  console.log('Opponent disconnected');
+  conn = null;
   
-  .detail-badge-list {
-    align-items: flex-start;
-  }
+  if (selectionTimerInterval) clearInterval(selectionTimerInterval);
   
-  .detail-badge {
-    width: auto;
-  }
+  const msg = `⚠️ <strong>${opponentName || 'Rakip'}</strong> bağlantıyı kesti! Yeniden bağlanılıyor...`;
   
-  .lock-btn {
-    width: 200px;
-    margin-top: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Prevent iOS rubber-band bouncing by locking body and scrolling container */
-  html, body {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
-    overscroll-behavior: none;
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
+  const logDiv = document.createElement('div');
+  logDiv.className = 'system-message error';
+  logDiv.innerHTML = msg;
+  chatMessages.appendChild(logDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
   
-  .app-container {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    align-items: flex-start;
-  }
-
-  /* Prevent auto-zoom on iOS Safari when focusing inputs */
-  input[type="text"], input[type="number"], input, textarea {
-    font-size: 16px !important;
-  }
-
-  /* Lobby Responsive */
-  .lobby-wrapper {
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  .new-lobby-card {
-    padding: 25px 20px;
-  }
-  .join-group {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .join-group input, .join-group button {
-    width: 100%;
-  }
-  .guide-modal-content {
-    padding: 20px;
-    width: 95%;
-  }
-  .guide-steps li {
-    word-break: break-word;
-  }
-  .lobby-content, .lobby-guide-card {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  .logo-title {
-    font-size: 2rem;
-  }
-  .logo-subtitle {
-    font-size: 0.9rem;
-  }
-
-  /* Header Responsive */
-  .game-header {
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-  }
-  .game-logo {
-    font-size: 1.1rem;
-  }
-  .turn-status-badge, .timer-badge {
-    padding: 4px 16px;
-    font-size: 0.85rem;
-  }
-
-  /* Game Over Modal Responsive */
-  .game-over-card {
-    padding: 25px 20px;
-    width: 95%;
-  }
-  .opponent-secret-card-display {
-    width: 100px;
-  }
-
-  /* =========================================================
-     SELECTION SCREEN MOBILE
-     Use natural page scrolling, fixed bottom bar for locking
-     ========================================================= */
-  #selection-screen {
-    padding: 10px 6px !important;
-    height: auto !important; /* let page scroll naturally on mobile */
-    max-height: none !important;
-    min-height: 100vh !important;
-    overflow: visible !important;
-  }
-  #selection-screen.active {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-  }
-  .selection-layout {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important; 
-    max-height: none !important;
-    overflow: visible !important;
-    gap: 10px !important;
-  }
-  .selection-grid-container {
-    overflow: visible !important; /* Let the phone window scroll */
-    padding-bottom: 110px !important; /* Space above sticky bottom footer */
-    padding-right: 0 !important;
-    flex: none !important;
-  }
-  .selection-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
-    gap: 10px !important;
-  }
-  .selection-detail-panel {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: 95px !important;
-    min-height: 75px !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 5px)) 18px !important;
-    border-radius: 20px 20px 0 0 !important;
-    background: rgba(14, 15, 24, 0.99) !important;
-    border: 1px solid rgba(235, 194, 114, 0.35) !important;
-    border-bottom: none !important;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.85) !important;
-    z-index: 1000 !important;
-    overflow: visible !important;
-  }
-  .genshin-detail-card {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    align-items: center !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-  .detail-section-title, 
-  .detail-card-preview, 
-  .detail-badge-list {
-    display: none !important; /* Hide huge image and badges on mobile so bar is compact */
-  }
-  .detail-info-group {
-    flex: 1 !important;
-    margin: 0 !important;
-    text-align: left !important;
-    overflow: visible !important;
-  }
-  .detail-char-name {
-    font-size: 1.25rem !important;
-    margin-bottom: 0 !important;
-    color: var(--color-gold-bright) !important;
-  }
-  .lock-btn {
-    width: auto !important;
-    padding: 12px 22px !important;
-    font-size: 0.95rem !important;
-    margin-top: 0 !important;
-    flex-shrink: 0 !important;
-    border-radius: 10px !important;
-  }
-
-  /* =========================================================
-     GAME SCREEN MOBILE
-     Fixed viewport coverage, top half scrolls grid, bottom is solidly pinned Control Panel (Chat)
-     ========================================================= */
-  #game-screen {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    padding: 0 !important;
-    height: 100% !important;
-    height: 100dvh !important;
-    overflow: hidden !important;
-    z-index: 50 !important;
-    background: transparent !important;
-  }
-  #game-screen.active {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-  }
-  .game-layout {
-    display: flex !important;
-    flex-direction: column !important;
-    flex: 1 !important;
-    min-height: 0 !important;
-    width: 100% !important;
-    position: relative !important;
-    gap: 0 !important;
-  }
-  .board-container {
-    flex: 1 !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    min-height: 0 !important;
-    padding: 10px 10px 15px 10px !important;
-  }
-  .grid-layout {
-    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)) !important;
-    gap: 8px !important;
-  }
+  synth.playError();
   
-  /* Robust Pinned CSS Grid for the Control Panel (Sohbet & Karakter) right at the absolute bottom */
-  .control-panel {
-    display: grid !important;
-    grid-template-columns: 88px 1fr !important;
-    grid-template-rows: auto 1fr !important;
-    gap: 10px !important;
-    height: 275px !important;
-    max-height: 42dvh !important;
-    width: 100% !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 8px)) 12px !important;
-    background: rgba(14, 15, 24, 0.99) !important;
-    border-top: 1.5px solid rgba(235, 194, 114, 0.4) !important;
-    border-radius: 20px 20px 0 0 !important;
-    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85), 0 -1px 0 rgba(255, 255, 255, 0.1) !important;
-    z-index: 50 !important;
-    position: relative !important;
-  }
-  
-  /* Left Side: Avatar & Buttons */
-  .secret-card-panel {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    width: 100% !important;
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-  }
-  .game-actions {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    width: 100% !important;
-    margin-top: 4px !important;
-  }
-  
-  /* Right Side: Chat */
-  .chat-container {
-    grid-column: 2 !important;
-    grid-row: 1 / 3 !important;
-    height: 100% !important;
-    margin: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    border-radius: 14px !important;
-    overflow: hidden !important;
-    background: rgba(8, 8, 14, 0.8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  }
-  
-  .panel-section-title, .panel-desc {
-    display: none !important;
-  }
-  .secret-avatar-container {
-    width: 100% !important;
-    max-width: 85px !important;
-    margin: 0 auto !important;
-  }
-  .action-btn {
-    width: 100% !important;
-    padding: 10px 4px !important;
-    font-size: 0.8rem !important;
-    border-radius: 8px !important;
-  }
-  .chat-header {
-    padding: 10px 12px !important;
-    flex-shrink: 0 !important;
-  }
-  .chat-header h3 {
-    font-size: 0.86rem !important;
-  }
-  .chat-messages-area {
-    padding: 10px !important;
-    flex: 1 !important;
-    overflow-y: auto !important;
-  }
-  .msg-bubble {
-    padding: 8px 12px !important;
-    font-size: 0.86rem !important;
-  }
-  .chat-input-form {
-    padding: 8px !important;
-    flex-shrink: 0 !important;
-    gap: 6px !important;
-  }
-  .chat-input-form input {
-    padding: 9px 12px !important;
-    border-radius: 8px !important;
-  }
-  .chat-input-form button {
-    padding: 0 14px !important;
-    border-radius: 8px !important;
-  }
-  
-  /* =========================================================
-     FIX OVERFLOWS AND LAYOUT FOR BADGES AND WAITING SCREEN
-     ========================================================= */
-  .teams-container {
-    flex-direction: column !important;
-    gap: 15px !important;
-  }
-  .waiting-actions {
-    flex-direction: column !important;
-  }
-  
-  /* Stack badges vertically on small screens to prevent overlap */
-  .weapon-badge {
-    bottom: 64px;
-    left: 4px;
-    right: auto;
-    font-size: 0.55rem;
-    padding: 2px 4px;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .gender-badge {
-    bottom: 46px;
-    left: 4px;
-    right: auto;
-    font-size: 0.55rem;
-    padding: 2px 4px;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  peerStatus.textContent = 'Rakip ayrıldı. Yeni oyuncu bekleniyor...';
+  displayRoomId.textContent = currentRoomId;
+  showScreen(waitingScreen);
 }
 
-/* Team Chat Categorization & Colors */
-.chat-msg.team-a .msg-sender {
-  color: #60a5fa !important; /* Blue Team */
-  font-weight: bold;
+// Ack Game Cancelled
+const ackGameCancelledBtn = document.getElementById('ack-game-cancelled-btn');
+if (ackGameCancelledBtn) {
+  ackGameCancelledBtn.addEventListener('click', () => {
+    clearSession();
+    window.location.reload();
+  });
 }
-.chat-msg.team-b .msg-sender {
-  color: #f87171 !important; /* Red Team */
-  font-weight: bold;
+// Chat Tab Toggles
+const chatTabGlobal = document.getElementById('chat-tab-global');
+const chatTabTeam = document.getElementById('chat-tab-team');
+
+if (chatTabGlobal && chatTabTeam) {
+  chatTabGlobal.addEventListener('click', (e) => {
+    e.target.classList.add('active');
+    chatTabTeam.classList.remove('active');
+  });
+
+  chatTabTeam.addEventListener('click', (e) => {
+    if (gameMode !== '2v2') return;
+    e.target.classList.add('active');
+    chatTabGlobal.classList.remove('active');
+  });
 }
 
-/* Team Chat Badges */
-.team-chat-badge {
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid #10b981;
-  color: #10b981;
-  font-size: 0.65rem;
-  padding: 1px 5px;
-  border-radius: 4px;
-  margin-left: 6px;
-  display: inline-block;
-}
+// Mobile & Tablet Lobby Tab Switcher Logic
+function initMobileLobbySwitcher() {
+  const navButtons = document.querySelectorAll('.mobile-nav-btn');
+  const heroCard = document.getElementById('lobby-hero-card') || document.querySelector('.center-hero-card');
+  const triviaCard = document.getElementById('daily-trivia-widget');
 
-/* Team Message Bubble Styling */
-.chat-msg.team-msg.team-a .msg-bubble {
-  background: rgba(30, 58, 138, 0.25) !important;
-  border: 1px solid rgba(96, 165, 250, 0.4) !important;
-  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.15) !important;
-}
+  if (!navButtons.length || !heroCard || !triviaCard) return;
 
-.chat-msg.team-msg.team-b .msg-bubble {
-  background: rgba(153, 27, 27, 0.25) !important;
-  border: 1px solid rgba(248, 113, 113, 0.4) !important;
-  box-shadow: 0 4px 15px rgba(153, 27, 27, 0.15) !important;
-}
-
-/* Self private team message styling */
-.chat-msg.self.team-msg.team-a .msg-bubble {
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.5) 0%, rgba(59, 130, 246, 0.5) 100%) !important;
-  border: 1px solid rgba(96, 165, 250, 0.6) !important;
-}
-
-.chat-msg.self.team-msg.team-b .msg-bubble {
-  background: linear-gradient(135deg, rgba(153, 27, 27, 0.5) 0%, rgba(239, 68, 68, 0.5) 100%) !important;
-  border: 1px solid rgba(248, 113, 113, 0.6) !important;
-}
-
-#turn-timer-text {
-  margin-left: 8px;
-  font-family: monospace;
-  font-weight: bold;
-}
-
-.timer-warning {
-  color: #ef4444;
-  animation: timer-pulse 1s infinite alternate;
-}
-
-@keyframes timer-pulse {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0.6; transform: scale(1.1); }
-}
-
-/* ========================================================
-   PLAYER TITLES, CAREER STATS & DAILY TRIVIA CSS
-======================================================== */
-.nickname-title-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-#nickname-input {
-  width: 100%;
-}
-
-.title-form-group {
-  margin-top: 16px !important;
-}
-
-.title-select-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 215, 0, 0.45);
-  color: var(--color-gold-bright);
-  padding: 14px 18px !important;
-  margin-top: 6px !important;
-  margin-bottom: 8px !important;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.98rem !important;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
-.title-select-btn:hover {
-  background: rgba(255, 215, 0, 0.18);
-  border-color: var(--color-gold-bright);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-  transform: translateY(-2px);
-}
-
-.full-width-title-btn {
-  width: 100%;
-}
-
-.title-label-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.change-title-badge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.28), rgba(217, 119, 6, 0.45));
-  border: 1px solid rgba(255, 215, 0, 0.55);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
-.lobby-stats-bar {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin-top: 10px !important;
-  padding: 10px 14px !important;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  font-size: 0.85rem;
-  color: #d1d5db;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
-
-.lobby-stats-bar strong {
-  color: var(--color-gold-bright);
-}
-
-.player-title-badge {
-  display: inline-block;
-  font-size: 0.72rem;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(217, 119, 6, 0.2));
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  color: var(--color-gold-bright);
-  padding: 2px 6px;
-  border-radius: 6px;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-
-.title-modal-card {
-  max-width: 650px !important;
-  width: 95% !important;
-}
-
-/* Custom Sleek Golden Scrollbar for Titles Grid and all Modals/Lists (`PC'de beyaz, kalın varsayılan çubuk yerine şık altın çubuk`) */
-.titles-grid-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-  max-height: 55vh;
-  overflow-y: auto;
-  padding: 6px 12px 6px 6px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 215, 0, 0.6) rgba(15, 23, 42, 0.6);
-}
-
-.titles-grid-list::-webkit-scrollbar,
-.guide-modal-content::-webkit-scrollbar,
-.selection-grid::-webkit-scrollbar,
-.chat-messages::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.titles-grid-list::-webkit-scrollbar-track,
-.guide-modal-content::-webkit-scrollbar-track,
-.selection-grid::-webkit-scrollbar-track,
-.chat-messages::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.75);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.titles-grid-list::-webkit-scrollbar-thumb,
-.guide-modal-content::-webkit-scrollbar-thumb,
-.selection-grid::-webkit-scrollbar-thumb,
-.chat-messages::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(255, 215, 0, 0.8), rgba(217, 119, 6, 0.9));
-  border-radius: 10px;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
-}
-
-.titles-grid-list::-webkit-scrollbar-thumb:hover,
-.guide-modal-content::-webkit-scrollbar-thumb:hover,
-.selection-grid::-webkit-scrollbar-thumb:hover,
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--color-gold-bright, #ffd700), #f59e0b);
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
-}
-
-.title-item-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.title-item-card.unlocked:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--color-gold);
-  transform: translateY(-2px);
-}
-
-.title-item-card.locked {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.title-item-card.active-selected {
-  background: rgba(255, 215, 0, 0.12);
-  border: 2px solid var(--color-gold-bright);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
-}
-
-.title-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.title-item-desc {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
-
-.title-item-req {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #f59e0b;
-}
-
-.title-item-card.unlocked .title-item-req {
-  color: #10b981;
-}
-
-/* ========================================================
-   DAILY GENSHIN TRIVIA (BULMACA) WIDGET CSS
-======================================================== */
-.daily-trivia-card {
-  max-width: 460px;
-  width: 100%;
-  margin: 0 auto;
-  background: linear-gradient(180deg, rgba(26, 22, 48, 0.94) 0%, rgba(16, 14, 32, 0.97) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(167, 139, 250, 0.42);
-  border-radius: 20px;
-  padding: 24px 24px;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(167, 139, 250, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.daily-trivia-card:hover {
-  border-color: rgba(196, 181, 253, 0.7);
-  box-shadow: 0 20px 50px rgba(167, 139, 250, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-3px);
-}
-
-.trivia-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.trivia-icon {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
-}
-
-.trivia-title {
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: #f8fafc;
-  letter-spacing: 0.4px;
-  flex: 1;
-}
-
-.trivia-date-badge {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(139, 92, 246, 0.55));
-  border: 1px solid rgba(196, 181, 253, 0.65);
-  color: #ede9fe;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 4px 12px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
-}
-
-.trivia-body {
-  font-size: 0.92rem;
-  color: #e2e8f0;
-  line-height: 1.5;
-}
-
-.trivia-question-text {
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 14px;
-  font-size: 0.95rem;
-}
-
-.trivia-options-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.trivia-opt-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.trivia-opt-btn:hover {
-  background: rgba(167, 139, 250, 0.18);
-  border-color: rgba(167, 139, 250, 0.5);
-  color: #fff;
-  transform: translateX(4px);
-}
-
-.trivia-opt-letter {
-  font-weight: 800;
-  color: var(--color-gold-bright);
-  background: rgba(0, 0, 0, 0.3);
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-}
-
-.trivia-solved-box {
-  text-align: center;
-  padding: 12px 6px;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  border-radius: 14px;
-}
-
-.trivia-solved-title {
-  color: #34d399;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.trivia-countdown {
-  font-size: 0.82rem;
-  color: #a7f3d0;
-  margin-top: 6px;
-  font-family: monospace;
-  font-weight: 600;
-}
-
-/* ========================================================
-   ULTRA-COMPACT MOBILE & iPHONE RESPONSIVE (<= 680px)
-======================================================== */
-@media (max-width: 680px) {
-  /* 1. Prevent top/bottom clipping in iPhone Safari! Compact padding so everything fits 100% above bottom bar */
-  /* 1. Prevent top/bottom clipping & push GENSHIN IMPACT GUESS WHO down so it is never too close to top edge (`çok dipte olmasın, aşağı çekilsin`) */
-  .screen.active {
-    justify-content: flex-start !important;
-    padding: 18px 10px 8px 10px !important;
+  // Initial state for tablet/mobile screen sizes (< 1100px)
+  if (window.innerWidth < 1100) {
+    triviaCard.classList.add('mobile-hidden');
+    heroCard.classList.remove('mobile-hidden');
   }
 
-  .lobby-wrapper {
-    padding: 0 6px !important;
-    gap: 4px !important;
-    margin: 0 auto !important;
-  }
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-  /* 2. Compact Top Logo & add neat spacing */
-  .logo-container {
-    margin-bottom: 2px !important;
-  }
-  .logo-accent {
-    font-size: 0.65rem !important;
-    letter-spacing: 2px !important;
-    margin-bottom: 0 !important;
-  }
-  .logo-title {
-    font-size: 1.55rem !important;
-  }
-  .logo-subtitle {
-    display: none !important;
-  }
+      const target = btn.dataset.target;
+      if (target === 'lobby') {
+        heroCard.classList.remove('mobile-hidden');
+        triviaCard.classList.add('mobile-hidden');
+      } else if (target === 'trivia') {
+        heroCard.classList.add('mobile-hidden');
+        triviaCard.classList.remove('mobile-hidden');
+      }
+      synth.playTick();
+    });
+  });
 
-  /* 3. Sleek & Compact Tab Bar right below logo so it is never too wide */
-  .mobile-lobby-nav {
-    width: 90% !important;
-    max-width: 350px !important;
-    padding: 3px !important;
-    border-radius: 12px !important;
-    margin: 0 auto 3px auto !important;
-    display: flex !important;
-  }
-  .mobile-nav-btn {
-    flex: 1 !important;
-    padding: 7px 8px !important;
-    font-size: 0.78rem !important;
-    border-radius: 9px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 5px !important;
-  }
-  .nav-badge {
-    font-size: 0.62rem !important;
-    padding: 1px 5px !important;
-    border-radius: 10px !important;
-  }
+  // Handle screen resize smoothly
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1100) {
+      heroCard.classList.remove('mobile-hidden');
+      triviaCard.classList.remove('mobile-hidden');
+    } else {
+      const activeBtn = document.querySelector('.mobile-nav-btn.active');
+      if (activeBtn && activeBtn.dataset.target === 'trivia') {
+        heroCard.classList.add('mobile-hidden');
+        triviaCard.classList.remove('mobile-hidden');
+      } else {
+        heroCard.classList.remove('mobile-hidden');
+        triviaCard.classList.add('mobile-hidden');
+      }
+    }
+  });
+}
 
-  /* 4. Reposition Paimon Mascot right on TOP of the card inside top space (`paimon hiç kapanmasın`) */
-  .lobby-mascot {
-    width: 78px !important;
-    left: 22px !important;
-    right: auto !important;
-    bottom: 100% !important;
-    top: auto !important;
-    transform: translateY(19px) !important;
-    z-index: 30 !important;
-  }
-
-  /* 5. Balanced card positioning (`logo aşağı çekildiği için kart ile uyumlu`) */
-  .new-lobby-card {
-    margin-top: 42px !important;
-    padding: 15px 15px 11px 15px !important;
-    border-radius: 18px !important;
-    gap: 8px !important;
-  }
-
-  .new-lobby-card .form-group {
-    gap: 3px !important;
-  }
-
-  .new-lobby-card label {
-    font-size: 0.76rem !important;
-    margin-bottom: 1px !important;
-    letter-spacing: 1.1px !important;
-  }
-
-  .new-lobby-card input[type="text"] {
-    padding: 11px 14px !important;
-    font-size: 0.94rem !important;
-    border-radius: 10px !important;
-  }
-
-  .title-form-group {
-    margin-top: 8px !important;
-  }
-
-  .full-width-title-btn {
-    padding: 10px 14px !important;
-    font-size: 0.9rem !important;
-    border-radius: 10px !important;
-    margin-top: 2px !important;
-    margin-bottom: 3px !important;
-  }
-
-  /* Make stats bar sleek and well-padded on mobile */
-  .lobby-stats-bar {
-    font-size: 0.74rem !important;
-    padding: 5px 10px !important;
-    margin-top: 5px !important;
-  }
-
-  .mode-form-group {
-    margin-top: 10px !important;
-  }
-
-  /* Segmented buttons for mode */
-  .new-lobby-card .mode-btn {
-    padding: 8px 12px !important;
-    font-size: 0.83rem !important;
-    border-radius: 10px !important;
-  }
-
-  .action-buttons {
-    margin-top: 10px !important;
-    gap: 8px !important;
-  }
-
-  .new-lobby-card .main-action-btn {
-    padding: 12px 16px !important;
-    font-size: 0.98rem !important;
-    margin-top: 1px !important;
-    margin-bottom: 1px !important;
-    border-radius: 12px !important;
-  }
-
-  .new-lobby-card .divider {
-    margin: 3px 0 !important;
-  }
-
-  /* KEY FIX: Put Room ID input and Katıl button on ONE horizontal row on phone! */
-  .join-group {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-  }
-
-  .new-lobby-card #room-id-input {
-    flex: 1 !important;
-    padding: 10px 12px !important;
-    font-size: 0.88rem !important;
-    margin: 0 !important;
-    border-radius: 10px !important;
-  }
-
-  .new-lobby-card #join-room-btn {
-    width: auto !important;
-    padding: 10px 14px !important;
-    font-size: 0.88rem !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    border-radius: 10px !important;
-  }
-
-  /* Pull Nasıl Oynanır down & center purely as clean large text (`etrafına kutu/çerçeve yapmadan sadece yazı, eskisi gibi ama büyük ve ortalı`) */
-  .help-btn {
-    font-size: 0.96rem !important;
-    font-weight: 600 !important;
-    padding: 6px 0 !important;
-    margin-top: 6px !important;
-    margin-bottom: 8px !important;
-    color: var(--color-gold-bright, #ffd700) !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    letter-spacing: 0.5px !important;
-  }
-
-  .nickname-title-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .title-select-btn {
-    justify-content: center;
-  }
-  .daily-trivia-card {
-    padding: 14px 16px;
-    width: 95%;
-  }
-  .trivia-title {
-    font-size: 0.95rem;
-  }
+// Initialize Mobile Switcher on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMobileLobbySwitcher);
+} else {
+  initMobileLobbySwitcher();
 }
