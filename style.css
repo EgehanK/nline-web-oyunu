@@ -2901,7 +2901,7 @@ select:focus {
     right: auto !important;
     bottom: 100% !important;
     top: auto !important;
-    transform: translateY(16px) !important;
+    transform: translateY(22px) !important;
     z-index: 30 !important;
   }
 
