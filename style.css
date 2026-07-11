@@ -816,9 +816,6 @@ input[type="text"]:focus {
   padding: 15px 30px;
   max-width: 1400px;
   margin: 0 auto;
-  height: 100vh !important;
-  max-height: 100vh !important;
-  overflow: hidden !important; /* Prevents right-edge window scrollbar when character badges expand! */
 }
 
 .selection-layout {
@@ -828,8 +825,19 @@ input[type="text"]:focus {
   width: 100%;
   flex: 1;
   min-height: 0;
-  height: 100%;
-  overflow: hidden;
+}
+
+/* Strictly desktop viewport locking to eliminate right-edge window scrollbar on PC */
+@media (min-width: 993px) {
+  #selection-screen {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .selection-layout {
+    height: 100% !important;
+    overflow: hidden !important;
+  }
 }
 
 .selection-grid-container {
@@ -1041,9 +1049,6 @@ input[type="text"]:focus {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  height: 100% !important;
-  max-height: 100% !important;
-  overflow: hidden !important;
 }
 
 .genshin-detail-card {
@@ -1051,9 +1056,19 @@ input[type="text"]:focus {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100% !important;
-  width: 100% !important;
-  overflow: hidden !important;
+}
+
+@media (min-width: 993px) {
+  .selection-detail-panel {
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+  .genshin-detail-card {
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
 }
 
 .detail-section-title {
@@ -2206,73 +2221,88 @@ select:focus {
      Use natural page scrolling, fixed bottom bar for locking
      ========================================================= */
   #selection-screen {
-    padding: 10px 5px;
-    height: auto; /* let page scroll naturally */
-    min-height: 100vh;
+    padding: 10px 6px !important;
+    height: auto !important; /* let page scroll naturally on mobile */
+    max-height: none !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
   }
   #selection-screen.active {
-    justify-content: flex-start;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
   }
   .selection-layout {
-    display: flex;
-    flex-direction: column;
-    height: auto; 
-    gap: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important; 
+    max-height: none !important;
+    overflow: visible !important;
+    gap: 10px !important;
   }
   .selection-grid-container {
-    overflow: visible; /* Let the window scroll */
-    padding-bottom: 100px; /* Space for the sticky footer */
-    padding-right: 0;
+    overflow: visible !important; /* Let the phone window scroll */
+    padding-bottom: 110px !important; /* Space above sticky bottom footer */
+    padding-right: 0 !important;
+    flex: none !important;
   }
   .selection-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+    gap: 10px !important;
   }
   .selection-detail-panel {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    min-height: 80px;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    border-radius: 20px 20px 0 0;
-    background: rgba(15, 15, 25, 0.98);
-    border: 1px solid rgba(235, 194, 114, 0.3);
-    border-bottom: none;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-    z-index: 1000;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 95px !important;
+    min-height: 75px !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 5px)) 18px !important;
+    border-radius: 20px 20px 0 0 !important;
+    background: rgba(14, 15, 24, 0.99) !important;
+    border: 1px solid rgba(235, 194, 114, 0.35) !important;
+    border-bottom: none !important;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.85) !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
   }
   .genshin-detail-card {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-    height: auto;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   .detail-section-title, 
   .detail-card-preview, 
   .detail-badge-list {
-    display: none; /* Hide huge image and badges on mobile */
+    display: none !important; /* Hide huge image and badges on mobile so bar is compact */
   }
   .detail-info-group {
-    flex: 1;
-    margin: 0;
-    text-align: left;
+    flex: 1 !important;
+    margin: 0 !important;
+    text-align: left !important;
+    overflow: visible !important;
   }
   .detail-char-name {
-    font-size: 1.2rem;
-    margin-bottom: 0;
-    color: var(--color-gold-bright);
+    font-size: 1.25rem !important;
+    margin-bottom: 0 !important;
+    color: var(--color-gold-bright) !important;
   }
   .lock-btn {
-    width: auto;
-    padding: 12px 24px !important;
-    font-size: 1rem !important;
-    margin-top: 0;
+    width: auto !important;
+    padding: 12px 22px !important;
+    font-size: 0.95rem !important;
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+    border-radius: 10px !important;
   }
 
   /* =========================================================
