@@ -3109,17 +3109,22 @@ select:focus {
     border-radius: 10px !important;
   }
 
-  /* Pull Nasıl Oynanır down (`az aşağı çek`) and make it bigger/brighter (`ufak büyült ve tam belli olsun`) */
+  /* Pull Nasıl Oynanır down & center purely as clean large text (`etrafına kutu/çerçeve yapmadan sadece yazı, eskisi gibi ama büyük ve ortalı`) */
   .help-btn {
-    font-size: 0.94rem !important;
-    padding: 7px 18px !important;
+    font-size: 0.96rem !important;
+    font-weight: 600 !important;
+    padding: 6px 0 !important;
     margin-top: 6px !important;
     margin-bottom: 8px !important;
-    color: #fff !important;
-    background: rgba(255, 215, 0, 0.16) !important;
-    border: 1px solid rgba(255, 215, 0, 0.5) !important;
-    border-radius: 20px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    color: var(--color-gold-bright, #ffd700) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    letter-spacing: 0.5px !important;
   }
 
   .nickname-title-row {
