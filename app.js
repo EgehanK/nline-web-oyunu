@@ -124,7 +124,7 @@ const titleDefinitions = [
   { id: "natlan", name: "🐉 Natlan Savaşçı Başı", desc: "Kutsal ateşin ve savaşın diyarında yenilgisiz, efsanevi kahraman.", reqText: "32 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 32 },
   { id: "harbinger", name: "❄️ Fatui Öncüsü", desc: "Snezhnaya buzullarının ardındaki en gizemli ve tehlikeli stratejist.", reqText: "38 Maç Kazan veya 45 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 38 || (s.totalMatches || 0) >= 45 },
   { id: "legend", name: "👑 Teyvat Efsanesi", desc: "Yedi ulusun tamamında nam salmış nihai tahmin üstadı!", reqText: "46 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 46 },
-  { id: "celestia", name: "✨ Celestia Hükümdarı", desc: "Gökyüzü tahtına oturmuş, Teyvat'taki her karakterin zihnini okuyan tanrısal güç!", reqText: "60 Maç Kazan veya 8 Seriye Ulaş", checkUnlocked: (s) => (s.wins || 0) >= 60 || (s.bestStreak || 0) >= 8 }
+  { id: "celestia", name: "✨ Celestia Hükümdarı", desc: "Gökyüzü tahtına oturmuş, Teyvat'taki her karakterin zihnini okuyan tanrısal güç!", reqText: "60 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 60 }
 ];
 
 function getPlayerStats() {
