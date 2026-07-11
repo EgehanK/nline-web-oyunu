@@ -2894,19 +2894,20 @@ select:focus {
     padding: 1px 5px !important;
   }
 
-  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone */
+  /* 4. Reposition Paimon Mascot to top-left corner holding the edge nicely on phone without hitting top buttons or KULLANICI ADIN */
   .lobby-mascot {
-    width: 78px !important;
-    left: 16px !important;
+    width: 82px !important;
+    left: 24px !important;
     right: auto !important;
     bottom: 100% !important;
     top: auto !important;
-    transform: translateY(21px) !important;
+    transform: translateY(16px) !important;
     z-index: 30 !important;
   }
 
-  /* 5. Balanced & Extended Lobby Card inside (Stretches down nicely to fill bottom area!) */
+  /* 5. Balanced & Extended Lobby Card inside (Give top margin so Paimon has space to peek above card without hitting tabs!) */
   .new-lobby-card {
+    margin-top: 36px !important;
     padding: 24px 20px 22px 20px !important;
     border-radius: 20px !important;
     gap: 14px !important;
