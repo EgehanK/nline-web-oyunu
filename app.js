@@ -112,19 +112,19 @@ const elementTranslations = {
 // ==========================================================================
 const titleDefinitions = [
   { id: "rookie", name: "🌱 Maceracı Çaylağı", desc: "Maceracılar Loncası'na yeni katılan hevesli gezgin.", reqText: "Başlangıç (Herkese Açık)", checkUnlocked: (s) => true },
-  { id: "explorer", name: "🧭 Lonca Keşifçisi", desc: "Teyvat'ın gizemli yollarını adımlamaya başlayan meraklı yolcu.", reqText: "1 Maç Kazan veya 2 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 1 || (s.totalMatches || 0) >= 2 },
-  { id: "favonius", name: "⚔️ Favonius Şövalyesi", desc: "Mondstadt rüzgarının onurunu ve özgürlüğünü savunan savaşçı.", reqText: "3 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 3 },
-  { id: "adeptus", name: "🪨 Liyue Adeptusu", desc: "Jueyun Karst tepelerindeki kadim bilgeliğe sahip strateji ustası.", reqText: "5 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 5 },
+  { id: "explorer", name: "🧭 Lonca Keşifçisi", desc: "Teyvat'ın gizemli yollarını adımlamaya başlayan meraklı yolcu.", reqText: "2 Maç Kazan veya 3 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 2 || (s.totalMatches || 0) >= 3 },
+  { id: "favonius", name: "⚔️ Favonius Şövalyesi", desc: "Mondstadt rüzgarının onurunu ve özgürlüğünü savunan savaşçı.", reqText: "5 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 5 },
+  { id: "adeptus", name: "🪨 Liyue Adeptusu", desc: "Jueyun Karst tepelerindeki kadim bilgeliğe sahip strateji ustası.", reqText: "8 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 8 },
   { id: "streak3", name: "🔥 Yenilmez Serüvenci", desc: "Art arda galibiyetler alarak rakiplerine korku salan arena ustası.", reqText: "3 Maç Üst Üste Kazan (Seri)", checkUnlocked: (s) => (s.bestStreak || 0) >= 3 || (s.winStreak || 0) >= 3 },
-  { id: "veteran", name: "🔎 Teyvat Dedektifi", desc: "Karakterlerin tüm gizemli ipuçlarını ve sırlarını şıp diye çözen zeka.", reqText: "Toplam 8 Maç Oyna", checkUnlocked: (s) => (s.totalMatches || 0) >= 8 },
-  { id: "shogun", name: "⚡ Shogun Muhafızı", desc: "Inazuma'nın ebediyet kuralına sadık, yıldırım keskinliğinde taktikçi.", reqText: "10 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 10 },
-  { id: "streak5", name: "☄️ Yıldırım İlahı", desc: "Raiden Shogun gibi rakiplerini ardı ardına dize getiren yenilmez güç.", reqText: "4 Maç Üst Üste Kazan (Seri)", checkUnlocked: (s) => (s.bestStreak || 0) >= 4 || (s.winStreak || 0) >= 4 },
-  { id: "scholar", name: "🌿 Akademiya Bilgesi", desc: "Sumeru'nun Irminsul ağacındaki tüm gizli bilgilere erişmiş baş bilgin.", reqText: "14 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 14 },
-  { id: "duelist", name: "⚖️ Fontaine Yargıcı", desc: "Epik düellolarda ve mahkeme salonunda mutlak adalet dağıtan yüce üstad.", reqText: "18 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 18 },
-  { id: "natlan", name: "🐉 Natlan Savaşçı Başı", desc: "Kutsal ateşin ve savaşın diyarında yenilgisiz, efsanevi kahraman.", reqText: "22 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 22 },
-  { id: "harbinger", name: "❄️ Fatui Öncüsü", desc: "Snezhnaya buzullarının ardındaki en gizemli ve tehlikeli stratejist.", reqText: "26 Maç Kazan veya 30 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 26 || (s.totalMatches || 0) >= 30 },
-  { id: "legend", name: "👑 Teyvat Efsanesi", desc: "Yedi ulusun tamamında nam salmış nihai tahmin üstadı!", reqText: "30 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 30 },
-  { id: "celestia", name: "✨ Celestia Hükümdarı", desc: "Gökyüzü tahtına oturmuş, Teyvat'taki her karakterin zihnini okuyan tanrısal güç!", reqText: "35 Maç Kazan veya 6 Seriye Ulaş", checkUnlocked: (s) => (s.wins || 0) >= 35 || (s.bestStreak || 0) >= 6 }
+  { id: "veteran", name: "🔎 Teyvat Dedektifi", desc: "Karakterlerin tüm gizemli ipuçlarını ve sırlarını şıp diye çözen zeka.", reqText: "Toplam 12 Maç Oyna", checkUnlocked: (s) => (s.totalMatches || 0) >= 12 },
+  { id: "shogun", name: "⚡ Shogun Muhafızı", desc: "Inazuma'nın ebediyet kuralına sadık, yıldırım keskinliğinde taktikçi.", reqText: "15 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 15 },
+  { id: "streak5", name: "☄️ Yıldırım İlahı", desc: "Raiden Shogun gibi rakiplerini ardı ardına dize getiren yenilmez güç.", reqText: "5 Maç Üst Üste Kazan (Seri)", checkUnlocked: (s) => (s.bestStreak || 0) >= 5 || (s.winStreak || 0) >= 5 },
+  { id: "scholar", name: "🌿 Akademiya Bilgesi", desc: "Sumeru'nun Irminsul ağacındaki tüm gizli bilgilere erişmiş baş bilgin.", reqText: "20 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 20 },
+  { id: "duelist", name: "⚖️ Fontaine Yargıcı", desc: "Epik düellolarda ve mahkeme salonunda mutlak adalet dağıtan yüce üstad.", reqText: "26 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 26 },
+  { id: "natlan", name: "🐉 Natlan Savaşçı Başı", desc: "Kutsal ateşin ve savaşın diyarında yenilgisiz, efsanevi kahraman.", reqText: "32 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 32 },
+  { id: "harbinger", name: "❄️ Fatui Öncüsü", desc: "Snezhnaya buzullarının ardındaki en gizemli ve tehlikeli stratejist.", reqText: "38 Maç Kazan veya 45 Maç Oyna", checkUnlocked: (s) => (s.wins || 0) >= 38 || (s.totalMatches || 0) >= 45 },
+  { id: "legend", name: "👑 Teyvat Efsanesi", desc: "Yedi ulusun tamamında nam salmış nihai tahmin üstadı!", reqText: "46 Maç Kazan", checkUnlocked: (s) => (s.wins || 0) >= 46 },
+  { id: "celestia", name: "✨ Celestia Hükümdarı", desc: "Gökyüzü tahtına oturmuş, Teyvat'taki her karakterin zihnini okuyan tanrısal güç!", reqText: "60 Maç Kazan veya 8 Seriye Ulaş", checkUnlocked: (s) => (s.wins || 0) >= 60 || (s.bestStreak || 0) >= 8 }
 ];
 
 function getPlayerStats() {
