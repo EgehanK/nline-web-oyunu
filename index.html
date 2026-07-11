@@ -1,279 +1,406 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>Genshin Guess Who - Online (P2P)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- PeerJS Client Library for Serverless P2P Multiplayer -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <!-- Starry & Wallpaper Background -->
+  <div class="global-wallpaper-bg"></div>
+  <div class="stars-bg"></div>
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-const PORT = process.env.PORT || 3000;
-
-// Statik dosyaları (HTML, CSS, JS vb.) doğrudan ana dizinden çeker
-app.use(express.static(__dirname));
-
-// Siteye ilk girildiğinde index.html dosyasını ekrana yansıtır
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Character database
-const characters = [
-  { id: "jean", name: "Jean", element: "Anemo", weapon: "Kılıç", region: "Mondstadt", gender: "Kadın" },
-  { id: "diluc", name: "Diluc", element: "Pyro", weapon: "Çift Elli Kılıç", region: "Mondstadt", gender: "Erkek" },
-  { id: "venti", name: "Venti", element: "Anemo", weapon: "Yay", region: "Mondstadt", gender: "Erkek" },
-  { id: "keqing", name: "Keqing", element: "Electro", weapon: "Kılıç", region: "Liyue", gender: "Kadın" },
-  { id: "mona", name: "Mona", element: "Hydro", weapon: "Katalizör", region: "Mondstadt", gender: "Kadın" },
-  { id: "qiqi", name: "Qiqi", element: "Cryo", weapon: "Kılıç", region: "Liyue", gender: "Kadın" },
-  { id: "zhongli", name: "Zhongli", element: "Geo", weapon: "Mızrak", region: "Liyue", gender: "Erkek" },
-  { id: "xiao", name: "Xiao", element: "Anemo", weapon: "Mızrak", region: "Liyue", gender: "Erkek" },
-  { id: "hutao", name: "Hu Tao", element: "Pyro", weapon: "Mızrak", region: "Liyue", gender: "Kadın" },
-  { id: "ganyu", name: "Ganyu", element: "Cryo", weapon: "Yay", region: "Liyue", gender: "Kadın" },
-  { id: "eula", name: "Eula", element: "Cryo", weapon: "Çift Elli Kılıç", region: "Mondstadt", gender: "Kadın" },
-  { id: "raiden", name: "Raiden Shogun", element: "Electro", weapon: "Mızrak", region: "Inazuma", gender: "Kadın" },
-  { id: "ayaka", name: "Kamisato Ayaka", element: "Cryo", weapon: "Kılıç", region: "Inazuma", gender: "Kadın" },
-  { id: "kazuha", name: "Kaedehara Kazuha", element: "Anemo", weapon: "Kılıç", region: "Inazuma", gender: "Erkek" },
-  { id: "yoimiya", name: "Yoimiya", element: "Pyro", weapon: "Yay", region: "Inazuma", gender: "Kadın" },
-  { id: "yae", name: "Yae Miko", element: "Electro", weapon: "Katalizör", region: "Inazuma", gender: "Kadın" },
-  { id: "nahida", name: "Nahida", element: "Dendro", weapon: "Katalizör", region: "Sumeru", gender: "Kadın" },
-  { id: "alhaitham", name: "Alhaitham", element: "Dendro", weapon: "Kılıç", region: "Sumeru", gender: "Erkek" },
-  { id: "nilou", name: "Nilou", element: "Hydro", weapon: "Kılıç", region: "Sumeru", gender: "Kadın" },
-  { id: "furina", name: "Furina", element: "Hydro", weapon: "Kılıç", region: "Fontaine", gender: "Kadın" },
-  { id: "neuvillette", name: "Neuvillette", element: "Hydro", weapon: "Katalizör", region: "Fontaine", gender: "Erkek" },
-  { id: "navia", name: "Navia", element: "Geo", weapon: "Çift Elli Kılıç", region: "Fontaine", gender: "Kadın" },
-  { id: "wriothesley", name: "Wriothesley", element: "Cryo", weapon: "Katalizör", region: "Fontaine", gender: "Erkek" },
-  { id: "tartaglia", name: "Tartaglia", element: "Hydro", weapon: "Yay", region: "Snezhnaya", gender: "Erkek" }
-];
-
-// In-memory room manager
-const rooms = {};
-
-function generateRoomId() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Readable random characters
-  let code = '';
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-}
-
-io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
-
-  // Create Room
-  socket.on('createRoom', ({ nickname }) => {
-    const roomId = generateRoomId();
-    rooms[roomId] = {
-      id: roomId,
-      players: [
-        {
-          id: socket.id,
-          nickname: nickname,
-          secretCharacter: null,
-          ready: false
-        }
-      ],
-      gameState: 'waiting', // waiting, playing, finished
-      turn: null
-    };
-
-    socket.join(roomId);
-    socket.emit('roomCreated', { roomId, nickname });
-    console.log(`Room created: ${roomId} by ${nickname}`);
-  });
-
-  // Join Room
-  socket.on('joinRoom', ({ roomId, nickname }) => {
-    const cleanRoomId = roomId.trim().toUpperCase();
-    const room = rooms[cleanRoomId];
-
-    if (!room) {
-      socket.emit('errorMsg', { message: 'Oda bulunamadı! Lütfen kodu kontrol edin.' });
-      return;
-    }
-
-    if (room.players.length >= 2) {
-      socket.emit('errorMsg', { message: 'Oda zaten dolu! En fazla 2 oyuncu katılabilir.' });
-      return;
-    }
-
-    if (room.gameState !== 'waiting') {
-      socket.emit('errorMsg', { message: 'Bu oda zaten oyuna başlamış!' });
-      return;
-    }
-
-    room.players.push({
-      id: socket.id,
-      nickname: nickname,
-      secretCharacter: null,
-      ready: false
-    });
-
-    socket.join(cleanRoomId);
-    console.log(`${nickname} joined room ${cleanRoomId}`);
-
-    // Notify current room
-    io.to(cleanRoomId).emit('playerJoined', {
-      players: room.players.map(p => ({ id: p.id, nickname: p.nickname }))
-    });
-
-    // Automatically trigger game start since we have 2 players now
-    startGame(cleanRoomId);
-  });
-
-  // Chat message
-  socket.on('chatMessage', ({ roomId, message }) => {
-    const room = rooms[roomId];
-    if (!room) return;
-
-    const sender = room.players.find(p => p.id === socket.id);
-    if (!sender) return;
-
-    // Send the message to all clients in the room
-    io.to(roomId).emit('messageReceived', {
-      senderId: socket.id,
-      senderName: sender.nickname,
-      text: message,
-      timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
-    });
-  });
-
-  // Player Guesses Opponent's Character
-  socket.on('makeGuess', ({ roomId, characterId }) => {
-    const room = rooms[roomId];
-    if (!room) return;
-
-    const playerIndex = room.players.findIndex(p => p.id === socket.id);
-    if (playerIndex === -1) return;
-
-    const opponentIndex = playerIndex === 0 ? 1 : 0;
-    const opponent = room.players[opponentIndex];
-    const player = room.players[playerIndex];
-
-    const isCorrect = opponent.secretCharacter.id === characterId;
-
-    if (isCorrect) {
-      room.gameState = 'finished';
-      io.to(roomId).emit('gameOver', {
-        winnerId: player.id,
-        winnerName: player.nickname,
-        loserId: opponent.id,
-        loserName: opponent.nickname,
-        secretCharacter: opponent.secretCharacter
-      });
-    } else {
-      // Switch turns and announce incorrect guess in chat
-      room.turn = opponent.id;
-      
-      io.to(roomId).emit('incorrectGuess', {
-        guesserId: player.id,
-        guesserName: player.nickname,
-        guessedCharName: characters.find(c => c.id === characterId)?.name || 'Bilinmeyen Karakter',
-        nextTurnId: room.turn,
-        nextTurnName: opponent.nickname
-      });
-    }
-  });
-
-  // Pass Turn
-  socket.on('passTurn', ({ roomId }) => {
-    const room = rooms[roomId];
-    if (!room) return;
-
-    const playerIndex = room.players.findIndex(p => p.id === socket.id);
-    if (playerIndex === -1) return;
-
-    const opponentIndex = playerIndex === 0 ? 1 : 0;
-    const opponent = room.players[opponentIndex];
-
-    room.turn = opponent.id;
-
-    io.to(roomId).emit('turnSwapped', {
-      currentTurnId: room.turn,
-      currentTurnName: opponent.nickname
-    });
-  });
-
-  // Restart Game / Play Again
-  socket.on('playAgain', ({ roomId }) => {
-    const room = rooms[roomId];
-    if (!room) return;
-
-    // Reset game state and restart
-    room.gameState = 'waiting';
-    room.players.forEach(p => {
-      p.secretCharacter = null;
-    });
-
-    io.to(roomId).emit('restarted');
-    startGame(roomId);
-  });
-
-  // Disconnect
-  socket.on('disconnect', () => {
-    console.log(`User disconnected: ${socket.id}`);
+  <!-- MAIN WRAPPER -->
+  <div class="app-container">
     
-    // Find room the player was in
-    for (const roomId in rooms) {
-      const room = rooms[roomId];
-      const playerIndex = room.players.findIndex(p => p.id === socket.id);
+    <!-- LOBBY SCREEN (LOGIN / JOIN) -->
+    <div id="lobby-screen" class="screen active">
+
+      <div class="lobby-wrapper">
+        <div class="logo-container">
+          <span class="logo-accent">GENSHIN IMPACT</span>
+          <h1 class="logo-title">GUESS WHO?</h1>
+          <p class="logo-subtitle">Çok Oyunculu Tahmin Oyunu (P2P)</p>
+        </div>
+
+        <!-- MOBILE / TABLET INTERACTIVE TAB SWITCHER (Hidden on large Desktop screens) -->
+        <div id="mobile-lobby-nav" class="mobile-lobby-nav">
+          <button type="button" class="mobile-nav-btn active" data-target="lobby">
+            <span class="nav-icon">🎮</span> <span class="nav-text">Lobi & Giriş</span>
+          </button>
+          <button type="button" class="mobile-nav-btn" data-target="trivia">
+            <span class="nav-icon">📜</span> <span class="nav-text">Günün Bulmacası</span>
+            <span class="nav-badge">Bugün</span>
+          </button>
+        </div>
+
+        <!-- CENTERED HERO + SIDE PANEL LAYOUT -->
+        <div class="lobby-centered-layout">
+          <!-- LEFT DUMMY BALANCER (Hidden on mobile/tablet, balances exact center on PC) -->
+          <div class="lobby-side-spacer"></div>
+
+          <!-- CENTER COLUMN: HERO LOBBY CARD (Dead center of the site) -->
+          <div id="lobby-hero-card" class="lobby-card new-lobby-card center-hero-card">
+            <!-- MASCOT PEEKING OVER EDGE -->
+            <img src="images/paimon.png" class="lobby-mascot" alt="Paimon Mascot" onerror="this.src='images/paimon.png'">
+            
+            <h2 class="lobby-box-title" style="display:none;">Maceraya Başla</h2>
+            
+            <div class="form-group">
+              <label for="nickname-input">Kullanıcı Adın</label>
+              <input type="text" id="nickname-input" placeholder="Gezgin..." maxlength="12" autocomplete="one-time-code" data-lpignore="true" spellcheck="false">
+            </div>
+
+            <div class="form-group" style="margin-top: -6px;">
+              <label for="open-title-modal-btn">Seçili Rütbe Ünvanın</label>
+              <button type="button" id="open-title-modal-btn" class="title-select-btn full-width-title-btn" title="Rütbe Ünvanını Değiştir">
+                <span id="active-title-label" class="title-label-text">🌱 Maceracı Çaylağı</span>
+                <span class="change-title-badge">Değiştir ▾</span>
+              </button>
+              <!-- MINI CAREER STATS BAR -->
+              <div id="lobby-stats-bar" class="lobby-stats-bar">
+                <span>🏆 Galibiyet: <strong id="stat-wins">0</strong></span> | 
+                <span>🔥 Seri: <strong id="stat-streak">0</strong></span> | 
+                <span>🎮 Toplam: <strong id="stat-total">0</strong></span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Oyun Modu</label>
+              <div class="mode-selector" style="display:flex; gap:10px;">
+                <label class="mode-btn"><input type="radio" name="game-mode" value="1v1" checked> 1v1 Normal</label>
+                <label class="mode-btn"><input type="radio" name="game-mode" value="2v2"> 2v2 Takımlı</label>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button id="create-room-btn" class="primary-btn main-action-btn">
+                <span class="btn-icon">✦</span> Yeni Oda Oluştur
+              </button>
+              
+              <div class="divider"><span>veya</span></div>
+
+              <div class="join-group">
+                <input type="text" id="room-id-input" placeholder="ODA KODU (örn. FG49)" maxlength="6" autocomplete="one-time-code" data-lpignore="true" spellcheck="false">
+                <button id="join-room-btn" class="secondary-btn">Katıl</button>
+              </div>
+            </div>
+
+            <div id="lobby-error" class="error-message hidden"></div>
+          </div>
+
+          <!-- RIGHT COLUMN: DAILY GENSHIN TRIVIA / BULMACA WIDGET (Side Panel) -->
+          <div id="daily-trivia-widget" class="daily-trivia-card side-trivia-card">
+            <div class="trivia-header">
+              <span class="trivia-icon">📜</span>
+              <span class="trivia-title">Günün Genshin Bulmacası</span>
+              <span id="trivia-date-badge" class="trivia-date-badge">Bugün</span>
+            </div>
+            <div id="trivia-content" class="trivia-body">
+              <!-- Dynamically populated question or solved state -->
+            </div>
+          </div>
+        </div>
+
+        <button id="how-to-play-btn" class="help-btn">
+          <span class="help-icon">?</span> Nasıl Oynanır?
+        </button>
+      </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="how-to-play-modal" class="guide-modal-overlay hidden">
+      <div class="guide-modal-content">
+        <h2 class="modal-title" style="color:var(--color-gold-bright);text-align:center;margin-bottom:20px;">Nasıl Oynanır?</h2>
+        <ul class="guide-steps" style="text-align: left;">
+          <li><span class="step-num">1</span> Kendine gizli bir karakter seç.</li>
+          <li><span class="step-num">2</span> Rakibine "Kılıç mı kullanıyor?", "Fontaine'den mi?" gibi Evet/Hayır soruları sor.</li>
+          <li><span class="step-num">3</span> Aldığın cevaplara göre uymayan kartları ele (üzerine tıkla).</li>
+          <li><span class="step-num">4</span> Rakibinin karakterini doğru tahmin eden ilk kişi kazanır!</li>
+        </ul>
+        <button id="close-how-to-play-btn" class="primary-btn" style="margin-top: 25px; width: 100%;">Anladım</button>
+      </div>
+    </div>
+
+    <!-- WAITING SCREEN (WAITING FOR OPPONENT) -->
+    <div id="waiting-screen" class="screen">
+      <div class="lobby-card text-center" style="max-width: 600px;">
+        <h2 class="section-title text-gold">Oda Kuruldu!</h2>
+        <p class="lobby-desc">Diğer oyuncuların katılması bekleniyor...</p>
+        
+        <div class="room-code-display">
+          <span class="code-label">ODA KODU:</span>
+          <span id="display-room-id" class="code-value">-----</span>
+          <button id="copy-code-btn" class="copy-btn" title="Kodu Kopyala">📋</button>
+        </div>
+        
+        <!-- TEAMS DISPLAY -->
+        <div class="teams-container">
+          <!-- Team A -->
+          <div class="team-panel team-a" style="flex:1; background:rgba(30,58,138,0.3); padding:15px; border-radius:8px; border:1px solid #1e3a8a;">
+            <h3 style="color:#60a5fa; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım A (Mavi)</h3>
+            <ul id="team-a-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+              <li class="player-slot empty">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-a2">Bekleniyor...</li>
+            </ul>
+          </div>
+          <!-- Team B -->
+          <div class="team-panel team-b" style="flex:1; background:rgba(153,27,27,0.3); padding:15px; border-radius:8px; border:1px solid #991b1b;">
+            <h3 style="color:#f87171; margin-bottom:10px; font-size:1.1rem; text-align:center;">Takım B (Kırmızı)</h3>
+            <ul id="team-b-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+              <li class="player-slot empty">Bekleniyor...</li>
+              <li class="player-slot empty hidden" id="slot-b2">Bekleniyor...</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="peer-status" class="status-msg text-muted">Sunucuya bağlanılıyor...</div>
+        
+        <div class="waiting-actions" style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+          <button id="start-game-btn" class="primary-btn hidden" style="width:100%;">Oyunu Başlat!</button>
+          <button id="leave-room-btn" class="secondary-btn" style="width:100%;">Odayı Kapat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARACTER SELECTION SCREEN -->
+    <div id="selection-screen" class="screen">
+      <header class="game-header">
+        <div class="header-left">
+          <h2 class="game-logo">Genshin Guess Who <span>Karakter Seçimi</span></h2>
+        </div>
+        <div class="header-center">
+          <div class="timer-badge active-turn">
+            Süre: <span id="selection-timer-text">30</span>s
+          </div>
+        </div>
+        <div class="header-right">
+          <div id="selection-status-players" class="room-info">
+            <span id="my-ready-label">Sen:</span> <span id="my-ready-status" class="text-red">Seçim Yapmadı</span>
+            <span id="ready-separator"> | </span>
+            <span id="opponent-ready-label">Rakip:</span> <span id="opponent-ready-status" class="text-muted">Seçim Yapıyor...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="selection-layout">
+        <!-- Grid of 48 characters -->
+        <main class="selection-grid-container">
+          <div id="selection-grid" class="selection-grid">
+            <!-- Dynamically populated 48 character cards -->
+          </div>
+        </main>
+
+        <!-- Right detail card panel -->
+        <aside class="selection-detail-panel">
+          <div class="genshin-detail-card">
+            <h3 class="detail-section-title">Karakter Detayları</h3>
+            
+            <div id="detail-card-preview" class="detail-card-preview">
+              <!-- Show character graphic preview -->
+            </div>
+            
+            <div class="detail-info-group">
+              <h2 id="detail-char-name" class="detail-char-name">Karakter Seçin</h2>
+              <div class="detail-badge-list">
+                <span id="detail-char-element" class="detail-badge">Element: -</span>
+                <span id="detail-char-weapon" class="detail-badge">Silah: -</span>
+                <span id="detail-char-region" class="detail-badge">Bölge: -</span>
+                <span id="detail-char-gender" class="detail-badge">Cinsiyet: -</span>
+              </div>
+            </div>
+
+            <button id="lock-character-btn" class="primary-btn lock-btn" disabled>
+              Karakteri Kilitle
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+      <!-- HEADER -->
+      <header class="game-header">
+        <div class="header-left">
+          <h2 class="game-logo">Genshin Guess Who <span>5★ Edition</span></h2>
+        </div>
+        <div class="header-center">
+          <div id="turn-badge" class="turn-status-badge">
+            <span id="turn-status-text">Bağlanılıyor...</span>
+            <span id="turn-timer-text" class="hidden">(60s)</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="room-info">
+            Oda: <strong id="game-room-id" class="text-gold">-----</strong> | 
+            Rakip: <strong id="opponent-name" class="text-blue">Rakip...</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT GRID -->
+      <div class="game-layout">
+        
+        <!-- LEFT: THE CHARACTER BOARD -->
+        <main class="board-container">
+          <div id="characters-grid" class="grid-layout">
+            <!-- Dynamically populated card board -->
+          </div>
+        </main>
+
+        <!-- RIGHT: CONTROL PANEL & CHAT -->
+        <aside class="control-panel">
+          
+          <!-- YOUR SECRET CHARACTER DISPLAY -->
+          <div class="secret-card-panel">
+            <h3 class="panel-section-title">Senin Karakterin</h3>
+            <p class="panel-desc">Rakibin bu karakteri tahmin etmeye çalışıyor:</p>
+            <div id="my-secret-character-card" class="secret-avatar-container">
+              <!-- Dynamically populated secret character -->
+            </div>
+          </div>
+
+          <!-- ACTIONS SECTION -->
+          <div class="game-actions">
+            <button id="open-guess-modal-btn" class="primary-btn action-btn font-bold">
+              ✦ TAHMİN ET ✦
+            </button>
+            <button id="pass-turn-btn" class="secondary-btn action-btn">
+              Sırayı Devret
+            </button>
+          </div>
+
+          <!-- CHAT BOX -->
+          <div class="chat-container">
+            <div class="chat-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Sohbet</h3>
+              <div class="chat-tabs" style="display:flex; gap:5px;">
+                <button id="chat-tab-global" class="chat-tab active">Genel</button>
+                <button id="chat-tab-team" class="chat-tab hidden">Takım</button>
+              </div>
+            </div>
+            <div id="chat-messages" class="chat-messages-area">
+              <div class="system-message">Oyun başladı! Sırayla birbirinize sorular sorun. Karakter özelliklerine göre sol taraftaki kartları eleyebilirsiniz.</div>
+            </div>
+            <form id="chat-form" class="chat-input-form">
+              <input type="text" id="chat-input" placeholder="Sorunu sor veya yazış..." autocomplete="off" maxlength="100">
+              <button type="submit" id="chat-send-btn">Gönder</button>
+            </form>
+          </div>
+
+        </aside>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GUESS MODAL -->
+  <div id="guess-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="text-gold">Karakter Tahmini</h2>
+        <button id="close-guess-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Rakibinin gizli karakterinin kim olduğunu düşünüyorsun? Dikkat et, yanlış tahmin sırayı rakibine geçirecektir!</p>
+        
+        <div class="guess-select-container">
+          <label for="guess-select">Karakter Seç:</label>
+          <select id="guess-select">
+            <!-- Dynamically populated options -->
+          </select>
+        </div>
+
+        <div class="modal-buttons">
+          <button id="submit-guess-btn" class="primary-btn">Tahminimi Gönder</button>
+          <button id="cancel-guess-btn" class="secondary-btn">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER TITLES & RANKS MODAL -->
+  <div id="title-modal" class="modal-overlay hidden">
+    <div class="modal-card title-modal-card">
+      <div class="modal-header">
+        <h2 class="text-gold">🏆 Kariyer Rütbeleri & Ünvanlar</h2>
+        <button id="close-title-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Oyun kazanarak ve galibiyet serisi yakalayarak efsanevi Genshin rütbelerinin kilidini aç! Seçtiğin ünvan lobide ve oyun ekranında parlar.</p>
+        
+        <div id="titles-grid-list" class="titles-grid-list">
+          <!-- Dynamically generated list of titles -->
+        </div>
+
+        <div class="modal-buttons" style="margin-top:20px;">
+          <button id="save-title-btn" class="primary-btn">Seçimi Kaydet & Kapat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="game-over-screen" class="modal-overlay hidden">
+    <div class="game-over-card text-center">
+      <div class="stars-animation"></div>
+      <h1 id="game-over-title" class="game-over-title">TEBRİKLER!</h1>
+      <p id="game-over-message" class="game-over-message">Rakibinin karakterini doğru tahmin ettin!</p>
       
-      if (playerIndex !== -1) {
-        // Remove player
-        const leavingPlayer = room.players[playerIndex];
-        room.players.splice(playerIndex, 1);
+      <div class="result-details">
+        <p class="result-desc">Rakibinin Gizli Karakteri:</p>
+        <div id="opponent-secret-card-display" class="opponent-secret-card-display">
+          <!-- Final card design -->
+        </div>
+      </div>
 
-        if (room.players.length === 0) {
-          // Delete empty room
-          delete rooms[roomId];
-          console.log(`Deleted empty room: ${roomId}`);
-        } else {
-          // Notify the remaining player
-          room.gameState = 'waiting';
-          io.to(roomId).emit('playerLeft', {
-            nickname: leavingPlayer.nickname
-          });
-        }
-        break;
-      }
-    }
-  });
-});
+      <div class="game-over-actions">
+        <button id="play-again-btn" class="primary-btn">Tekrar Oyna</button>
+        <button id="exit-lobby-btn" class="secondary-btn">Odalara Dön</button>
+      </div>
+      <!-- Play again waiting state (shown after request sent) -->
+      <div id="play-again-waiting" class="hidden" style="margin-top:15px; text-align:center;">
+        <p style="color:#a78bfa; font-size:0.95rem; margin-bottom:6px;">Oyuncular bekleniyor...</p>
+        <p id="play-again-count-text" style="color:var(--color-gold-bright); font-weight:700; font-size:1.2rem;">1/2 hazır</p>
+      </div>
+    </div>
+  </div>
 
-function startGame(roomId) {
-  const room = rooms[roomId];
-  if (!room || room.players.length < 2) return;
+  <!-- PLAY AGAIN REQUEST MODAL -->
+  <div id="play-again-modal" class="guide-modal-overlay hidden" style="z-index: 10000;">
+    <div class="guide-modal-content text-center">
+      <h2 class="modal-title" style="color:var(--color-gold-bright); margin-bottom: 20px;">Tekrar Oynayalım Mı?</h2>
+      <p style="margin-bottom: 20px; color: #fff;">Rakibin yeni bir tur oynamak istiyor, kabul ediyor musun?</p>
+      <div class="modal-buttons" style="display:flex; gap:15px; justify-content:center;">
+        <button id="accept-play-again-btn" class="primary-btn">Evet, Başla!</button>
+        <button id="reject-play-again-btn" class="secondary-btn">Hayır, Çık</button>
+      </div>
+    </div>
+  </div>
 
-  // Select two different secret characters
-  const char1 = characters[Math.floor(Math.random() * characters.length)];
-  let char2 = characters[Math.floor(Math.random() * characters.length)];
-  while (char2.id === char1.id) {
-    char2 = characters[Math.floor(Math.random() * characters.length)];
-  }
+  <!-- GAME CANCELLED MODAL -->
+  <div id="game-cancelled-modal" class="guide-modal-overlay hidden" style="z-index: 10000;">
+    <div class="guide-modal-content text-center">
+      <h2 class="modal-title" style="color:#ef4444; margin-bottom: 20px;">Bağlantı Koptu</h2>
+      <p id="game-cancelled-message" style="margin-bottom: 20px; color: #fff;">Bir oyuncu odadan ayrıldı.</p>
+      <div class="modal-buttons" style="display:flex; justify-content:center;">
+        <button id="ack-game-cancelled-btn" class="primary-btn">Tamam</button>
+      </div>
+    </div>
+  </div>
 
-  room.players[0].secretCharacter = char1;
-  room.players[1].secretCharacter = char2;
+  <audio id="audio-tick" preload="auto"></audio>
+  <audio id="audio-correct" preload="auto"></audio>
+  <audio id="audio-incorrect" preload="auto"></audio>
+  <audio id="audio-victory" preload="auto"></audio>
 
-  room.gameState = 'playing';
-  // Randomly assign the first turn
-  const startingPlayer = room.players[Math.floor(Math.random() * 2)];
-  room.turn = startingPlayer.id;
-
-  // Send start event to each player privately with their respective secret character
-  room.players.forEach((player, idx) => {
-    const opponent = room.players[idx === 0 ? 1 : 0];
-    io.to(player.id).emit('gameStarted', {
-      secretCharacter: player.secretCharacter,
-      opponentNickname: opponent.nickname,
-      characters: characters, // Send characters database
-      turnId: room.turn,
-      turnName: startingPlayer.nickname
-    });
-  });
-
-  console.log(`Game started in room ${roomId}. Turn: ${startingPlayer.nickname}`);
-}
-
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  <script src="app.js"></script>
+</body>
+</html>
