@@ -914,10 +914,17 @@ function setupHostConnectionListener() {
       const inLobby = !waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active');
       
       if (inLobby) {
-        // In lobby — remove immediately
-        clients = clients.filter(c => c.conn !== connection);
+        if (disconnected.isReconnecting) return;
+        disconnected.isReconnecting = true;
         updateLobbyUI();
-        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState(), chatHistory: globalChatHistory });
+        setTimeout(() => {
+          if (disconnected.isReconnecting && (!waitingScreen.classList.contains('hidden') && !gameScreen.classList.contains('active') && !selectionScreen.classList.contains('active'))) {
+            clients = clients.filter(c => c !== disconnected && c.conn !== connection);
+            updateLobbyUI();
+            broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState(), chatHistory: globalChatHistory });
+          }
+        }, 15000);
       } else if (gameIsOver) {
         // Game already finished — silently remove, no alert needed
         clients = clients.filter(c => c.conn !== connection);
@@ -970,13 +977,15 @@ function setupGuestDataHandlers(connection, isRejoining) {
 
     const inLobby = !waitingScreen.classList.contains('hidden');
     if (inLobby) {
-      const msg = `Oda kurucusu (Host) ayrıldı. Oyun sonlandırıldı.`;
-      const modal = document.getElementById('game-cancelled-modal');
-      const msgEl = document.getElementById('game-cancelled-message');
-      if (modal && msgEl) {
-        msgEl.textContent = msg;
-        modal.classList.remove('hidden');
-      }
+      console.log('Connection lost in lobby (tab minimized or network blink), attempting reconnect...');
+      setTimeout(() => {
+        if (currentRoomId) {
+          isRestoringSession = true;
+          initPeer();
+        } else {
+          window.location.reload();
+        }
+      }, 1500);
       return;
     }
 
@@ -1039,25 +1048,23 @@ function handleHostReceivedData(connection, data) {
         }
         
         updateLobbyUI();
-        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+        broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState(), chatHistory: globalChatHistory });
         
-        // If the game has already started (selection phase or active game), send rejoin sync
         const isInSelection = selectionScreen.classList.contains('active');
         const isInGame = gameScreen.classList.contains('active');
         
-        if (isInSelection || isInGame) {
-          connection.send({
-            type: 'rejoin-ack',
-            gameMode,
-            team: existingClient.team,
-            mySecretCharId: existingClient.lockedCharacterId || null,
-            clients: getBroadcastLobbyState(),
-            isInSelectionPhase: isInSelection,
-            activeTeam: isMyTurn ? 'A' : 'B',
-            hostTurn: isMyTurn,
-            turnEndTime: turnEndTime
-          });
-        }
+        connection.send({
+          type: 'rejoin-ack',
+          gameMode,
+          team: existingClient.team,
+          mySecretCharId: existingClient.lockedCharacterId || null,
+          clients: getBroadcastLobbyState(),
+          isInSelectionPhase: isInSelection,
+          activeTeam: isMyTurn ? 'A' : 'B',
+          hostTurn: isMyTurn,
+          turnEndTime: turnEndTime,
+          chatHistory: globalChatHistory
+        });
         break;
       }
 
@@ -1089,7 +1096,7 @@ function handleHostReceivedData(connection, data) {
       });
       
       updateLobbyUI();
-      broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState() });
+      broadcast({ type: 'lobby-update', gameMode, clients: getBroadcastLobbyState(), chatHistory: globalChatHistory });
       break;
     }
 
@@ -1204,6 +1211,27 @@ function handleGuestReceivedData(data) {
       } else {
         opponentName = 'Rakip Takım';
       }
+      isRestoringSession = false;
+      {
+        const overlay = document.getElementById('reconnect-overlay');
+        if (overlay) overlay.classList.add('hidden');
+      }
+      if (!selectionScreen.classList.contains('active') && !gameScreen.classList.contains('active')) {
+        showScreen(waitingScreen);
+      }
+      if (data.chatHistory && Array.isArray(data.chatHistory) && data.chatHistory.length > 0) {
+        globalChatHistory = data.chatHistory;
+        if (currentRoomId) localStorage.setItem('genshin_chat_' + currentRoomId, JSON.stringify(globalChatHistory));
+        if (chatMessages) {
+          chatMessages.innerHTML = '';
+          globalChatHistory.forEach(item => {
+            appendChatMessage(item.senderName, item.text, item.senderName === myNickname, item.isTeamMsg, item.timestamp, true);
+          });
+        }
+      } else {
+        restoreChatFromStorage();
+      }
+      saveSession();
       break;
       
     case 'start-game':
@@ -1269,7 +1297,13 @@ function handleGuestReceivedData(data) {
             launchGameBoard(false);
             if (data.turnEndTime) turnEndTime = data.turnEndTime;
             updateTurnUI(false);
+          } else {
+            showScreen(waitingScreen);
+            updateLobbyUI();
           }
+        } else {
+          showScreen(waitingScreen);
+          updateLobbyUI();
         }
       }
       if (data.chatHistory && Array.isArray(data.chatHistory) && data.chatHistory.length > 0) {
